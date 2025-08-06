@@ -109,6 +109,18 @@
             "id": "62a5725cdb3edd97",
             "type": "leaf",
             "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.3.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.3.excalidraw"
+            }
+          },
+          {
+            "id": "25abc9947ade8b4d",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
                 "file": "2. 策略梯度法.md",
@@ -120,7 +132,7 @@
             }
           }
         ],
-        "currentTab": 8
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -268,11 +280,13 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "62a5725cdb3edd97",
+  "active": "25abc9947ade8b4d",
   "lastOpenFiles": [
+    "img/1.jpg",
+    "2. 策略梯度法.md",
+    "Excalidraw/2.4.excalidraw.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.2.excalidraw.md",
-    "2. 策略梯度法.md",
     "1. 强化学习基础.md",
     "Excalidraw/2.1.excalidraw.md",
     "img/mnist_nn.png",
