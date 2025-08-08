@@ -47,6 +47,54 @@
             "id": "20521b7ea47c63a9",
             "type": "leaf",
             "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.8.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.8.excalidraw"
+            }
+          },
+          {
+            "id": "703f301ef37ebd7b",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.9.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.9.excalidraw"
+            }
+          },
+          {
+            "id": "7efb277b197e311e",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.10.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.10.excalidraw"
+            }
+          },
+          {
+            "id": "fbea937516e4cf96",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.11.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.11.excalidraw"
+            }
+          },
+          {
+            "id": "bf23800cbd80df5f",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
                 "file": "2. 策略梯度法.md",
@@ -58,7 +106,7 @@
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -206,20 +254,36 @@
       "obsidian-excalidraw-plugin:新建绘图文件": false
     }
   },
-  "active": "20521b7ea47c63a9",
+  "active": "bf23800cbd80df5f",
   "lastOpenFiles": [
-    "Excalidraw/2.3.excalidraw.md",
+    "Excalidraw/2.12.excalidraw.md",
+    "Excalidraw/2.11.excalidraw.md",
     "2. 策略梯度法.md",
+    "Excalidraw/2.10.excalidraw.md",
+    "1. 强化学习基础.md",
+    "Excalidraw/2.9.excalidraw.md",
     "Excalidraw/2.8.excalidraw.md",
+    "img/4.5.png",
+    "img/未确认 751623.crdownload",
+    "img/4.4.png",
+    "img/未确认 423237.crdownload",
+    "img/4.3.png",
+    "img/未确认 85719.crdownload",
+    "img/4.2.png",
+    "img/未确认 306840.crdownload",
+    "img/4.1.png",
+    "img/1.jpg",
+    "img/未确认 556152.crdownload",
+    "img/2.jpg",
+    "img/未确认 154346.crdownload",
+    "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.7.excalidraw.md",
     "Excalidraw/2.6.excalidraw.md",
     "Excalidraw/2.5.excalidraw.md",
-    "1. 强化学习基础.md",
     "Excalidraw/1.6.excalidraw.md",
     "Excalidraw/2.1.excalidraw.md",
     "Excalidraw/2.2.excalidraw.md",
     "Excalidraw/2.4.excalidraw.md",
-    "img/1.jpg",
     "img/mnist_nn.png",
     "img/未确认 126922.crdownload",
     "Excalidraw/1.5.excalidraw.md",
