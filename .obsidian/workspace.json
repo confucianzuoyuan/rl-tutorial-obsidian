@@ -8,105 +8,20 @@
         "type": "tabs",
         "children": [
           {
-            "id": "059946ed74dd8147",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.5.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.5.excalidraw"
-            }
-          },
-          {
-            "id": "f3857d7220c62024",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.6.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.6.excalidraw"
-            }
-          },
-          {
-            "id": "170f85bbac78cacf",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.7.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.7.excalidraw"
-            }
-          },
-          {
-            "id": "20521b7ea47c63a9",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.8.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.8.excalidraw"
-            }
-          },
-          {
-            "id": "703f301ef37ebd7b",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.9.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.9.excalidraw"
-            }
-          },
-          {
-            "id": "7efb277b197e311e",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.10.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.10.excalidraw"
-            }
-          },
-          {
-            "id": "fbea937516e4cf96",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.11.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.11.excalidraw"
-            }
-          },
-          {
-            "id": "bf23800cbd80df5f",
+            "id": "73274faf085cf175",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2. 策略梯度法.md",
+                "file": "3. 置信域策略优化.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2. 策略梯度法"
+              "title": "3. 置信域策略优化"
             }
           }
-        ],
-        "currentTab": 7
+        ]
       }
     ],
     "direction": "vertical"
@@ -251,48 +166,56 @@
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "obsidian-excalidraw-plugin:新建绘图文件": false
+      "obsidian-excalidraw-plugin:新建绘图文件": false,
+      "obsidian-git:Open Git source control": false
     }
   },
-  "active": "bf23800cbd80df5f",
+  "active": "73274faf085cf175",
   "lastOpenFiles": [
+    "Excalidraw/3.4.excalidraw.md",
+    "Excalidraw/3.5.excalidraw.md",
+    "Excalidraw/3.6.excalidraw.md",
+    "Excalidraw/3.7.excalidraw.md",
+    "Excalidraw/3.8.excalidraw.md",
+    "Excalidraw/3.9.excalidraw.md",
+    "Excalidraw/3.10.excalidraw.md",
+    "3. 置信域策略优化.md",
+    "Excalidraw/3.1.excalidraw.md",
+    "Excalidraw/3.2.excalidraw.md",
+    "Excalidraw/2.16.excalidraw.md",
+    "2. 策略梯度法.md",
+    "Excalidraw/2.15.excalidraw.md",
+    "Excalidraw/2.14.excalidraw.md",
+    "Excalidraw/2.13.excalidraw.md",
     "Excalidraw/2.12.excalidraw.md",
     "Excalidraw/2.11.excalidraw.md",
-    "2. 策略梯度法.md",
     "Excalidraw/2.10.excalidraw.md",
-    "1. 强化学习基础.md",
     "Excalidraw/2.9.excalidraw.md",
     "Excalidraw/2.8.excalidraw.md",
-    "img/4.5.png",
-    "img/未确认 751623.crdownload",
-    "img/4.4.png",
-    "img/未确认 423237.crdownload",
-    "img/4.3.png",
-    "img/未确认 85719.crdownload",
-    "img/4.2.png",
-    "img/未确认 306840.crdownload",
-    "img/4.1.png",
-    "img/1.jpg",
-    "img/未确认 556152.crdownload",
-    "img/2.jpg",
-    "img/未确认 154346.crdownload",
-    "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.7.excalidraw.md",
     "Excalidraw/2.6.excalidraw.md",
     "Excalidraw/2.5.excalidraw.md",
-    "Excalidraw/1.6.excalidraw.md",
-    "Excalidraw/2.1.excalidraw.md",
-    "Excalidraw/2.2.excalidraw.md",
-    "Excalidraw/2.4.excalidraw.md",
+    "Excalidraw/3.11.excalidraw.md",
+    "Pasted Image 20250809200535_886.png",
+    "Pasted Image 20250809193723_464.png",
+    "Pasted Image 20250809193111_678.png",
+    "Pasted Image 20250809192621_248.png",
+    "Pasted Image 20250809191810_568.png",
+    "Pasted Image 20250809190521_169.png",
+    "Excalidraw/3.3.excalidraw.md",
+    "Pasted Image 20250809190003_289.png",
+    "Pasted Image 20250809185839_058.png",
+    "Pasted Image 20250809185319_646.png",
+    "1. 强化学习基础.md",
     "img/mnist_nn.png",
+    "img/未确认 751623.crdownload",
+    "img/未确认 423237.crdownload",
+    "img/未确认 85719.crdownload",
+    "img/未确认 306840.crdownload",
+    "img/未确认 556152.crdownload",
+    "img/未确认 154346.crdownload",
     "img/未确认 126922.crdownload",
-    "Excalidraw/1.5.excalidraw.md",
-    "Excalidraw/1.4.excalidraw.md",
-    "Excalidraw/1.3.excalidraw.md",
-    "Excalidraw/1.1.excalidraw.md",
-    "img/1.2.png",
     "img",
-    "Welcome.md",
     "Excalidraw",
     "Untitled.canvas"
   ]
