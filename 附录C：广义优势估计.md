@@ -31,6 +31,14 @@ $$
 
 其中，$\lambda\in [0,1]$ 是在 GAE 中额外引入的一个超参数。当 $\lambda=0$ 时，$A_t^{GAE}=\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$ ，也就是仅仅只看一步差分得到的优势；当 $\lambda=1$ 时，$A_t^{GAE}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}=\sum_{l=0}^{\infty}\gamma^lR_{t+l}-V(s_t)$ ，则是看每一步差分得到的优势的完全平均值。
 
+有上面的式子，我们还可以推导出一个递推公式
+
+```ad-note
+$$
+A_t = \delta_t + \gamma\lambda A_{t+1}
+$$
+```
+
 下面是计算 GAE 的代码，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
 
 ```python
