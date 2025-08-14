@@ -8,33 +8,71 @@
         "type": "tabs",
         "children": [
           {
-            "id": "b0e8162f0191adc7",
+            "id": "8844732bf84ea55f",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/3.25.excalidraw.md"
+                "file": "Excalidraw/8.6.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "3.25.excalidraw"
+              "title": "8.6.excalidraw"
             }
           },
           {
-            "id": "ea875b1385a2919a",
+            "id": "6e8c9f533698c6f0",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/8.7.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "8.7.excalidraw"
+            }
+          },
+          {
+            "id": "7ed880b52ebb5394",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "6. 使用PPO微调LLM"
+              "title": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略"
+            }
+          },
+          {
+            "id": "e7c3d91e00e4f4fd",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/8.9.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "8.9.excalidraw"
+            }
+          },
+          {
+            "id": "b73401bc9763b1cb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -126,12 +164,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "6. 使用PPO微调LLM 的出链列表"
+              "title": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略 的出链列表"
             }
           },
           {
@@ -155,13 +193,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "6. 使用PPO微调LLM 的大纲"
+              "title": "8. 理解推理大语言模型：构建与优化推理模型的方法和策略 的大纲"
             }
           },
           {
@@ -195,47 +233,47 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "ea875b1385a2919a",
+  "active": "7ed880b52ebb5394",
   "lastOpenFiles": [
-    "2. 策略梯度法.md",
-    "1. 强化学习基础.md",
-    "3. 置信域策略优化（TRPO）.md",
-    "4. 近端策略优化（PPO）.md",
+    "img/image12.png",
+    "img/image16.png",
+    "img/image4.png",
+    "img/image9.png",
+    "Excalidraw/8.10.excalidraw.md",
+    "Excalidraw/8.4.excalidraw.md",
+    "Excalidraw/8.5.excalidraw.md",
+    "Excalidraw/8.6.excalidraw.md",
+    "Excalidraw/8.8.excalidraw.md",
+    "Excalidraw/8.7.excalidraw.md",
+    "Excalidraw/8.9.excalidraw.md",
+    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
+    "Pasted Image 20250814153329_078.png",
+    "img/image7.png",
+    "Excalidraw/8.3.excalidraw.md",
+    "Excalidraw/8.2.excalidraw.md",
+    "Excalidraw/8.1.excalidraw.md",
+    "Pasted Image 20250814150059_950.png",
+    "Pasted Image 20250814145709_053.png",
+    "Pasted Image 20250814142404_292.png",
+    "img/image3.png",
+    "Excalidraw/1.1.excalidraw.md",
     "6. 使用PPO微调LLM.md",
+    "1. 强化学习基础.md",
     "附录C：广义优势估计.md",
-    "Excalidraw/6.1.excalidraw.md",
-    "Excalidraw/3.25.excalidraw.md",
     "附录B：KL散度.md",
+    "Figure_1.png",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "附录A：自己实现倒立摆环境.md",
-    "img/Figure_2.png",
+    "4. 近端策略优化（PPO）.md",
+    "3. 置信域策略优化（TRPO）.md",
+    "2. 策略梯度法.md",
+    "Excalidraw/6.1.excalidraw.md",
+    "Excalidraw/3.25.excalidraw.md",
     "Excalidraw/3.6.excalidraw.md",
-    "Figure_1.png",
-    "img/1_MpPiARNoNGCxJE2a8m9itA.webp",
     "Excalidraw/3.22.excalidraw.md",
-    "Excalidraw/3.23.excalidraw.md",
-    "Excalidraw/3.24.excalidraw.md",
-    "img/1_3aO-ncPjkdXwfTEsoik9Hg.webp",
-    "img/1_Sm49fOBxZBvzgSIo8zm-fA.webp",
-    "img/1_A386qkCNen7IXjwfFbH2Og.webp",
-    "img/1_QKn9GhIMxJmXK_-nAQ8ojA.webp",
-    "img/1_LH3dbwj7MEYCICAQMzr-zg.webp",
     "img/未确认 167130.crdownload",
-    "img/1_xqv1aAr6DSXnYFSUMWb6bg.webp",
-    "img/1_FQDiuNJ1WptAN3LnBKYzWw.webp",
     "img/未确认 208593.crdownload",
     "img/未确认 56867.crdownload",
-    "Excalidraw/3.7.excalidraw.md",
-    "Excalidraw/3.15.excalidraw.md",
-    "Excalidraw/3.16.excalidraw.md",
-    "Excalidraw/3.14.excalidraw.md",
-    "Excalidraw/3.13.excalidraw.md",
-    "Excalidraw/3.12.excalidraw.md",
-    "Excalidraw/3.11.excalidraw.md",
-    "Excalidraw/3.10.excalidraw.md",
-    "Excalidraw/3.9.excalidraw.md",
-    "Excalidraw/3.17.excalidraw.md",
-    "Excalidraw/3.18.excalidraw.md",
     "img/未确认 751623.crdownload",
     "img/未确认 423237.crdownload",
     "img/未确认 85719.crdownload",
