@@ -73,16 +73,66 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "2. 策略梯度法.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
+              "title": "2. 策略梯度法"
+            }
+          },
+          {
+            "id": "1492eb6d06538c4c",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.16.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.16.excalidraw"
+            }
+          },
+          {
+            "id": "a6eaea5bde6755aa",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "2. 策略梯度法.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2. 策略梯度法"
+            }
+          },
+          {
+            "id": "11120299a6bca49f",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.8.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.8.excalidraw"
+            }
+          },
+          {
+            "id": "41805a18236f8d73",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.17.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.17.excalidraw"
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -174,12 +224,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "2. 策略梯度法.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "7. DPO：直接偏好优化 的出链列表"
+              "title": "2. 策略梯度法 的出链列表"
             }
           },
           {
@@ -203,13 +253,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "2. 策略梯度法.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "7. DPO：直接偏好优化 的大纲"
+              "title": "2. 策略梯度法 的大纲"
             }
           },
           {
@@ -243,19 +293,25 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "799a9be1f197ff5e",
+  "active": "a6eaea5bde6755aa",
   "lastOpenFiles": [
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "7. DPO：直接偏好优化.md",
+    "Excalidraw/2.8.excalidraw.md",
+    "2. 策略梯度法.md",
+    "Excalidraw/2.17.excalidraw.md",
+    "Excalidraw/2.16.excalidraw.md",
     "1. 强化学习基础.md",
+    "Excalidraw/2.7.excalidraw.md",
+    "Excalidraw/2.6.excalidraw.md",
+    "4. 近端策略优化（PPO）.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "6. 使用PPO微调LLM.md",
+    "7. DPO：直接偏好优化.md",
+    "附录D：置信域策略优化（TRPO）.md",
     "附录C：广义优势估计.md",
     "附录B：KL散度.md",
     "附录A：自己实现倒立摆环境.md",
-    "4. 近端策略优化（PPO）.md",
-    "3. 置信域策略优化（TRPO）.md",
     "9. GRPO：从零复刻DeepSeek-R1.md",
     "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
-    "6. 使用PPO微调LLM.md",
     "Excalidraw/5.5.excalidraw.md",
     "Excalidraw/5.4.excalidraw.md",
     "Pasted Image 20250816165524_475.png",
@@ -267,13 +323,7 @@
     "Excalidraw/5.1.excalidraw.md",
     "Excalidraw/6.1.excalidraw.md",
     "Excalidraw/1.1.excalidraw.md",
-    "2. 策略梯度法.md",
     "Excalidraw/9.2.excalidraw.md",
-    "Excalidraw/9.1.excalidraw.md",
-    "Excalidraw/8.10.excalidraw.md",
-    "Excalidraw/8.9.excalidraw.md",
-    "Excalidraw/8.7.excalidraw.md",
-    "Excalidraw/8.6.excalidraw.md",
     "img/image12.png",
     "img/image16.png",
     "img/image4.png",
