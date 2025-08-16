@@ -1,5 +1,5 @@
 
-我们如何估计或者计算优势函数 $A$ 呢？目前比较常用的一种方法为 **广义优势估计**（Generalized Advantage Estimation，GAE），接下来我们简单介绍一下 GAE 的做法。首先，用
+我们如何估计或者计算优势函数 $A$ 呢？目前比较常用的一种方法为 **广义优势估计**（Generalized Advantage Estimation，GAE），接下来我们简单介绍一下 $\text{GAE}$ 的做法。首先，用
 
 $$
 \delta_t=R_t+\gamma V(s_{t+1})-V(s_t)
