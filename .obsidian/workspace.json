@@ -73,12 +73,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "4. 近端策略优化（PPO）.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4. 近端策略优化（PPO）"
+              "title": "7. DPO：直接偏好优化"
             }
           }
         ],
@@ -174,12 +174,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "4. 近端策略优化（PPO）.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "4. 近端策略优化（PPO） 的出链列表"
+              "title": "7. DPO：直接偏好优化 的出链列表"
             }
           },
           {
@@ -203,13 +203,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "4. 近端策略优化（PPO）.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "4. 近端策略优化（PPO） 的大纲"
+              "title": "7. DPO：直接偏好优化 的大纲"
             }
           },
           {
@@ -245,12 +245,16 @@
   },
   "active": "799a9be1f197ff5e",
   "lastOpenFiles": [
-    "3. 置信域策略优化（TRPO）.md",
-    "附录B：KL散度.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "7. DPO：直接偏好优化.md",
+    "1. 强化学习基础.md",
     "附录C：广义优势估计.md",
+    "附录B：KL散度.md",
+    "附录A：自己实现倒立摆环境.md",
+    "4. 近端策略优化（PPO）.md",
+    "3. 置信域策略优化（TRPO）.md",
     "9. GRPO：从零复刻DeepSeek-R1.md",
     "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
-    "7. DPO：直接偏好优化.md",
     "6. 使用PPO微调LLM.md",
     "Excalidraw/5.5.excalidraw.md",
     "Excalidraw/5.4.excalidraw.md",
@@ -260,16 +264,13 @@
     "Pasted Image 20250816164437_772.png",
     "Pasted Image 20250816140154_758.png",
     "Excalidraw/9.3.excalidraw.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "Excalidraw/5.1.excalidraw.md",
     "Excalidraw/6.1.excalidraw.md",
-    "1. 强化学习基础.md",
     "Excalidraw/1.1.excalidraw.md",
     "2. 策略梯度法.md",
     "Excalidraw/9.2.excalidraw.md",
     "Excalidraw/9.1.excalidraw.md",
     "Excalidraw/8.10.excalidraw.md",
-    "4. 近端策略优化（PPO）.md",
     "Excalidraw/8.9.excalidraw.md",
     "Excalidraw/8.7.excalidraw.md",
     "Excalidraw/8.6.excalidraw.md",
@@ -277,7 +278,6 @@
     "img/image16.png",
     "img/image4.png",
     "img/image9.png",
-    "Excalidraw/8.4.excalidraw.md",
     "Pasted Image 20250814153329_078.png",
     "img/image7.png",
     "Pasted Image 20250814150059_950.png",
