@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "file": "1. 强化学习基础.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "9. GRPO：从零复刻DeepSeek-R1"
+              "title": "1. 强化学习基础"
             }
           }
         ]
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "file": "1. 强化学习基础.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "9. GRPO：从零复刻DeepSeek-R1 的出链列表"
+              "title": "1. 强化学习基础 的出链列表"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "file": "1. 强化学习基础.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "9. GRPO：从零复刻DeepSeek-R1 的大纲"
+              "title": "1. 强化学习基础 的大纲"
             }
           },
           {
@@ -184,25 +184,28 @@
   },
   "active": "8ead23f95bce4074",
   "lastOpenFiles": [
+    "img/ppo-vs-grpo.png",
+    "img/未确认 851398.crdownload",
     "2. 策略梯度法.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "附录C：广义优势估计.md",
     "4. 近端策略优化（PPO）.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
+    "附录A：自己实现倒立摆环境.md",
+    "附录B：KL散度.md",
+    "Excalidraw/5.1.excalidraw.md",
+    "6. 使用PPO微调LLM.md",
+    "7. DPO：直接偏好优化.md",
+    "1. 强化学习基础.md",
+    "附录C：广义优势估计.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
+    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
     "附录D：置信域策略优化（TRPO）.md",
     "Excalidraw/2.12.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
     "Excalidraw/2.17.excalidraw.md",
     "Excalidraw/2.8.excalidraw.md",
-    "1. 强化学习基础.md",
     "Excalidraw/2.16.excalidraw.md",
     "Excalidraw/2.7.excalidraw.md",
     "Excalidraw/2.6.excalidraw.md",
-    "7. DPO：直接偏好优化.md",
-    "附录B：KL散度.md",
-    "附录A：自己实现倒立摆环境.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
-    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
     "Excalidraw/5.5.excalidraw.md",
     "Excalidraw/5.4.excalidraw.md",
     "Pasted Image 20250816165524_475.png",
@@ -211,8 +214,6 @@
     "Pasted Image 20250816164437_772.png",
     "Pasted Image 20250816140154_758.png",
     "Excalidraw/9.3.excalidraw.md",
-    "Excalidraw/5.1.excalidraw.md",
-    "Excalidraw/6.1.excalidraw.md",
     "img/image12.png",
     "img/image16.png",
     "img/image4.png",
@@ -229,7 +230,6 @@
     "img/未确认 306840.crdownload",
     "img/未确认 556152.crdownload",
     "img/未确认 154346.crdownload",
-    "img/未确认 126922.crdownload",
     "Untitled.canvas"
   ]
 }
