@@ -4,135 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "d6bd95bfccea85f6",
+        "id": "cd140edfafc74728",
         "type": "tabs",
         "children": [
           {
-            "id": "1ffd8c0147a12a30",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/6.1.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "6.1.excalidraw"
-            }
-          },
-          {
-            "id": "f24ef2e83c22c6cb",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/9.3.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "9.3.excalidraw"
-            }
-          },
-          {
-            "id": "5363b1e0a4121aea",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.2.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.2.excalidraw"
-            }
-          },
-          {
-            "id": "ab7a6ceb958991cd",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.3.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.3.excalidraw"
-            }
-          },
-          {
-            "id": "f95c99026d43d484",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.4.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.4.excalidraw"
-            }
-          },
-          {
-            "id": "799a9be1f197ff5e",
+            "id": "8ead23f95bce4074",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2. 策略梯度法.md",
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2. 策略梯度法"
-            }
-          },
-          {
-            "id": "1492eb6d06538c4c",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.16.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.16.excalidraw"
-            }
-          },
-          {
-            "id": "a6eaea5bde6755aa",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "1. 强化学习基础.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "1. 强化学习基础"
-            }
-          },
-          {
-            "id": "11120299a6bca49f",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.8.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.8.excalidraw"
-            }
-          },
-          {
-            "id": "41805a18236f8d73",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.17.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.17.excalidraw"
+              "title": "9. GRPO：从零复刻DeepSeek-R1"
             }
           }
-        ],
-        "currentTab": 7
+        ]
       }
     ],
     "direction": "vertical"
@@ -224,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "1. 强化学习基础 的出链列表"
+              "title": "9. GRPO：从零复刻DeepSeek-R1 的出链列表"
             }
           },
           {
@@ -253,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "1. 强化学习基础 的大纲"
+              "title": "9. GRPO：从零复刻DeepSeek-R1 的大纲"
             }
           },
           {
@@ -293,21 +182,23 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "a6eaea5bde6755aa",
+  "active": "8ead23f95bce4074",
   "lastOpenFiles": [
     "2. 策略梯度法.md",
-    "1. 强化学习基础.md",
-    "Excalidraw/2.8.excalidraw.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "附录C：广义优势估计.md",
+    "4. 近端策略优化（PPO）.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "附录D：置信域策略优化（TRPO）.md",
+    "Excalidraw/2.12.excalidraw.md",
+    "6. 使用PPO微调LLM.md",
     "Excalidraw/2.17.excalidraw.md",
+    "Excalidraw/2.8.excalidraw.md",
+    "1. 强化学习基础.md",
     "Excalidraw/2.16.excalidraw.md",
     "Excalidraw/2.7.excalidraw.md",
     "Excalidraw/2.6.excalidraw.md",
-    "4. 近端策略优化（PPO）.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "6. 使用PPO微调LLM.md",
     "7. DPO：直接偏好优化.md",
-    "附录D：置信域策略优化（TRPO）.md",
-    "附录C：广义优势估计.md",
     "附录B：KL散度.md",
     "附录A：自己实现倒立摆环境.md",
     "9. GRPO：从零复刻DeepSeek-R1.md",
@@ -322,8 +213,6 @@
     "Excalidraw/9.3.excalidraw.md",
     "Excalidraw/5.1.excalidraw.md",
     "Excalidraw/6.1.excalidraw.md",
-    "Excalidraw/1.1.excalidraw.md",
-    "Excalidraw/9.2.excalidraw.md",
     "img/image12.png",
     "img/image16.png",
     "img/image4.png",
