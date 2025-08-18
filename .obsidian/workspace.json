@@ -13,12 +13,24 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
+              "title": "3. 策略梯度法的问题以及解决方案：PPO"
+            }
+          },
+          {
+            "id": "24a325692f26f322",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/ppo-object.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "ppo-object.excalidraw"
             }
           },
           {
@@ -27,14 +39,25 @@
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/7.1.excalidraw.md"
+                "file": "Excalidraw/3.9.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "7.1.excalidraw"
+              "title": "3.9.excalidraw"
+            }
+          },
+          {
+            "id": "6149c203812d96cb",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/ppo-object.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "ppo-object.excalidraw"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -195,18 +218,21 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "9e65b5ae1607b44f",
+  "active": "5908721677925d4d",
   "lastOpenFiles": [
+    "4. 近端策略优化（PPO）.md",
+    "附录D：置信域策略优化（TRPO）.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "Excalidraw/ppo-object.excalidraw.md",
     "7. DPO：直接偏好优化.md",
+    "Excalidraw/3.9.excalidraw.md",
+    "Excalidraw/3.16.excalidraw.md",
     "Excalidraw/7.1.excalidraw.md",
     "Excalidraw/5.5.excalidraw.md",
     "6. 使用PPO微调LLM.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "9. GRPO：从零复刻DeepSeek-R1.md",
     "2. 策略梯度法.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "4. 近端策略优化（PPO）.md",
-    "附录D：置信域策略优化（TRPO）.md",
     "1. 强化学习基础.md",
     "img/ppo-vs-grpo.png",
     "img/未确认 851398.crdownload",
@@ -223,11 +249,8 @@
     "Excalidraw/2.6.excalidraw.md",
     "Excalidraw/5.4.excalidraw.md",
     "Pasted Image 20250816165524_475.png",
-    "Excalidraw/5.2.excalidraw.md",
-    "Excalidraw/5.3.excalidraw.md",
     "Pasted Image 20250816164437_772.png",
     "Pasted Image 20250816140154_758.png",
-    "Excalidraw/9.3.excalidraw.md",
     "img/image12.png",
     "img/image16.png",
     "img/image4.png",
