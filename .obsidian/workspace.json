@@ -13,12 +13,26 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "3. 策略梯度法的问题以及解决方案：PPO"
+              "title": "7. DPO：直接偏好优化"
+            }
+          },
+          {
+            "id": "e9bcb870a852ba97",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "6. 使用PPO微调LLM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "6. 使用PPO微调LLM"
             }
           },
           {
@@ -57,7 +71,8 @@
               "title": "ppo-object.excalidraw"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -218,29 +233,29 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "5908721677925d4d",
+  "active": "e9bcb870a852ba97",
   "lastOpenFiles": [
-    "4. 近端策略优化（PPO）.md",
-    "附录D：置信域策略优化（TRPO）.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "Excalidraw/ppo-object.excalidraw.md",
+    "1. 强化学习基础.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
+    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
     "7. DPO：直接偏好优化.md",
+    "Excalidraw/5.1.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "6. 使用PPO微调LLM.md",
+    "附录D：置信域策略优化（TRPO）.md",
+    "Excalidraw/ppo-object.excalidraw.md",
     "Excalidraw/3.9.excalidraw.md",
     "Excalidraw/3.16.excalidraw.md",
     "Excalidraw/7.1.excalidraw.md",
     "Excalidraw/5.5.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
     "2. 策略梯度法.md",
-    "1. 强化学习基础.md",
     "img/ppo-vs-grpo.png",
     "img/未确认 851398.crdownload",
     "附录A：自己实现倒立摆环境.md",
     "附录B：KL散度.md",
-    "Excalidraw/5.1.excalidraw.md",
     "附录C：广义优势估计.md",
-    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
     "Excalidraw/2.12.excalidraw.md",
     "Excalidraw/2.17.excalidraw.md",
     "Excalidraw/2.8.excalidraw.md",
