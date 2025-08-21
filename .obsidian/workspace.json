@@ -25,18 +25,70 @@
             "id": "d538c7e01f15ee94",
             "type": "leaf",
             "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/6.1.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "6.1.excalidraw"
+            }
+          },
+          {
+            "id": "591ae367eec6cc56",
+            "type": "leaf",
+            "state": {
               "type": "markdown",
               "state": {
-                "file": "附录C：广义优势估计（GAE）.md",
+                "file": "6. 使用PPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "附录C：广义优势估计（GAE）"
+              "title": "6. 使用PPO微调LLM"
+            }
+          },
+          {
+            "id": "a2299a9bf90364a3",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/9.3.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "9.3.excalidraw"
+            }
+          },
+          {
+            "id": "6fdefe981cdef6e9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "6. 使用PPO微调LLM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "6. 使用PPO微调LLM"
+            }
+          },
+          {
+            "id": "8f747f0ea93a078c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "7. DPO：直接偏好优化.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "7. DPO：直接偏好优化"
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 5
       }
     ],
     "direction": "vertical"
@@ -197,20 +249,26 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "d538c7e01f15ee94",
+  "active": "8f747f0ea93a078c",
   "lastOpenFiles": [
-    "1. 强化学习基础.md",
-    "附录C：广义优势估计（GAE）.md",
-    "2. 策略梯度法.md",
-    "6. 使用PPO微调LLM.md",
-    "7. DPO：直接偏好优化.md",
-    "附录E：策略梯度法的证明.md",
     "附录D：置信域策略优化（TRPO）.md",
+    "附录E：策略梯度法的证明.md",
+    "附录C：广义优势估计（GAE）.md",
+    "附录B：KL散度.md",
+    "附录A：自己实现倒立摆环境.md",
+    "Excalidraw/6.2.excalidraw.md",
+    "6. 使用PPO微调LLM.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
+    "Excalidraw/9.4.excalidraw.md",
+    "Excalidraw/9.3.excalidraw.md",
+    "Excalidraw/6.1.excalidraw.md",
+    "7. DPO：直接偏好优化.md",
+    "1. 强化学习基础.md",
+    "2. 策略梯度法.md",
     "img/Figure_4.png",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "img/Figure_3.png",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "img/1_MpPiARNoNGCxJE2a8m9itA.webp",
     "Excalidraw/ppo-object.excalidraw.md",
@@ -223,13 +281,7 @@
     "Excalidraw/5.5.excalidraw.md",
     "img/ppo-vs-grpo.png",
     "img/未确认 851398.crdownload",
-    "附录A：自己实现倒立摆环境.md",
-    "附录B：KL散度.md",
     "Excalidraw/2.12.excalidraw.md",
-    "Excalidraw/2.17.excalidraw.md",
-    "Excalidraw/2.8.excalidraw.md",
-    "Excalidraw/2.16.excalidraw.md",
-    "Excalidraw/2.7.excalidraw.md",
     "Pasted Image 20250816165524_475.png",
     "Pasted Image 20250816164437_772.png",
     "Pasted Image 20250816140154_758.png",
