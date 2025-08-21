@@ -1,4 +1,22 @@
 
+$$
+\begin{aligned}
+V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
+&= \mathbb{E}_\pi\left[\sum_{k=0}^\infty\gamma^kR_{t+k}\mid S_t\right] \\
+&= \mathbb{E}_\pi\left[R_t+\gamma\sum_{k=0}^\infty\gamma^kR_{t+k+1}\mid S_t\right] \\
+&= \mathbb{E}_\pi[R_t+\gamma G_{t+1}|S_t] \\
+&= \mathbb{E}_\pi[R_t|S_t]+\gamma \mathbb{E}_\pi[G_{t+1}|S_t] \\
+&= \mathbb{E}_\pi[R_t|S_t]+\gamma \mathbb{E}_\pi[\mathbb{E}_\pi [G_{t+1}|S_{t+1}]|S_t] \\
+&= \mathbb{E}_\pi[R_t|S_t]+\gamma \mathbb{E}_\pi[V_\pi(S_{t+1})|S_t] \\
+&= \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t] \\
+\end{aligned}
+$$
+
+```ad-note
+全期望公式：$\mathbb{E}[X]=\mathbb{E}[\mathbb{E}[X|Y]]$
+条件期望的迭代公式：$\mathbb{E}[X|Y]=\mathbb{E}[\mathbb{E}[X|Z]|Y]$
+```
+
 我们如何估计或者计算优势函数 $A$ 呢？目前比较常用的一种方法为 **广义优势估计**（Generalized Advantage Estimation，GAE），接下来我们简单介绍一下 $\text{GAE}$ 的做法。首先，用
 
 $$
