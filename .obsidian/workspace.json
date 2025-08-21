@@ -79,16 +79,39 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
-            }
+              "title": "9. GRPO：从零复刻DeepSeek-R1"
+            },
+            "group": "cc8fdcca02338841"
           }
         ],
         "currentTab": 5
+      },
+      {
+        "id": "bbe615daac0a643f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "277c715fdb1c3277",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "9. GRPO：从零复刻DeepSeek-R1 的大纲"
+            },
+            "group": "cc8fdcca02338841"
+          }
+        ]
       }
     ],
     "direction": "vertical"
@@ -251,6 +274,7 @@
   },
   "active": "8f747f0ea93a078c",
   "lastOpenFiles": [
+    "7. DPO：直接偏好优化.md",
     "附录D：置信域策略优化（TRPO）.md",
     "附录E：策略梯度法的证明.md",
     "附录C：广义优势估计（GAE）.md",
@@ -262,7 +286,6 @@
     "Excalidraw/9.4.excalidraw.md",
     "Excalidraw/9.3.excalidraw.md",
     "Excalidraw/6.1.excalidraw.md",
-    "7. DPO：直接偏好优化.md",
     "1. 强化学习基础.md",
     "2. 策略梯度法.md",
     "img/Figure_4.png",
