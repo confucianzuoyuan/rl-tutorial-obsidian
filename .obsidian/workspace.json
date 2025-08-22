@@ -79,39 +79,54 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "9. GRPO：从零复刻DeepSeek-R1"
-            },
-            "group": "cc8fdcca02338841"
-          }
-        ],
-        "currentTab": 5
-      },
-      {
-        "id": "bbe615daac0a643f",
-        "type": "tabs",
-        "children": [
+              "title": "3. 策略梯度法的问题以及解决方案：PPO"
+            }
+          },
           {
-            "id": "277c715fdb1c3277",
+            "id": "24ca1cd775b5813f",
             "type": "leaf",
             "state": {
-              "type": "outline",
+              "type": "markdown",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
+                "file": "1. 强化学习基础.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-list",
-              "title": "9. GRPO：从零复刻DeepSeek-R1 的大纲"
-            },
-            "group": "cc8fdcca02338841"
+              "icon": "lucide-file",
+              "title": "1. 强化学习基础"
+            }
+          },
+          {
+            "id": "2dd145d690e1a61c",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/1.1.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "1.1.excalidraw"
+            }
+          },
+          {
+            "id": "649a1e1432e9a1f9",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/1.2.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "1.2.excalidraw"
+            }
           }
-        ]
+        ],
+        "currentTab": 6
       }
     ],
     "direction": "vertical"
@@ -168,7 +183,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "right": {
     "id": "73e94d099b0fc8ff",
@@ -272,39 +287,39 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "8f747f0ea93a078c",
+  "active": "24ca1cd775b5813f",
   "lastOpenFiles": [
-    "7. DPO：直接偏好优化.md",
+    "Excalidraw/1.2.excalidraw.md",
+    "1. 强化学习基础.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
+    "2. 策略梯度法.md",
     "附录D：置信域策略优化（TRPO）.md",
     "附录E：策略梯度法的证明.md",
+    "Excalidraw/2.17.excalidraw.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "Excalidraw/3.1.excalidraw.md",
+    "Excalidraw/1.5.excalidraw.md",
+    "7. DPO：直接偏好优化.md",
+    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
+    "6. 使用PPO微调LLM.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
     "附录C：广义优势估计（GAE）.md",
     "附录B：KL散度.md",
     "附录A：自己实现倒立摆环境.md",
     "Excalidraw/6.2.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
     "Excalidraw/9.4.excalidraw.md",
     "Excalidraw/9.3.excalidraw.md",
     "Excalidraw/6.1.excalidraw.md",
-    "1. 强化学习基础.md",
-    "2. 策略梯度法.md",
     "img/Figure_4.png",
-    "4. 使用 PPO 玩倒立摆游戏.md",
     "img/Figure_3.png",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "img/1_MpPiARNoNGCxJE2a8m9itA.webp",
     "Excalidraw/ppo-object.excalidraw.md",
     "Excalidraw/3.25.excalidraw.md",
-    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
     "Excalidraw/5.1.excalidraw.md",
-    "Excalidraw/3.9.excalidraw.md",
-    "Excalidraw/3.16.excalidraw.md",
-    "Excalidraw/7.1.excalidraw.md",
-    "Excalidraw/5.5.excalidraw.md",
     "img/ppo-vs-grpo.png",
     "img/未确认 851398.crdownload",
-    "Excalidraw/2.12.excalidraw.md",
     "Pasted Image 20250816165524_475.png",
     "Pasted Image 20250816164437_772.png",
     "Pasted Image 20250816140154_758.png",
