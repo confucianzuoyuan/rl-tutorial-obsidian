@@ -93,12 +93,64 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1. 强化学习基础"
+              "title": "9. GRPO：从零复刻DeepSeek-R1"
+            }
+          },
+          {
+            "id": "55ce7fd9bbb7ccad",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "附录E：策略梯度法的证明.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "附录E：策略梯度法的证明"
+            }
+          },
+          {
+            "id": "b5932d90b31d2b45",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "附录F：重要性采样.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "附录F：重要性采样"
+            }
+          },
+          {
+            "id": "9239ea6fcac2241d",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/9.2.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "9.2.excalidraw"
+            }
+          },
+          {
+            "id": "4b8323a49a1d8493",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/9.1.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "9.1.excalidraw"
             }
           },
           {
@@ -126,7 +178,7 @@
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 8
       }
     ],
     "direction": "vertical"
@@ -276,6 +328,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:创建新数据库": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -287,45 +340,45 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "24ca1cd775b5813f",
+  "active": "b5932d90b31d2b45",
   "lastOpenFiles": [
-    "Excalidraw/1.2.excalidraw.md",
-    "1. 强化学习基础.md",
-    "Excalidraw/1.1.excalidraw.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
-    "2. 策略梯度法.md",
-    "附录D：置信域策略优化（TRPO）.md",
+    "Pasted image 20250825185823.png",
+    "Pasted image 20250825185619.png",
+    "Pasted image 20250825185535.png",
+    "Pasted image 20250825185447.png",
+    "10. 强化学习面试题.md",
+    "附录F：重要性采样.md",
+    "Pasted image 20250825172321.png",
+    "Pasted image 20250825172257.png",
+    "Pasted image 20250825172219.png",
     "附录E：策略梯度法的证明.md",
-    "Excalidraw/2.17.excalidraw.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
+    "附录D：置信域策略优化（TRPO）.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "Excalidraw/3.1.excalidraw.md",
-    "Excalidraw/1.5.excalidraw.md",
-    "7. DPO：直接偏好优化.md",
+    "Excalidraw/9.2.excalidraw.md",
     "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
+    "7. DPO：直接偏好优化.md",
     "6. 使用PPO微调LLM.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "附录C：广义优势估计（GAE）.md",
     "附录B：KL散度.md",
     "附录A：自己实现倒立摆环境.md",
+    "Excalidraw/9.1.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "2. 策略梯度法.md",
+    "1. 强化学习基础.md",
+    "Excalidraw/1.2.excalidraw.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "Excalidraw/2.17.excalidraw.md",
+    "Excalidraw/3.1.excalidraw.md",
+    "Excalidraw/1.5.excalidraw.md",
     "Excalidraw/6.2.excalidraw.md",
     "Excalidraw/9.4.excalidraw.md",
-    "Excalidraw/9.3.excalidraw.md",
-    "Excalidraw/6.1.excalidraw.md",
     "img/Figure_4.png",
     "img/Figure_3.png",
     "img/1_MpPiARNoNGCxJE2a8m9itA.webp",
-    "Excalidraw/ppo-object.excalidraw.md",
-    "Excalidraw/3.25.excalidraw.md",
-    "Excalidraw/5.1.excalidraw.md",
     "img/ppo-vs-grpo.png",
     "img/未确认 851398.crdownload",
-    "Pasted Image 20250816165524_475.png",
-    "Pasted Image 20250816164437_772.png",
-    "Pasted Image 20250816140154_758.png",
-    "img/image12.png",
-    "img/image16.png",
-    "img/image4.png",
     "img/未确认 167130.crdownload",
     "img/未确认 208593.crdownload",
     "img/未确认 56867.crdownload",
