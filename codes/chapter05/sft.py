@@ -4,7 +4,7 @@ from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 
 
-device = "cuda"  # the device to load the model onto
+device = "cuda"
 
 model = AutoModelForCausalLM.from_pretrained(
     "../Qwen2.5-0.5B-Instruct",
@@ -24,7 +24,6 @@ def chat(prompt):
         tokenize=False,
         add_generation_prompt=True
     )
-    # print(text)
 
     model_inputs = tokenizer([text], return_tensors="pt").to(device)
 
