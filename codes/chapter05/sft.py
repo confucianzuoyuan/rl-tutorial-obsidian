@@ -40,9 +40,9 @@ def chat(prompt):
     return response
 
 
-prompt = "你是谁？"
+prompt = "你是谁发明的？"
 response = chat(prompt)
-print(response)
+print("微调前的回答：", response)
 
 
 def preprocess(tokenizer, batch_messages):
@@ -85,7 +85,6 @@ def preprocess(tokenizer, batch_messages):
     return batch_input_ids, batch_target_ids, batch_mask
 
 
-prompt = "你是谁发明的?"
 messages = [
     [
         {"role": "system", "content": "You are a helpful assistant."},
@@ -129,4 +128,4 @@ for i in range(10):
     optimizer.step()
 
 model.eval()
-print('回答：', chat('你是谁发明的?'))
+print('微调后的回答：', chat(prompt))
