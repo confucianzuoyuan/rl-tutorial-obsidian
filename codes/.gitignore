@@ -2,3 +2,13 @@ __pycache__/
 *.pth
 *.pt
 Qwen2.5-0.5B-Instruct/
+Qwen2.5-0.5B/
+Qwen2.5-1.5B-Instruct/
+ultrachat_200k/
+ultrafeedback_binarized/
+gsm8k_chinese/
+sst2/
+gpt2/
+Qwen2.5-0.5B-DPO/
+Qwen2.5-0.5B-SFT/
+Countdown-Tasks-3to4/
