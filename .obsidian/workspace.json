@@ -8,115 +8,131 @@
         "type": "tabs",
         "children": [
           {
-            "id": "5908721677925d4d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "附录D：置信域策略优化（TRPO）.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "附录D：置信域策略优化（TRPO）"
-            }
-          },
-          {
-            "id": "d538c7e01f15ee94",
+            "id": "ec24f0036d3c489f",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/6.1.excalidraw.md"
+                "file": "Excalidraw/1.1.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "6.1.excalidraw"
+              "title": "1.1.excalidraw"
             }
           },
           {
-            "id": "591ae367eec6cc56",
+            "id": "a1e2b7a925f3197e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "9. GRPO：从零复刻DeepSeek-R1"
+              "title": "7. DPO：直接偏好优化"
             }
           },
           {
-            "id": "a2299a9bf90364a3",
+            "id": "404438e52f607ea9",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/9.3.excalidraw.md"
+                "file": "Excalidraw/5.6.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "9.3.excalidraw"
+              "title": "5.6.excalidraw"
             }
           },
           {
-            "id": "6fdefe981cdef6e9",
+            "id": "0b2be58b00ef2676",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.8.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.8.excalidraw"
+            }
+          },
+          {
+            "id": "c66eb52cdac4b4b8",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.9.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.9.excalidraw"
+            }
+          },
+          {
+            "id": "6ebd642c2076e8f5",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.10.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.10.excalidraw"
+            }
+          },
+          {
+            "id": "4a45f98c8f9273f8",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.11.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.11.excalidraw"
+            }
+          },
+          {
+            "id": "63c8f8278be8842d",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.12.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.12.excalidraw"
+            }
+          },
+          {
+            "id": "86d5e94359b7d674",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.13.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.13.excalidraw"
+            }
+          },
+          {
+            "id": "84f7c09e40894838",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "6. 使用PPO微调LLM"
-            }
-          },
-          {
-            "id": "8f747f0ea93a078c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "3. 策略梯度法的问题以及解决方案：PPO"
-            }
-          },
-          {
-            "id": "24ca1cd775b5813f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "9. GRPO：从零复刻DeepSeek-R1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "9. GRPO：从零复刻DeepSeek-R1"
-            }
-          },
-          {
-            "id": "55ce7fd9bbb7ccad",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "附录D：置信域策略优化（TRPO）.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "附录D：置信域策略优化（TRPO）"
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -278,8 +294,29 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "8ee0c28a25947436",
+  "active": "84f7c09e40894838",
   "lastOpenFiles": [
+    "Excalidraw/5.13.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "Pasted Image 20250906172128_059.png",
+    "Excalidraw/5.12.excalidraw.md",
+    "Pasted Image 20250906170956_675.png",
+    "Excalidraw/5.11.excalidraw.md",
+    "Pasted Image 20250906163058_920.png",
+    "Excalidraw/5.10.excalidraw.md",
+    "Pasted Image 20250906161954_718.png",
+    "Excalidraw/5.9.excalidraw.md",
+    "Pasted Image 20250906160844_319.png",
+    "Excalidraw/5.8.excalidraw.md",
+    "Excalidraw/5.7.excalidraw.md",
+    "Excalidraw/5.6.excalidraw.md",
+    "Pasted Image 20250906154537_553.png",
+    "Excalidraw/Drawing 2025-09-06 15.19.57.excalidraw.md",
+    "Excalidraw/7.1.excalidraw.md",
+    "7. DPO：直接偏好优化.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "Excalidraw/5.5.excalidraw.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
     "codes/chapter07/ppo/3-ppo-rlhf.py",
     "codes/chapter07/ppo/2-reward-model-training.py",
     "codes/sst2/data/train-00000-of-00001.parquet",
@@ -291,7 +328,6 @@
     "codes/gpt2/64.tflite",
     "codes/gpt2/64-fp16.tflite",
     "codes/gpt2/rust_model.ot",
-    "codes/gpt2/64-8bits.tflite",
     "codes/gpt2/README.md",
     "codes/reward-model-deberta-v3-large-v2/README.md",
     "codes/Countdown-Tasks-3to4/README.md",
@@ -301,31 +337,10 @@
     "codes/ultrachat_200k/README.md",
     "codes/Qwen2.5-0.5B/README.md",
     "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
-    "7. DPO：直接偏好优化.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "6. 使用PPO微调LLM.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
-    "附录D：置信域策略优化（TRPO）.md",
-    "codes/Qwen2.5-0.5B-Instruct/README.md",
-    "2. 策略梯度法.md",
-    "1. 强化学习基础.md",
-    "codes/chapter01/README.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
-    "附录F：重要性采样.md",
     "Pasted image 20250825185823.png",
     "Pasted image 20250825185619.png",
     "Pasted image 20250825185535.png",
     "Pasted image 20250825185447.png",
-    "10. 强化学习面试题.md",
-    "Pasted image 20250825172321.png",
-    "Pasted image 20250825172257.png",
-    "Pasted image 20250825172219.png",
-    "附录E：策略梯度法的证明.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "Excalidraw/9.2.excalidraw.md",
-    "img/Figure_4.png",
-    "img/Figure_3.png",
-    "img/1_MpPiARNoNGCxJE2a8m9itA.webp",
     "Untitled.canvas"
   ]
 }
