@@ -4,135 +4,65 @@
     "type": "split",
     "children": [
       {
-        "id": "32e9fe2588809c59",
+        "id": "bf7a34f0a9bcab7d",
         "type": "tabs",
+        "dimension": 79.4186046511628,
         "children": [
           {
-            "id": "ec24f0036d3c489f",
+            "id": "301375003359d4fe",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "outline",
               "state": {
-                "file": "Excalidraw/1.1.excalidraw.md"
+                "file": "6. 使用PPO微调LLM.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
-              "icon": "excalidraw-icon",
-              "title": "1.1.excalidraw"
+              "icon": "lucide-list",
+              "title": "6. 使用PPO微调LLM 的大纲"
             }
           },
           {
-            "id": "a1e2b7a925f3197e",
+            "id": "74c282de349584aa",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "6. 使用PPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
-            }
-          },
-          {
-            "id": "404438e52f607ea9",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.6.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.6.excalidraw"
-            }
-          },
-          {
-            "id": "0b2be58b00ef2676",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.8.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.8.excalidraw"
-            }
-          },
-          {
-            "id": "c66eb52cdac4b4b8",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.9.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.9.excalidraw"
-            }
-          },
-          {
-            "id": "6ebd642c2076e8f5",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.10.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.10.excalidraw"
-            }
-          },
-          {
-            "id": "4a45f98c8f9273f8",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.11.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.11.excalidraw"
-            }
-          },
-          {
-            "id": "63c8f8278be8842d",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.12.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.12.excalidraw"
-            }
-          },
-          {
-            "id": "86d5e94359b7d674",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/5.13.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "5.13.excalidraw"
-            }
-          },
-          {
-            "id": "84f7c09e40894838",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "5. 基于人类反馈的强化学习（RLHF）"
-            }
+              "title": "6. 使用PPO微调LLM"
+            },
+            "group": "59daf55aa6a58053"
           }
         ],
-        "currentTab": 9
+        "currentTab": 1
+      },
+      {
+        "id": "7d415164b857c860",
+        "type": "tabs",
+        "dimension": 20.58139534883721,
+        "children": [
+          {
+            "id": "72a73c5363c06436",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "6. 使用PPO微调LLM.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "6. 使用PPO微调LLM 的大纲"
+            },
+            "group": "59daf55aa6a58053"
+          }
+        ]
       }
     ],
     "direction": "vertical"
@@ -294,53 +224,54 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "84f7c09e40894838",
+  "active": "74c282de349584aa",
   "lastOpenFiles": [
-    "Excalidraw/5.13.excalidraw.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "Pasted Image 20250906172128_059.png",
-    "Excalidraw/5.12.excalidraw.md",
-    "Pasted Image 20250906170956_675.png",
-    "Excalidraw/5.11.excalidraw.md",
-    "Pasted Image 20250906163058_920.png",
-    "Excalidraw/5.10.excalidraw.md",
-    "Pasted Image 20250906161954_718.png",
-    "Excalidraw/5.9.excalidraw.md",
-    "Pasted Image 20250906160844_319.png",
-    "Excalidraw/5.8.excalidraw.md",
-    "Excalidraw/5.7.excalidraw.md",
-    "Excalidraw/5.6.excalidraw.md",
-    "Pasted Image 20250906154537_553.png",
-    "Excalidraw/Drawing 2025-09-06 15.19.57.excalidraw.md",
-    "Excalidraw/7.1.excalidraw.md",
+    "codes/chapter06/gpt2-ppo-without-vhead/tokenizer.json",
+    "codes/chapter06/gpt2-ppo-without-vhead/merges.txt",
+    "codes/chapter06/gpt2-ppo-without-vhead/vocab.json",
+    "codes/chapter06/gpt2-ppo-without-vhead/special_tokens_map.json",
+    "codes/chapter06/gpt2-ppo-without-vhead/tokenizer_config.json",
+    "codes/chapter06/gpt2-ppo-without-vhead/model.safetensors",
+    "codes/chapter06/gpt2-ppo-without-vhead/generation_config.json",
+    "codes/chapter06/gpt2-ppo-without-vhead/config.json",
+    "codes/chapter06/gpt2-ppo-without-vhead",
+    "codes/chapter06/gpt2-ppo.pt",
     "7. DPO：直接偏好优化.md",
+    "6. 使用PPO微调LLM.md",
+    "codes/chapter06/ppo.ipynb",
+    "Excalidraw/ppo-reward-calculate.excalidraw.md",
+    "Excalidraw/5.6.excalidraw.md",
+    "Excalidraw/5.8.excalidraw.md",
+    "Excalidraw/5.9.excalidraw.md",
+    "Excalidraw/5.10.excalidraw.md",
+    "Excalidraw/5.11.excalidraw.md",
+    "Excalidraw/5.12.excalidraw.md",
+    "Excalidraw/5.13.excalidraw.md",
     "Excalidraw/1.1.excalidraw.md",
-    "Excalidraw/5.5.excalidraw.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
-    "codes/chapter07/ppo/3-ppo-rlhf.py",
-    "codes/chapter07/ppo/2-reward-model-training.py",
-    "codes/sst2/data/train-00000-of-00001.parquet",
-    "codes/sst2/data/test-00000-of-00001.parquet",
-    "codes/sst2/data/validation-00000-of-00001.parquet",
-    "codes/sst2/data",
-    "codes/sst2/README.md",
-    "codes/sst2",
-    "codes/gpt2/64.tflite",
-    "codes/gpt2/64-fp16.tflite",
-    "codes/gpt2/rust_model.ot",
-    "codes/gpt2/README.md",
-    "codes/reward-model-deberta-v3-large-v2/README.md",
-    "codes/Countdown-Tasks-3to4/README.md",
-    "codes/gsm8k_chinese/README.md",
-    "codes/Qwen2.5-1.5B-Instruct/README.md",
-    "codes/ultrafeedback_binarized/README.md",
-    "codes/ultrachat_200k/README.md",
-    "codes/Qwen2.5-0.5B/README.md",
+    "Pasted image 20250908161416.png",
+    "codes/chapter06/sst2/README.md",
+    "codes/chapter06/gpt2/README.md",
+    "Pasted image 20250908134958.png",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "附录D：PPO背后的数学.md",
+    "Pasted image 20250908123040.png",
+    "Pasted image 20250908123019.png",
+    "Pasted image 20250908122941.png",
+    "Pasted image 20250908122332.png",
+    "Pasted image 20250908122320.png",
+    "Pasted image 20250908122030.png",
+    "Pasted image 20250908122020.png",
+    "Pasted image 20250908122003.png",
+    "附录C：广义优势估计（GAE）.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "Excalidraw/ppo-object.excalidraw.md",
+    "Excalidraw/2.12.excalidraw.md",
+    "2. 策略梯度法.md",
     "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
-    "Pasted image 20250825185823.png",
-    "Pasted image 20250825185619.png",
-    "Pasted image 20250825185535.png",
-    "Pasted image 20250825185447.png",
+    "Excalidraw/Drawing 2025-09-06 15.19.57.excalidraw.md",
+    "附录B：KL散度.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
     "Untitled.canvas"
   ]
 }

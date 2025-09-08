@@ -23,7 +23,7 @@ $$
 \delta_t=R_t+\gamma V(s_{t+1})-V(s_t)
 $$
 
-表示时序差分误差（TD误差）。其中 $V$ 是一个价值函数神经网络。于是，根据多步时序差分的思想，有：
+表示==单步==时序差分误差（TD误差）。其中 $V$ 是一个价值函数神经网络。于是，根据多步时序差分的思想，有：
 
 $$
 \begin{aligned}
@@ -35,7 +35,7 @@ A_t^{(k)} &= \sum_{l=0}^{k-1}\gamma^l\delta_{t+l} &&= -V(s_t)+R_t+\gamma R_{t+1}
 \end{aligned}
 $$
 
-然后，GAE 将这些不同步数的优势估计进行指数加权平均：
+然后，$\text{GAE}$ 将这些不同步数的优势估计进行指数加权平均：
 
 $$
 \begin{aligned}
@@ -47,7 +47,7 @@ A_t^{GAE} &= (1-\lambda)(A_t^{(1)}+\lambda A_t^{(2)}+\lambda^2A_t^{(3)}+\cdots) 
 \end{aligned}
 $$
 
-其中，$\lambda\in [0,1]$ 是在 GAE 中额外引入的一个超参数。当 $\lambda=0$ 时，$A_t^{GAE}=\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$ ，也就是仅仅只看一步差分得到的优势；当 $\lambda=1$ 时，$A_t^{GAE}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}=\sum_{l=0}^{\infty}\gamma^lR_{t+l}-V(s_t)$ ，则是看每一步差分得到的优势的完全平均值。
+其中，$\lambda\in [0,1]$ 是在 $\text{GAE}$ 中额外引入的一个超参数。当 $\lambda=0$ 时，$A_t^{GAE}=\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$ ，也就是仅仅只看一步差分得到的优势；当 $\lambda=1$ 时，$A_t^{GAE}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}=\sum_{l=0}^{\infty}\gamma^lR_{t+l}-V(s_t)$ ，则是看每一步差分得到的优势的完全平均值。
 
 有上面的式子，我们还可以推导出一个递推公式
 
@@ -57,7 +57,31 @@ A_t = \delta_t + \gamma\lambda A_{t+1}
 $$
 ```
 
-下面是计算 GAE 的代码，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
+下面是计算 $\text{GAE}$ 的代码，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
+
+首先，我们有 $n$ 个单步TD误差。
+
+$$
+\text{TD}_\delta = \left[\delta_t, \delta_{t+1}, \dots, \delta_{t+n}\right]
+$$
+先把数组逆序
+
+$$
+\text{TD}_\delta = \left[\delta_{t+n}, \delta_{t+n-1}, \dots, \delta_{t}\right]
+$$
+
+然后遍历逆序数组，有如下结果：
+
+$$
+\begin{aligned}
+A_{t+n} &= \delta_{t+n} \\
+A_{t+n-1} &= \delta_{t+n-1} + \gamma\lambda A_{t+n} \\
+A_{t+n-2} &= \delta_{t+n-2} + \gamma\lambda A_{t+n-1} \\
+\vdots \\
+A_t &= \delta_t + \gamma\lambda A_{t+1}
+\end{aligned}
+$$
+这样每一个时间步的广义优势估计就计算出来了。代码如下：
 
 ```python
 def compute_advantage(gamma, lmbda, td_delta):

@@ -12,3 +12,7 @@ gpt2/
 Qwen2.5-0.5B-DPO/
 Qwen2.5-0.5B-SFT/
 Countdown-Tasks-3to4/
+gpt2-sft/
+gpt2-ppo.pt
+.ipynb_checkpoints/
+gpt2-ppo-without-vhead/
