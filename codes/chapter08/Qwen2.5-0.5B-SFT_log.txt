@@ -1,0 +1,1 @@
+time:2025-09-09, 17:50:00, batch_size:2, trainable_parameters_num:494032768, warmup_steps:1000, max_lr:2e-05, min_lr:2e-06

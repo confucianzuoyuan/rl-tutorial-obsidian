@@ -6,63 +6,61 @@
       {
         "id": "bf7a34f0a9bcab7d",
         "type": "tabs",
-        "dimension": 79.4186046511628,
         "children": [
           {
-            "id": "301375003359d4fe",
+            "id": "13a3e017e2b74a7b",
             "type": "leaf",
             "state": {
-              "type": "outline",
+              "type": "excalidraw",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
+                "file": "Excalidraw/gae.excalidraw.md"
               },
-              "icon": "lucide-list",
-              "title": "6. 使用PPO微调LLM 的大纲"
+              "icon": "excalidraw-icon",
+              "title": "gae.excalidraw"
             }
           },
           {
-            "id": "74c282de349584aa",
+            "id": "ea9f728ad86d3b8e",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/ppo-reward.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "ppo-reward.excalidraw"
+            }
+          },
+          {
+            "id": "c5eeee28fc3d9712",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "7. DPO：直接偏好优化.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "6. 使用PPO微调LLM"
-            },
-            "group": "59daf55aa6a58053"
-          }
-        ],
-        "currentTab": 1
-      },
-      {
-        "id": "7d415164b857c860",
-        "type": "tabs",
-        "dimension": 20.58139534883721,
-        "children": [
+              "title": "7. DPO：直接偏好优化"
+            }
+          },
           {
-            "id": "72a73c5363c06436",
+            "id": "182526ad7cb90fd8",
             "type": "leaf",
             "state": {
-              "type": "outline",
+              "type": "markdown",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
+                "file": "8. 使用DPO微调LLM.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-list",
-              "title": "6. 使用PPO微调LLM 的大纲"
-            },
-            "group": "59daf55aa6a58053"
+              "icon": "lucide-file",
+              "title": "8. 使用DPO微调LLM"
+            }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -224,21 +222,34 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "74c282de349584aa",
+  "active": "182526ad7cb90fd8",
   "lastOpenFiles": [
-    "codes/chapter06/gpt2-ppo-without-vhead/tokenizer.json",
-    "codes/chapter06/gpt2-ppo-without-vhead/merges.txt",
-    "codes/chapter06/gpt2-ppo-without-vhead/vocab.json",
-    "codes/chapter06/gpt2-ppo-without-vhead/special_tokens_map.json",
-    "codes/chapter06/gpt2-ppo-without-vhead/tokenizer_config.json",
-    "codes/chapter06/gpt2-ppo-without-vhead/model.safetensors",
-    "codes/chapter06/gpt2-ppo-without-vhead/generation_config.json",
-    "codes/chapter06/gpt2-ppo-without-vhead/config.json",
-    "codes/chapter06/gpt2-ppo-without-vhead",
-    "codes/chapter06/gpt2-ppo.pt",
+    "codes/3-dpo.ipynb",
+    "codes/Untitled1.ipynb",
+    "codes/chapter08/Qwen2.5-0.5B-SFT_log.txt",
+    "codes/chapter08/ultrachat_200k/data/train_sft-00002-of-00003-ee46ed25cfae92c6.parquet",
+    "codes/chapter08/ultrachat_200k/data/train_sft-00001-of-00003-0a1804bcb6ae68c6.parquet",
+    "codes/chapter08/ultrachat_200k/data/train_sft-00000-of-00003-a3ecf92756993583.parquet",
+    "codes/chapter08/ultrachat_200k/data/train_gen-00002-of-00003-c0db75b92a2f48fd.parquet",
+    "codes/chapter08/ultrachat_200k/data/train_gen-00001-of-00003-d6a0402e417f35ca.parquet",
+    "codes/chapter08/ultrachat_200k/data/train_gen-00000-of-00003-a6c9fb894be3e50b.parquet",
+    "codes/chapter08/ultrachat_200k/data/test_sft-00000-of-00001-f7dfac4afe5b93f4.parquet",
+    "codes/chapter08/ultrachat_200k/data/test_gen-00000-of-00001-3d4cd8309148a71f.parquet",
+    "codes/chapter08/ultrachat_200k/README.md",
+    "codes/chapter08/Qwen2.5-0.5B/README.md",
+    "9. 思维链.md",
+    "8. 使用DPO微调LLM.md",
+    "9. GRPO：从零复刻DeepSeek-R1.md",
     "7. DPO：直接偏好优化.md",
+    "Excalidraw/7.1.excalidraw.md",
     "6. 使用PPO微调LLM.md",
-    "codes/chapter06/ppo.ipynb",
+    "Excalidraw/gae.excalidraw.md",
+    "Excalidraw/ppo-reward.excalidraw.md",
+    "Excalidraw/ppo-loss.excalidraw.md",
+    "2. 策略梯度法.md",
+    "1. 强化学习基础.md",
+    "附录C：广义优势估计（GAE）.md",
+    "Excalidraw/reward-model.excalidraw.md",
     "Excalidraw/ppo-reward-calculate.excalidraw.md",
     "Excalidraw/5.6.excalidraw.md",
     "Excalidraw/5.8.excalidraw.md",
@@ -250,10 +261,7 @@
     "Excalidraw/1.1.excalidraw.md",
     "Pasted image 20250908161416.png",
     "codes/chapter06/sst2/README.md",
-    "codes/chapter06/gpt2/README.md",
     "Pasted image 20250908134958.png",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "附录D：PPO背后的数学.md",
     "Pasted image 20250908123040.png",
     "Pasted image 20250908123019.png",
     "Pasted image 20250908122941.png",
@@ -262,16 +270,6 @@
     "Pasted image 20250908122030.png",
     "Pasted image 20250908122020.png",
     "Pasted image 20250908122003.png",
-    "附录C：广义优势估计（GAE）.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "Excalidraw/ppo-object.excalidraw.md",
-    "Excalidraw/2.12.excalidraw.md",
-    "2. 策略梯度法.md",
-    "8. 理解推理大语言模型：构建与优化推理模型的方法和策略.md",
-    "Excalidraw/Drawing 2025-09-06 15.19.57.excalidraw.md",
-    "附录B：KL散度.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
     "Untitled.canvas"
   ]
 }
