@@ -8,55 +8,53 @@
         "type": "tabs",
         "children": [
           {
-            "id": "13a3e017e2b74a7b",
+            "id": "e99ef67911e9b9b2",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/gae.excalidraw.md"
+                "file": "Excalidraw/ppo-batch-loss.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "gae.excalidraw"
+              "title": "ppo-batch-loss.excalidraw"
             }
           },
           {
-            "id": "ea9f728ad86d3b8e",
+            "id": "996c25c0d09a5fa1",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/ppo-reward.excalidraw.md"
+                "file": "Excalidraw/grpo-in-detail.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "ppo-reward.excalidraw"
+              "title": "grpo-in-detail.excalidraw"
             }
           },
           {
-            "id": "c5eeee28fc3d9712",
+            "id": "15354d0cddd47554",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/grpo-in-detail-1.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "grpo-in-detail-1.excalidraw"
+            }
+          },
+          {
+            "id": "f14549d42fac79a5",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "12. 强化学习面试题.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
-            }
-          },
-          {
-            "id": "182526ad7cb90fd8",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "8. 使用DPO微调LLM.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "8. 使用DPO微调LLM"
+              "title": "12. 强化学习面试题"
             }
           }
         ],
@@ -222,8 +220,42 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "182526ad7cb90fd8",
+  "active": "f14549d42fac79a5",
   "lastOpenFiles": [
+    "11. 使用GRPO微调LLM.md",
+    "10. GRPO：组相对策略优化.md",
+    "Excalidraw/grpo-in-detail-1.excalidraw.md",
+    "Pasted Image 20250910175747_803.png",
+    "Excalidraw/grpo-in-detail.excalidraw.md",
+    "Pasted Image 20250910174703_912.png",
+    "Excalidraw/ppo-batch-loss.excalidraw.md",
+    "image-9.png",
+    "image-8.png",
+    "image-7.png",
+    "image-6.png",
+    "image-5.png",
+    "image-4.png",
+    "image-3.png",
+    "Excalidraw/ppovsgrpo.excalidraw.md",
+    "Pasted Image 20250910170215_974.png",
+    "Excalidraw/sft-dialogue.excalidraw.md",
+    "12. 强化学习面试题.md",
+    "8. 使用DPO微调LLM.md",
+    "7. DPO：直接偏好优化.md",
+    "Excalidraw/lr-decay.excalidraw.md",
+    "Excalidraw/ppo-loss-impl.excalidraw.md",
+    "Excalidraw/sft-loss.excalidraw.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "Excalidraw/gae.excalidraw.md",
+    "Excalidraw/ppo-reward.excalidraw.md",
+    "1. 强化学习基础.md",
+    "9. 思维链.md",
+    "附录D：PPO背后的数学.md",
+    "Excalidraw/2.13.excalidraw.md",
+    "附录C：广义优势估计（GAE）.md",
+    "附录B：KL散度.md",
+    "附录A：自己实现倒立摆环境.md",
+    "附录F：重要性采样.md",
     "codes/3-dpo.ipynb",
     "codes/Untitled1.ipynb",
     "codes/chapter08/Qwen2.5-0.5B-SFT_log.txt",
@@ -234,42 +266,7 @@
     "codes/chapter08/ultrachat_200k/data/train_gen-00001-of-00003-d6a0402e417f35ca.parquet",
     "codes/chapter08/ultrachat_200k/data/train_gen-00000-of-00003-a6c9fb894be3e50b.parquet",
     "codes/chapter08/ultrachat_200k/data/test_sft-00000-of-00001-f7dfac4afe5b93f4.parquet",
-    "codes/chapter08/ultrachat_200k/data/test_gen-00000-of-00001-3d4cd8309148a71f.parquet",
     "codes/chapter08/ultrachat_200k/README.md",
-    "codes/chapter08/Qwen2.5-0.5B/README.md",
-    "9. 思维链.md",
-    "8. 使用DPO微调LLM.md",
-    "9. GRPO：从零复刻DeepSeek-R1.md",
-    "7. DPO：直接偏好优化.md",
-    "Excalidraw/7.1.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
-    "Excalidraw/gae.excalidraw.md",
-    "Excalidraw/ppo-reward.excalidraw.md",
-    "Excalidraw/ppo-loss.excalidraw.md",
-    "2. 策略梯度法.md",
-    "1. 强化学习基础.md",
-    "附录C：广义优势估计（GAE）.md",
-    "Excalidraw/reward-model.excalidraw.md",
-    "Excalidraw/ppo-reward-calculate.excalidraw.md",
-    "Excalidraw/5.6.excalidraw.md",
-    "Excalidraw/5.8.excalidraw.md",
-    "Excalidraw/5.9.excalidraw.md",
-    "Excalidraw/5.10.excalidraw.md",
-    "Excalidraw/5.11.excalidraw.md",
-    "Excalidraw/5.12.excalidraw.md",
-    "Excalidraw/5.13.excalidraw.md",
-    "Excalidraw/1.1.excalidraw.md",
-    "Pasted image 20250908161416.png",
-    "codes/chapter06/sst2/README.md",
-    "Pasted image 20250908134958.png",
-    "Pasted image 20250908123040.png",
-    "Pasted image 20250908123019.png",
-    "Pasted image 20250908122941.png",
-    "Pasted image 20250908122332.png",
-    "Pasted image 20250908122320.png",
-    "Pasted image 20250908122030.png",
-    "Pasted image 20250908122020.png",
-    "Pasted image 20250908122003.png",
     "Untitled.canvas"
   ]
 }
