@@ -4,61 +4,37 @@
     "type": "split",
     "children": [
       {
-        "id": "bf7a34f0a9bcab7d",
+        "id": "154026071bc96454",
         "type": "tabs",
         "children": [
           {
-            "id": "e99ef67911e9b9b2",
+            "id": "601b9c3a488e0932",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/ppo-batch-loss.excalidraw.md"
+                "file": "Excalidraw/1.1.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "ppo-batch-loss.excalidraw"
+              "title": "1.1.excalidraw"
             }
           },
           {
-            "id": "996c25c0d09a5fa1",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/grpo-in-detail.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "grpo-in-detail.excalidraw"
-            }
-          },
-          {
-            "id": "15354d0cddd47554",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/grpo-in-detail-1.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "grpo-in-detail-1.excalidraw"
-            }
-          },
-          {
-            "id": "f14549d42fac79a5",
+            "id": "66d50943e98eb387",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "12. 强化学习面试题.md",
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "12. 强化学习面试题"
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -220,15 +196,31 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "f14549d42fac79a5",
+  "active": "66d50943e98eb387",
   "lastOpenFiles": [
-    "11. 使用GRPO微调LLM.md",
+    "Excalidraw/rl-algorisms.excalidraw.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "12. 强化学习面试题.md",
+    "7. DPO：直接偏好优化.md",
     "10. GRPO：组相对策略优化.md",
-    "Excalidraw/grpo-in-detail-1.excalidraw.md",
-    "Pasted Image 20250910175747_803.png",
-    "Excalidraw/grpo-in-detail.excalidraw.md",
-    "Pasted Image 20250910174703_912.png",
+    "11. 使用GRPO微调LLM.md",
+    "9. 思维链.md",
+    "papers/dapo.pdf",
+    "papers/gspo.pdf",
+    "papers/kto.pdf",
+    "papers/SimPO.pdf",
+    "papers/未确认 819949.crdownload",
     "Excalidraw/ppo-batch-loss.excalidraw.md",
+    "Excalidraw/grpo-in-detail.excalidraw.md",
+    "Excalidraw/grpo-in-detail-1.excalidraw.md",
+    "papers/dpo.pdf",
+    "papers/grpo.pdf",
+    "papers/gae.pdf",
+    "papers/未确认 273413.crdownload",
+    "papers/ppo.pdf",
+    "Pasted Image 20250910175747_803.png",
+    "Pasted Image 20250910174703_912.png",
     "image-9.png",
     "image-8.png",
     "image-7.png",
@@ -239,34 +231,19 @@
     "Excalidraw/ppovsgrpo.excalidraw.md",
     "Pasted Image 20250910170215_974.png",
     "Excalidraw/sft-dialogue.excalidraw.md",
-    "12. 强化学习面试题.md",
     "8. 使用DPO微调LLM.md",
-    "7. DPO：直接偏好优化.md",
     "Excalidraw/lr-decay.excalidraw.md",
     "Excalidraw/ppo-loss-impl.excalidraw.md",
     "Excalidraw/sft-loss.excalidraw.md",
-    "Excalidraw/1.1.excalidraw.md",
     "Excalidraw/gae.excalidraw.md",
     "Excalidraw/ppo-reward.excalidraw.md",
     "1. 强化学习基础.md",
-    "9. 思维链.md",
     "附录D：PPO背后的数学.md",
     "Excalidraw/2.13.excalidraw.md",
     "附录C：广义优势估计（GAE）.md",
     "附录B：KL散度.md",
     "附录A：自己实现倒立摆环境.md",
     "附录F：重要性采样.md",
-    "codes/3-dpo.ipynb",
-    "codes/Untitled1.ipynb",
-    "codes/chapter08/Qwen2.5-0.5B-SFT_log.txt",
-    "codes/chapter08/ultrachat_200k/data/train_sft-00002-of-00003-ee46ed25cfae92c6.parquet",
-    "codes/chapter08/ultrachat_200k/data/train_sft-00001-of-00003-0a1804bcb6ae68c6.parquet",
-    "codes/chapter08/ultrachat_200k/data/train_sft-00000-of-00003-a3ecf92756993583.parquet",
-    "codes/chapter08/ultrachat_200k/data/train_gen-00002-of-00003-c0db75b92a2f48fd.parquet",
-    "codes/chapter08/ultrachat_200k/data/train_gen-00001-of-00003-d6a0402e417f35ca.parquet",
-    "codes/chapter08/ultrachat_200k/data/train_gen-00000-of-00003-a6c9fb894be3e50b.parquet",
-    "codes/chapter08/ultrachat_200k/data/test_sft-00000-of-00001-f7dfac4afe5b93f4.parquet",
-    "codes/chapter08/ultrachat_200k/README.md",
     "Untitled.canvas"
   ]
 }
