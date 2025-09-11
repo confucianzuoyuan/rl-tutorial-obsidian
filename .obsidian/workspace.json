@@ -4,74 +4,47 @@
     "type": "split",
     "children": [
       {
-        "id": "154026071bc96454",
+        "id": "0f01670cbe5cffea",
         "type": "tabs",
-        "dimension": 76.04651162790698,
+        "dimension": 73.89534883720931,
         "children": [
           {
-            "id": "601b9c3a488e0932",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/1.1.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "1.1.excalidraw"
-            }
-          },
-          {
-            "id": "66d50943e98eb387",
+            "id": "1f7893c5fea458ff",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "附录F：重要性采样.md",
+                "file": "1. 强化学习基础.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "附录F：重要性采样"
-            }
-          },
-          {
-            "id": "38abedf25a587133",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "8. 使用DPO微调LLM.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "8. 使用DPO微调LLM"
+              "title": "1. 强化学习基础"
             },
-            "group": "732090a99470ea42"
+            "group": "6a1f0db447ad7986"
           }
-        ],
-        "currentTab": 2
+        ]
       },
       {
-        "id": "d721e500ae5f1bfd",
+        "id": "6f379e56bc4d5668",
         "type": "tabs",
-        "dimension": 23.953488372093023,
+        "dimension": 26.1046511627907,
         "children": [
           {
-            "id": "97848a36fc9d68bf",
+            "id": "304b599e89319824",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "8. 使用DPO微调LLM.md",
+                "file": "1. 强化学习基础.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "8. 使用DPO微调LLM 的大纲"
+              "title": "1. 强化学习基础 的大纲"
             },
-            "group": "732090a99470ea42"
+            "group": "6a1f0db447ad7986"
           }
         ]
       }
@@ -235,19 +208,25 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "38abedf25a587133",
+  "active": "1f7893c5fea458ff",
   "lastOpenFiles": [
-    "11. 使用GRPO微调LLM.md",
+    "附录B：KL散度.md",
+    "8. 使用DPO微调LLM.md",
+    "1. 强化学习基础.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
     "10. GRPO：组相对策略优化.md",
     "9. 思维链（Chain of Thoughts）.md",
-    "12. 强化学习面试题.md",
-    "8. 使用DPO微调LLM.md",
-    "附录G：uv教程.md",
-    "附录F：重要性采样.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "Excalidraw/rl-algorisms.excalidraw.md",
-    "Excalidraw/1.1.excalidraw.md",
     "7. DPO：直接偏好优化.md",
+    "6. 使用PPO微调LLM.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "2. 策略梯度法.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "附录F：重要性采样.md",
+    "11. 使用GRPO微调LLM.md",
+    "12. 强化学习面试题.md",
+    "附录G：uv教程.md",
+    "Excalidraw/rl-algorisms.excalidraw.md",
     "papers/dapo.pdf",
     "papers/gspo.pdf",
     "papers/kto.pdf",
@@ -277,12 +256,6 @@
     "Excalidraw/ppo-loss-impl.excalidraw.md",
     "Excalidraw/sft-loss.excalidraw.md",
     "Excalidraw/gae.excalidraw.md",
-    "Excalidraw/ppo-reward.excalidraw.md",
-    "1. 强化学习基础.md",
-    "附录D：PPO背后的数学.md",
-    "Excalidraw/2.13.excalidraw.md",
-    "附录C：广义优势估计（GAE）.md",
-    "附录B：KL散度.md",
     "Untitled.canvas"
   ]
 }

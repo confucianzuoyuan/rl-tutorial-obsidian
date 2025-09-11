@@ -1,4 +1,5 @@
 {
   "showRibbon": false,
-  "baseFontSize": 16
+  "baseFontSize": 16,
+  "textFontFamily": "JetBrains Mono,FZShuSong-Z01"
 }
