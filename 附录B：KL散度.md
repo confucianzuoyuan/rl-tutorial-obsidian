@@ -90,16 +90,16 @@ $$
 
 ## 信息论
 
-**信息量（Self-Information）**：
+信息量（Self-Information）：
 - 一个事件发生的信息量定义为：$I(x) = -\log P(x)$
 - 概率越小的事件，包含的信息量越大
 - 例如："太阳从东边升起"（高概率）vs "中彩票"（低概率）
 
-**熵（Entropy）**：
+熵（Entropy）：
 - 衡量随机变量的不确定性：$H(P) = -\sum_{i} P(x_i) \log P(x_i)$
 - 熵越大，不确定性越大
 
-**交叉熵（Cross-Entropy）**：
+交叉熵（Cross-Entropy）：
 - 衡量两个概率分布之间的差异：$H(P, Q) = -\sum_{i} P(x_i) \log Q(x_i)$
 - 其中 $P$ 是真实分布，$Q$ 是预测分布
 
@@ -125,11 +125,11 @@ $$
 \text{Loss} = -\frac{1}{n}\sum_{i=1}^{n} \log P(y_i | x_i; \theta)
 $$
 
-这就是**交叉熵损失**！
+这就是==交叉熵损失==！
 
 ## 从KL散度到交叉熵
 
-**KL散度**衡量两个分布的差异：
+KL散度衡量两个分布的差异：
 
 $$
 D_{KL}(P||Q) = \sum_{i} P(x_i) \log \frac{P(x_i)}{Q(x_i)} = \sum_{i} P(x_i) \log P(x_i) - \sum_{i} P(x_i) \log Q(x_i)
@@ -143,5 +143,5 @@ $$
 - $H(P) = -\sum_{i} P(x_i) \log P(x_i)$ 是真实分布的熵（常数）
 - $H(P,Q) = -\sum_{i} P(x_i) \log Q(x_i)$ 是交叉熵
 
-**最小化KL散度 = 最小化交叉熵**（因为真实分布的熵是常数）
+最小化KL散度 = 最小化交叉熵（因为真实分布的熵是常数）
 
