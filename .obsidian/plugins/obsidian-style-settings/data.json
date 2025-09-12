@@ -1,5 +1,9 @@
 {
   "minimal-style@@bold-color@@light": "#5C55C3",
   "minimal-style@@h2-color@@light": "#334C91",
-  "minimal-style@@h2-size": "1.5em"
+  "minimal-style@@h2-size": "1.5em",
+  "minimal-style@@row-lines": false,
+  "minimal-style@@table-lines": true,
+  "minimal-style@@row-hover": true,
+  "minimal-style@@table-numbers": false
 }

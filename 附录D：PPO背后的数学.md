@@ -136,8 +136,6 @@ $$
 
 所以，每当策略改变时，我们都会收集新的样本。旧的样本无法重复使用。因此，策略梯度法的样本效率很差。 ==通过重要性采样，我们的目标可以重写，并且我们可以使用旧策略中的样本来计算策略梯度。==
 
-
-
 ![[3.11.excalidraw|600x100]]
 
 但有一点需要注意，使用 $q$ 进行估计，
@@ -558,7 +556,7 @@ $$
 
 使用 Minorize-Maximization（MM）算法，通过最大化下限函数 $M$ （下图蓝线）来迭代实现这一点，该函数在局部近似预期奖励 $\eta$ 。
 
-![[asdfasdfasdfasdf.png]]
+![[3.6.excalidraw|800x100]]
 
 首先，我们从一个初始策略猜测开始，并找到该策略下 $η$ 的下界 $M$ 。 我们优化 $M$，并将 $M$ 的最优策略作为下一个猜测。我们再次在新的猜测下逼近新的下界，并重复迭代，直到策略收敛。为了使其有效，我们需要找到一个更容易优化的下界 $M$ 。
 
@@ -589,6 +587,9 @@ $$
 ![[Pasted image 20250908114521.png]]
 
 那么，我们如何限制策略变化，以确保我们不会做出错误的决定呢？事实证明，我们可以找到一个下限函数 $M$ ，如下所示：
+
+![[3.15.excalidraw|800x100]]
+
 
 ![[Pasted image 20250908114545.png]]
 
@@ -640,7 +641,15 @@ $L$ 在当前策略下局部近似优势函数。但随着它远离旧策略，�
 
 该解决方案涉及二阶导数及其逆的计算，这是一项非常昂贵的操作。
 
-![[黑塞矩阵公式.png]]
+$$
+\mathbf{H} = \nabla^2 f = 
+\begin{bmatrix}
+\frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\
+\frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \cdots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_n^2}
+\end{bmatrix}
+$$
 
 因此，有两种方法可以解决这个问题：
 
@@ -928,7 +937,7 @@ $$
 
 其中 g 是策略梯度， H 被称为 Hessian 矩阵形式的 Fisher 信息矩阵 FIM 。
 
-![[黑塞矩阵公式.png]]
+![[deleted.png]]
 
 优化问题变为：
 
