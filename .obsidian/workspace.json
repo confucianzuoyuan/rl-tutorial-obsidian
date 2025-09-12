@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "附录G：uv教程.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1. 强化学习基础"
+              "title": "附录G：uv教程"
             }
           }
         ]
@@ -185,19 +185,19 @@
   },
   "active": "1f7893c5fea458ff",
   "lastOpenFiles": [
+    "2. 策略梯度法.md",
+    "1. 强化学习基础.md",
     "附录B：KL散度.md",
     "12. 强化学习面试题.md",
     "11. 使用GRPO微调LLM.md",
     "8. 使用DPO微调LLM.md",
     "10. GRPO：组相对策略优化.md",
     "9. 思维链（Chain of Thoughts）.md",
-    "1. 强化学习基础.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "7. DPO：直接偏好优化.md",
     "6. 使用PPO微调LLM.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "2. 策略梯度法.md",
     "Excalidraw/1.1.excalidraw.md",
     "附录F：重要性采样.md",
     "附录G：uv教程.md",

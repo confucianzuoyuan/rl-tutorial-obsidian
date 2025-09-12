@@ -26,4 +26,3 @@ source ~/.bashrc
 # 检查环境变量
 echo $UV_DEFAULT_INDEX
 ```
-
