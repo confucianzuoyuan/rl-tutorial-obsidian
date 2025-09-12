@@ -1,5 +1,6 @@
 {
   "showRibbon": false,
   "baseFontSize": 16,
-  "textFontFamily": "iA Writer Mono,JetBrains Mono,FZShuSong-Z01"
+  "textFontFamily": "",
+  "cssTheme": "Minimal"
 }

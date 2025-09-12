@@ -3,8 +3,8 @@
   "obsidian-git",
   "obsidian-admonition",
   "pseudocode-in-obs",
-  "unicode-search",
   "table-editor-obsidian",
-  "latex-to-unicode",
-  "image-converter"
+  "image-converter",
+  "obsidian-minimal-settings",
+  "obsidian-style-settings"
 ]
