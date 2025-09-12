@@ -1,0 +1,29 @@
+{
+	"nodes":[
+		{"id":"d3ddd723998348b0","type":"file","file":"1. 强化学习基础.md","x":-1000,"y":-640,"width":220,"height":180},
+		{"id":"12e2bc3daa037a64","type":"file","file":"2. 策略梯度法.md","x":-700,"y":-640,"width":260,"height":180},
+		{"id":"5cd5df58b3d0f1fe","x":-390,"y":-640,"width":250,"height":180,"type":"file","file":"3. 策略梯度法的问题以及解决方案：PPO.md"},
+		{"id":"2ca3f0a1b8f6faca","x":20,"y":-640,"width":181,"height":199,"type":"file","file":"4. 使用 PPO 玩倒立摆游戏.md"},
+		{"id":"0da6437dbef91dee","x":4,"y":-315,"width":216,"height":215,"type":"file","file":"5. 基于人类反馈的强化学习（RLHF）.md"},
+		{"id":"9204579f88bee6dd","x":-318,"y":-313,"width":238,"height":213,"type":"file","file":"6. 使用PPO微调LLM.md"},
+		{"id":"3881c1dd30689622","x":-700,"y":-315,"width":270,"height":253,"type":"file","file":"7. DPO：直接偏好优化.md"},
+		{"id":"7141c9ce662bb6bb","x":-1005,"y":-290,"width":205,"height":210,"type":"file","file":"8. 使用DPO微调LLM.md"},
+		{"id":"9ecd4f0ef7b988ba","x":-1005,"y":60,"width":260,"height":240,"type":"file","file":"9. 思维链（Chain of Thoughts）.md"},
+		{"id":"8b2b78bee8154dd1","x":-660,"y":60,"width":252,"height":233,"type":"file","file":"10. GRPO：组相对策略优化.md"},
+		{"id":"f7baf8706b848bd8","x":-300,"y":60,"width":228,"height":216,"type":"file","file":"11. 使用GRPO微调LLM.md"},
+		{"id":"9420d32f762579ea","x":-718,"y":400,"width":238,"height":240,"type":"file","file":"12. 强化学习面试题.md"}
+	],
+	"edges":[
+		{"id":"f8a2da3f6afe1995","fromNode":"d3ddd723998348b0","fromSide":"right","toNode":"12e2bc3daa037a64","toSide":"left"},
+		{"id":"ac895eeb119ad020","fromNode":"12e2bc3daa037a64","fromSide":"right","toNode":"5cd5df58b3d0f1fe","toSide":"left"},
+		{"id":"efac4dedf140d949","fromNode":"5cd5df58b3d0f1fe","fromSide":"right","toNode":"2ca3f0a1b8f6faca","toSide":"left"},
+		{"id":"9015078c96abc9d6","fromNode":"2ca3f0a1b8f6faca","fromSide":"bottom","toNode":"0da6437dbef91dee","toSide":"top"},
+		{"id":"90a9837be524f29f","fromNode":"0da6437dbef91dee","fromSide":"left","toNode":"9204579f88bee6dd","toSide":"right"},
+		{"id":"11b9fa72a6382e02","fromNode":"9204579f88bee6dd","fromSide":"left","toNode":"3881c1dd30689622","toSide":"right"},
+		{"id":"21d6378e4617e55b","fromNode":"3881c1dd30689622","fromSide":"left","toNode":"7141c9ce662bb6bb","toSide":"right"},
+		{"id":"a13cf550cb3323a9","fromNode":"7141c9ce662bb6bb","fromSide":"bottom","toNode":"9ecd4f0ef7b988ba","toSide":"top"},
+		{"id":"fcb11ef3401f3fdd","fromNode":"9ecd4f0ef7b988ba","fromSide":"right","toNode":"8b2b78bee8154dd1","toSide":"left"},
+		{"id":"5b55926bf01acc9f","fromNode":"8b2b78bee8154dd1","fromSide":"right","toNode":"f7baf8706b848bd8","toSide":"left"},
+		{"id":"c9d4bb0215dc0403","fromNode":"f7baf8706b848bd8","fromSide":"bottom","toNode":"9420d32f762579ea","toSide":"top"}
+	]
+}

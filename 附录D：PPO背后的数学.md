@@ -222,7 +222,7 @@ $$
 D_{KL}(P\Vert Q)=\sum_{x=1}^NP(x)\log\frac{P(x)}{Q(x)}
 $$
 
-经过一番思考，这是我们的最终下限 _M_ 。
+经过一番思考，这是我们的最终下限 $M$ 。
 
 ![[3.14.excalidraw|600x100]]
 
@@ -558,7 +558,7 @@ $$
 
 使用 Minorize-Maximization（MM）算法，通过最大化下限函数 $M$ （下图蓝线）来迭代实现这一点，该函数在局部近似预期奖励 $\eta$ 。
 
-![[Pasted image 20250908114143.png]]
+![[asdfasdfasdfasdf.png]]
 
 首先，我们从一个初始策略猜测开始，并找到该策略下 $η$ 的下界 $M$ 。 我们优化 $M$，并将 $M$ 的最优策略作为下一个猜测。我们再次在新的猜测下逼近新的下界，并重复迭代，直到策略收敛。为了使其有效，我们需要找到一个更容易优化的下界 $M$ 。
 
@@ -640,7 +640,7 @@ $L$ 在当前策略下局部近似优势函数。但随着它远离旧策略，�
 
 该解决方案涉及二阶导数及其逆的计算，这是一项非常昂贵的操作。
 
-![[Pasted image 20250908115204.png]]
+![[黑塞矩阵公式.png]]
 
 因此，有两种方法可以解决这个问题：
 
@@ -653,15 +653,19 @@ TRPO 和 ACKTR 采用第一种方法。PPO 更接近第二种方法。我们仍�
 
 制定目标的一种方法是将目标函数中的约束改为惩罚：
 
-![[Pasted image 20250908115309.png]]
+$$
+\underset{ \theta }{ \text{最大化} }\quad \hat{\mathbb{E}}_{t}\left[{\frac{\pi_{\theta}(a_{t}|s_{t})}{\pi_{\theta_{\text{old}}}(a_{t}|s_{t})}\hat{A}_{t}}\right]-\beta  \hat{\mathbb{E}}_{t}[\text{KL}[\pi_{\theta_{\text{old}}}(\cdot|s_{t}),\pi_{\theta(\cdot|s_{t})}]]
+$$
 
 $β$ 控制惩罚的权重。如果新策略与旧策略不同，则惩罚目标。借鉴置信域的概念，我们可以动态调整 $β$ 。下方的 $d$ 是新旧策略之间的 KL 散度。如果它高于目标值，我们就缩小 $β$ 。同样，如果它低于另一个目标值，我们就扩大置信域。
 
-![[Pasted image 20250908115352.png]]
+$$
+d=\hat{\mathbb{E}}_{t}[\text{KL}[\pi_{\theta_{\text{old}}}(\cdot|s_{t}),\pi_{\theta}(\cdot|s_{t})]]
+$$
 
 算法如下：
 
-![[Pasted image 20250908115403.png]]
+![[带自适应裁剪的PPO算法伪代码.png]]
 
 ### 带有裁剪目标的PPO
 
@@ -679,7 +683,9 @@ $$
 
 利用重要性采样的思想，我们可以用从旧策略中收集的样本来评估新策略，从而提高样本使用的效率。
 
-![[Pasted image 20250908115534.png]]
+$$
+\underset{ \theta }{ \text{最大化} }\quad \hat{\mathbb{E}}_{t}\left[{\frac{\pi_{\theta}(a_{t}|s_{t})}{\pi_{\theta_{\text{old}}}(a_{t}|s_{t})}\hat{A}_{t}}\right]
+$$
 
 但是，随着我们对现有策略进行改进，现有策略与旧策略之间的差异会越来越大。估计的方差会增加，我们可能会因为不准确而做出错误的决策。因此，假设每进行4次迭代，我们就将第二个网络与改进后的策略再次同步。
 
@@ -695,7 +701,9 @@ $$
 
 这个比率衡量了两个策略之间的差异程度。如果新策略与旧策略相差甚远，我们会构建一个新的目标函数来限制估计的优势函数。我们的新目标函数变为：
 
-![[Pasted image 20250908115744.png]]
+$$
+\mathcal{L}^\text{CLIP}_{\theta_{k}}(\theta)=\mathbb{E}_{\tau\sim \pi_{k}}\left[\sum_{t=0}^T[\min(r_{t}(\theta)\hat{A}_{t}^{\pi_{k}}, \text{clip}(r_{t}(\theta),1-\epsilon,1+\epsilon)\hat{A}_{t}^{\pi_{k}})]\right]
+$$
 
 如果新策略与旧策略的概率比超出 $(1-ε)$ 和 $(1+ε)$ 的范围，则优势函数将被剪裁。在 PPO 论文中的实验中，$ε$ 设置为 0.2。
 
@@ -749,7 +757,8 @@ MM 是一种迭代方法。每次迭代，我们都会找到一个代理函数 $
 
 然后，我们重新评估新策略的下限，并重复迭代。随着迭代过程的继续，策略会不断改进。由于可能的策略有限，我们当前的策略最终会收敛到局部最优或全局最优。
 
-![[Pasted image 20250908120447.png]]
+![[3.6.excalidraw|800x100]]
+
 
 ### 目标函数
 
@@ -763,17 +772,33 @@ MM 是一种迭代方法。每次迭代，我们都会找到一个代理函数 $
 
 首先，我们先定义 Q 值函数、价值函数和优势函数。这应该很简单。
 
-![[Pasted image 20250908120548.png]]
+![[动作价值函数和价值函数和优势函数的公式.png]]
 
 ### 预期折扣奖励
 
 预期折扣奖励 $η$ 计算如下：
 
-![[Pasted image 20250908120623.png]]
+$$
+\eta(\pi)=\mathbb{E}_{s_{0},a_{0},\dots}\left[\sum_{t=0}^\infty\gamma^tr(s_{t})\right]
+$$
+
+其中，$s_{0}\sim\rho(s_{0}), a_{t}\sim\pi(a_{t}|s_{t}),s_{t+1}\sim P(s_{t+1}|s_{t},a_{t})$ 。
 
 或者，我们可以用一个策略来计算另一个策略的奖励。这为比较两个策略奠定了基础。
 
-![[Pasted image 20250908120635.png]]
+$$
+\eta(\tilde{\pi})=\eta(\pi)+\sum_{s}\rho_{\tilde{\pi}}(s)\sum_{a} \tilde{\pi}(a|s)A_{\pi}(s,a)
+$$
+
+其中
+
+$$
+\rho_{\pi}(s)=P(s_{0}=s)+\gamma P(s_{1}=s)+\gamma^2P(s_{2}=s)+\dots
+$$
+
+$$
+s_{0}\sim \rho_{0}
+$$
 
 证明：
 
@@ -815,19 +840,37 @@ $$
 
 我们将下界函数重写为：
 
-![[Pasted image 20250908121427.png]]
+$$
+\begin{aligned}
+\eta(\tilde{\pi})\geq\mathcal{L}_{\pi}(\tilde{\pi})-CD_{\text{KL}}^{\max}(\pi,\tilde{\pi}),\quad\text{其中}\;\;& C=\frac{4\epsilon\gamma}{(1-\gamma)^2} \\
+& D_{\text{KL}}^{\max}(\pi,\tilde{\pi})=\max_{s}D_{\text{KL}}(\pi(\cdot|s)||\tilde{\pi}(\cdot|s))
+\end{aligned}
+$$
 
 注意：我们还简化了符号：
 
-![[Pasted image 20250908121439.png]]
+$$
+\begin{aligned}
+\eta(\theta)&:=\eta(\pi_{\theta}) \\
+\mathcal{L}_{\theta}(\tilde{\theta})&:=\mathcal{L}_{\pi_{\theta}}(\pi_{\tilde{\theta}})
+\end{aligned}
+$$
 
 ### 单调改进保证
 
 自然策略梯度的关键概念是单调改进保证。它是策略梯度方法中的“金钱保证”版本。简而言之，至少在理论上，任何策略更新都能保证比旧策略更好。我们在这里真正要证明的是，通过优化 $M$ 生成的新策略能够保证其在 $η$ （实际预期奖励）方面的表现优于旧策略。由于策略数量有限，持续改进最终只会使我们达到局部或全局最优值。证明如下：
 
-![[Pasted image 20250908121549.png]]
+只要 $M_{i}(\pi_{i+1})$ 比起 $M(\pi_{i})$ 有改进，那么就会使 $\eta(\pi_{i+1})$ 至少改进相同的幅度。
 
-![[Pasted image 20250908121534.png]]
+令 $M_{i}(\pi)=\mathcal{L}_{\pi_{i}}(\pi)-CD_{\text{KL}}^\max(\pi_{i},\pi)$ 。那么有如下推导过程
+
+$$
+\begin{aligned}
+&\eta(\pi_{i+1})\geq M_{i}(\pi_{i+1}) \\
+&\eta(\pi_{i})=M_{i}(\pi_{i}),\quad \text{那么，} \\
+&\eta(\pi_{i+1})-\eta(\pi_{i})\geq M_{i}(\pi_{i+1})-M(\pi_{i})
+\end{aligned}
+$$
 
 #### 具有单调改进保证的策略迭代
 
@@ -841,11 +884,15 @@ $$
 
 回忆一下𝓛：
 
-![[Pasted image 20250908121646.png]]
+$$
+\mathcal{L}_{\pi}(\tilde{\pi})=\eta(\pi)+\sum_{s}\rho_{\pi}(s)\sum_{a}\tilde{\pi}(a|s)A_{\pi}(s,a)
+$$
 
-我们可以使用重要性采样来估计 $\text{LHS}$，即从策略 $q$ 中采样：
+我们可以使用重要性采样来估计 LHS ，即从策略 $q$ 中采样：
 
-![[Pasted image 20250908121721.png]]
+$$
+\sum_{a}\pi_{\theta}(a|s_{n})A_{\theta_{\text{old}}}(s_{n},a)=\mathbb{E}_{a\sim q}\left[{\frac{\pi_{\theta}(a|s_{n})}{q(a|s_{n})}}A_{\theta_{\text{old}}}(s_{n},a)\right]
+$$
 
 因此，目标可以重写为：
 
@@ -859,11 +906,12 @@ $$
 
 在梯度上升中，我们确定最陡峭的方向，然后朝该方向前进。然而，如果学习率过高，该动作可能会与实际奖励函数偏差过大，最终导致灾难。
 
-![[Pasted image 20250908121836.png]]
+![[3.8.excalidraw|600x100]]
+
 
 在置信域内，我们将搜索限制在由 $δ$ 控制的区域内。从数学上讲，我们在上一节中证明了，这样的区域保证了其最优策略将优于当前策略，直到达到局部最优或全局最优。
 
-![[Pasted image 20250908121859.png]]
+![[3.9.excalidraw|600x100]]
 
 随着我们不断迭代，我们就能达到最优点。
 
@@ -871,23 +919,33 @@ $$
 
 正如我们之前提到的，下界函数 M 应该很容易优化。实际上，我们使用泰勒级数来近似 L 和 KL 散度的均值，其中 L 为一阶，KL 散度为二阶：
 
-![[Pasted image 20250908121933.png]]
+$$
+\begin{aligned}
+& \mathcal{L}_{\theta_{k}}(\theta)\approx g^T(\theta-\theta_{k}) && g \doteq \nabla_{\theta}\mathcal{L}_{\theta_{k}}(\theta)|_{\theta_{k}} \\
+& \overline{D}_{KL}(\theta||\theta_{k})\approx \frac{1}{2}(\theta-\theta_{k})^TH(\theta-\theta_{k}) && H \doteq \nabla^2_{\theta}\overline{D}_{KL}(\theta||\theta_{k})|_{\theta_{k}}
+\end{aligned}
+$$
 
 其中 g 是策略梯度， H 被称为 Hessian 矩阵形式的 Fisher 信息矩阵 FIM 。
 
-![[Pasted image 20250908121952.png]]
+![[黑塞矩阵公式.png]]
 
 优化问题变为：
 
-![[Pasted image 20250908122003.png]]
+$$
+\begin{aligned}
+\theta_{k+1} = \arg & \max_{\theta}g^T(\theta-\theta_{k}) \\
+& \text{s.t.}\quad \frac{1}{2}(\theta-\theta_{k})^TH(\theta-\theta_{k})\leq\delta
+\end{aligned}
+$$
 
 我们可以通过优化二次方程来解决这个问题，其解为：
 
-![[Pasted image 20250908122020.png]]
+![[自然策略梯度公式.png]]
 
 上面计算的步骤称为自然策略梯度。以下是使用 MM 算法和自然策略梯度来优化策略的算法。
 
-![[Pasted image 20250908122030.png]]
+![[自然策略梯度算法伪代码.png]]
 
 ### TRPO
 
@@ -908,7 +966,8 @@ $$
 
 事实证明，我们可以用[共轭梯度](https://medium.com/@jonathan_hui/rl-conjugate-gradient-5a644459137a)法来解决这个问题，这种方法的计算复杂度比求 $H$ 的逆要低。共轭梯度法类似于梯度下降法，但它最多只需 $N$ 次迭代就能找到最优点，其中 $N$ 是模型中参数的数量。
 
-![[Pasted image 20250908122320.png]]
+![[3.23.excalidraw|600x100]]
+
 
 最终的算法是：
 
@@ -950,13 +1009,13 @@ $$
 
 如果新策略与旧策略相差甚远，我们会构建一个新的目标函数来限制估计的优势函数。新的目标函数为：
 
-![[Pasted image 20250908122941.png]]
+![[带裁剪的PPO算法的目标函数.png]]
 
 如果新策略与旧策略的概率比超出 $(1- ε)$ 和 $(1+ε)$ 的范围，则优势函数将被剪裁。在 PPO 论文中的实验中，$ε$ 设置为 0.2。
 
-![[Pasted image 20250908123019.png]]
+![[PPO裁剪范围示意图.png]]
 
 实际上，这阻碍了策略的大规模更新。算法如下：
 
-![[Pasted image 20250908123040.png]]
+![[带裁剪目标的PPO算法伪代码.png]]
 

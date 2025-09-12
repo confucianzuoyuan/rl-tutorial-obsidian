@@ -17,7 +17,7 @@ tags: [excalidraw]
 自回归生成 ^bMiyXDMR
 
 ## Embedded Files
-7cb0aa42365f14285b0ffe6b6064738ba6ca3c6d: [[Pasted Image 20250910175747_803.png]]
+7cb0aa42365f14285b0ffe6b6064738ba6ca3c6d: [[GRPO每个token的奖励.png]]
 
 %%
 ## Drawing

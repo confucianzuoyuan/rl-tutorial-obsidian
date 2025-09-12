@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "0f01670cbe5cffea",
+        "id": "65b743eb4d2b4d23",
         "type": "tabs",
         "children": [
           {
-            "id": "c2eb4b18dc576678",
+            "id": "215a4e317cfe6379",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "11. 使用GRPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1. 强化学习基础"
+              "title": "11. 使用GRPO微调LLM"
             }
           }
         ]
@@ -61,7 +61,7 @@
                 "sortOrder": "alphabetical"
               },
               "icon": "lucide-search",
-              "title": "Search"
+              "title": "搜索"
             }
           },
           {
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 354.5
   },
   "right": {
     "id": "73e94d099b0fc8ff",
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1. 强化学习基础.md",
+                "file": "11. 使用GRPO微调LLM.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "1. 强化学习基础 的大纲"
+              "title": "11. 使用GRPO微调LLM 的大纲"
             }
           },
           {
@@ -183,54 +183,54 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "c2eb4b18dc576678",
+  "active": "215a4e317cfe6379",
   "lastOpenFiles": [
-    "Excalidraw/policy-function.excalidraw.md",
-    "1. 强化学习基础.md",
-    "Excalidraw/1.1.excalidraw.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
-    "6. 使用PPO微调LLM.md",
-    "附录G：uv教程.md",
-    "2. 策略梯度法.md",
+    "附录D：PPO背后的数学.md",
+    "deleted.png",
+    "Excalidraw/3.12.excalidraw.md",
     "附录B：KL散度.md",
-    "12. 强化学习面试题.md",
+    "附录C：广义优势估计（GAE）.md",
+    "附录G：uv教程.md",
+    "附录F：重要性采样.md",
+    "附录E：策略梯度法的证明.md",
+    "fsdafsdafdsa.png",
+    "asdfasdfasdfasdf.png",
+    "img/deleted.png",
+    "Pasted Image 20250809185319_646.png",
+    "delete.png",
+    "deelete.png",
+    "canbedeleted.png",
+    "canbedelete.png",
+    "PPO裁剪函数详细说明.png",
+    "Excalidraw/3.8.excalidraw.md",
+    "9. 思维链（Chain of Thoughts）.md",
+    "附录A：自己实现倒立摆环境.md",
+    "10. GRPO：组相对策略优化.md",
+    "2. 策略梯度法.md",
+    "1. 强化学习基础.md",
+    "0. 强化学习大纲.canvas",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "Excalidraw/1.6.excalidraw.md",
     "11. 使用GRPO微调LLM.md",
     "8. 使用DPO微调LLM.md",
-    "10. GRPO：组相对策略优化.md",
-    "9. 思维链（Chain of Thoughts）.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "7. DPO：直接偏好优化.md",
-    "附录F：重要性采样.md",
-    "Excalidraw/rl-algorisms.excalidraw.md",
+    "6. 使用PPO微调LLM.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "未命名.md",
+    "未命名 1.md",
+    "Excalidraw/policy-function.excalidraw.md",
+    "Excalidraw/1.1.excalidraw.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
     "papers/dapo.pdf",
     "papers/gspo.pdf",
     "papers/kto.pdf",
     "papers/SimPO.pdf",
     "papers/未确认 819949.crdownload",
-    "Excalidraw/ppo-batch-loss.excalidraw.md",
-    "Excalidraw/grpo-in-detail.excalidraw.md",
-    "Excalidraw/grpo-in-detail-1.excalidraw.md",
     "papers/dpo.pdf",
     "papers/grpo.pdf",
     "papers/gae.pdf",
     "papers/未确认 273413.crdownload",
     "papers/ppo.pdf",
-    "Pasted Image 20250910175747_803.png",
-    "Pasted Image 20250910174703_912.png",
-    "image-9.png",
-    "image-8.png",
-    "image-7.png",
-    "image-6.png",
-    "image-5.png",
-    "image-4.png",
-    "image-3.png",
-    "Excalidraw/ppovsgrpo.excalidraw.md",
-    "Pasted Image 20250910170215_974.png",
-    "Excalidraw/sft-dialogue.excalidraw.md",
-    "Excalidraw/lr-decay.excalidraw.md",
-    "Excalidraw/ppo-loss-impl.excalidraw.md",
-    "Excalidraw/sft-loss.excalidraw.md",
     "Untitled.canvas"
   ]
 }

@@ -57,7 +57,7 @@ J ^8hn4XbTV
 一组输出(动作) ^QwmFjmru
 
 ## Embedded Files
-d677190b34a627ce0ded7a19f6ea40681bdd3820: [[Pasted Image 20250910170215_974.png]]
+d677190b34a627ce0ded7a19f6ea40681bdd3820: [[GRPO和PPO的对比示意图.png]]
 
 %%
 ## Drawing

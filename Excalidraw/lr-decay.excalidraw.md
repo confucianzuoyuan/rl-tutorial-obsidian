@@ -13,7 +13,7 @@ tags: [excalidraw]
 学习率线性衰减、余弦衰减和平方根倒数衰减示意图 ^Wq0J8kUC
 
 ## Embedded Files
-c7202b32c5d55874d1b68ea06ed962e948902301: [[Pasted Image 20250910153235_890.png]]
+c7202b32c5d55874d1b68ea06ed962e948902301: [[学习率衰减示意图.png]]
 
 %%
 ## Drawing

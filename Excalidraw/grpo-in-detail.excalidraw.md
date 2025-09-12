@@ -31,7 +31,7 @@ old ^6LJ0KfPs
 使用同一个问题采样一组输出 ^gZsCNtZX
 
 ## Embedded Files
-d299502e2a16a0cd33fb49a5af95ecf33a1314d6: [[Pasted Image 20250910174703_912.png]]
+d299502e2a16a0cd33fb49a5af95ecf33a1314d6: [[GRPO总示意图.png]]
 
 %%
 ## Drawing
