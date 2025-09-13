@@ -5,5 +5,6 @@
   "minimal-style@@row-lines": false,
   "minimal-style@@table-lines": true,
   "minimal-style@@row-hover": true,
-  "minimal-style@@table-numbers": false
+  "minimal-style@@table-numbers": false,
+  "minimal-style@@h3-color@@light": "#15B01D"
 }
