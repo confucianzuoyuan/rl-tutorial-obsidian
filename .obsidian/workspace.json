@@ -6,6 +6,7 @@
       {
         "id": "96e0a806132192a5",
         "type": "tabs",
+        "dimension": 78.35249042145594,
         "children": [
           {
             "id": "bb46fb40b0c53d6a",
@@ -13,13 +14,73 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "附录D：PPO数学推导.md",
+                "file": "2. 策略梯度法.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "附录D：PPO数学推导"
+              "title": "2. 策略梯度法"
+            },
+            "group": "66afe840e56af6b1"
+          },
+          {
+            "id": "ec0a0505b78c5876",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/2.3.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "2.3.excalidraw"
             }
+          },
+          {
+            "id": "c763ddf3ff8caa4e",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/1.5.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "1.5.excalidraw"
+            }
+          },
+          {
+            "id": "bbce61aa32aeaf0b",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Drawing 2025-09-15 08.44.38.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2025-09-15 08.44.38.excalidraw"
+            }
+          }
+        ]
+      },
+      {
+        "id": "03738838e98a28bf",
+        "type": "tabs",
+        "dimension": 21.64750957854406,
+        "children": [
+          {
+            "id": "22e4497e1805b3c1",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "2. 策略梯度法.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "2. 策略梯度法 的大纲"
+            },
+            "group": "66afe840e56af6b1"
           }
         ]
       }
@@ -142,13 +203,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "附录D：PPO数学推导.md",
+                "file": "0. 强化学习大纲.canvas",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "附录D：PPO数学推导 的大纲"
+              "title": "0. 强化学习大纲 的大纲"
             }
           },
           {
@@ -185,10 +246,16 @@
   },
   "active": "bb46fb40b0c53d6a",
   "lastOpenFiles": [
-    "Excalidraw/PPO-Ratio.excalidraw.md",
+    "Excalidraw/2.3.excalidraw.md",
+    "2. 策略梯度法.md",
+    "Drawing 2025-09-15 08.44.38.excalidraw.md",
+    "附录A：自己实现倒立摆环境.md",
     "1. 强化学习基础.md",
+    "Excalidraw/1.5.excalidraw.md",
     "0. 强化学习大纲.canvas",
+    "6. 使用PPO微调LLM.md",
     "附录D：PPO数学推导.md",
+    "Excalidraw/PPO-Ratio.excalidraw.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "Excalidraw/重要性采样-1.excalidraw.md",
     "Excalidraw/重要性采样-2.excalidraw.md",
@@ -215,12 +282,7 @@
     "Excalidraw/3.5deleted.excalidraw.md",
     "Excalidraw/3.3.excalidraw.md",
     "Excalidraw/2.4.excalidraw.md",
-    "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.2.excalidraw.md",
-    "Excalidraw/2.1.excalidraw.md",
-    "Excalidraw/1.6.excalidraw.md",
-    "Excalidraw/1.5.excalidraw.md",
-    "Excalidraw/1.4.excalidraw.md",
     "papers/dapo.pdf",
     "papers/gspo.pdf",
     "papers/kto.pdf",
