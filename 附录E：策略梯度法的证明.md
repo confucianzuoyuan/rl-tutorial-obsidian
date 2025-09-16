@@ -7,13 +7,15 @@ $$
 \nabla_\theta{J_\theta}=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG(\tau)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
 $$
 
-下面对上面的式子进行证明。
+下面对上面的式子进行证明。$(f\cdot g)' = f'g + fg'$ 。
+
+$\nabla_{\theta}J(\theta) = \frac{\partial J(θ)}{\partial θ}$
 
 $$
 \begin{split}
 \nabla_\theta{J(\theta)} &= \nabla_\theta\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack \\
 &= \nabla_\theta\sum_\tau{\Pr(\tau|\theta)G(\tau)} \quad\text{（展开期望值）} \\
-&= \sum_\tau\nabla_\theta(\Pr(\tau|\theta)G(\tau)) \quad\text{（将}\pi_\theta\text{移动到}\sum\text{中）} \\
+&= \sum_\tau\nabla_\theta(\Pr(\tau|\theta)G(\tau)) \quad\text{（将}\nabla_\theta\text{移动到}\sum\text{中）} \\
 &= \sum_\tau\left\lbrace{G(\tau)\nabla_\theta\Pr(\tau|\theta)+\Pr(\tau|\theta)\nabla_\theta{G(\tau)}}\right\rbrace \quad\text{（积的微分）} \\
 &= \sum_\tau{G(\tau)\nabla_\theta\Pr(\tau|\theta)} \quad\text{（}\nabla_\theta{G(\tau)}\text{永远为0）} \\
 &= \sum_\tau G(\tau)\Pr(\tau|\theta)\frac{\nabla_\theta\Pr(\tau|\theta)}{\Pr(\tau|\theta)} \quad\text{（乘以}{\frac{\Pr(\tau|\theta)}{\Pr(\tau|\theta)}}\text{）} \\
@@ -29,7 +31,7 @@ $$
 $$
 
 > [!NOTE]
-> $$\log(f(x))=\frac{f'(x)}{f(x)}$$
+> $$\log(f(x))'=\frac{f'(x)}{f(x)}$$
 
 根据上面的式子，我们就知道
 
@@ -80,6 +82,8 @@ $$
 \begin{split}
 \nabla_\theta J(\theta) &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
 &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T(G_t-b(S_t))\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
+&= \mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^TG_{t}\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t})\right] -\mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^Tb(S_{t})\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t}) \right] \\
+&= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
 \end{split}
 $$
 
@@ -103,7 +107,7 @@ $$
 \nabla_\theta\sum_xP_\theta(x)=\nabla_\theta 1 = 0
 $$
 
-接下来，使用 $\log$ 梯度的技巧将式子展开，过程如下所示。
+接下来，使用log梯度的技巧将式子展开，过程如下所示。
 
 $$
 \begin{split}
@@ -120,7 +124,7 @@ $$
 \mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
 $$
 
-上面的式子是对 $A_t$ 的期望值。因此，我们可以像下面的式子那样，将任何函数 $b(S_t)$ 放入期望值中。
+上面的式子是对 $A_t$ 的期望值。因此，我们可以像下面的式子那样，将任何函数 $b(S_t)$ 放入期望值中。$E[x]=0\to E[cx]=c\cdot 0=0$ 。
 
 $$
 \mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{b(S_t)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0 \tag{2}

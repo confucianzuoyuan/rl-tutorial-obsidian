@@ -4,40 +4,73 @@
     "type": "split",
     "children": [
       {
-        "id": "03738838e98a28bf",
+        "id": "a7f1bb00e35c6b21",
         "type": "tabs",
+        "dimension": 86.65389527458493,
         "children": [
           {
-            "id": "22e4497e1805b3c1",
+            "id": "e57593378e84674d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "3. 策略梯度法的问题以及解决方案：PPO"
+            },
+            "group": "eabf356826ced105"
+          },
+          {
+            "id": "a9bf61753613d6b3",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/3.9.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "3.9.excalidraw"
+            }
+          },
+          {
+            "id": "6984b8cf875431b9",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/1.2.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "1.2.excalidraw"
+            }
+          }
+        ]
+      },
+      {
+        "id": "644f72730a564867",
+        "type": "tabs",
+        "dimension": 13.34610472541507,
+        "children": [
+          {
+            "id": "061ae1ffb9222ebf",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "6. 使用PPO微调LLM 的大纲"
-            }
-          },
-          {
-            "id": "3493c3e11c65a262",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "6. 使用PPO微调LLM.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "6. 使用PPO微调LLM"
-            }
+              "title": "3. 策略梯度法的问题以及解决方案：PPO 的大纲"
+            },
+            "group": "eabf356826ced105"
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -199,28 +232,36 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "3493c3e11c65a262",
+  "active": "e57593378e84674d",
   "lastOpenFiles": [
-    "附录A：自己实现倒立摆环境.md",
-    "附录B：KL散度.md",
-    "附录C：广义优势估计（GAE）.md",
-    "附录E：策略梯度法的证明.md",
-    "附录G：uv教程.md",
-    "附录D：PPO数学推导.md",
+    "Excalidraw/3.9.excalidraw.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
     "2. 策略梯度法.md",
+    "Drawing 2025-09-15 08.44.38.excalidraw.md",
+    "附录E：策略梯度法的证明.md",
+    "1. 强化学习基础.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "附录F：重要性采样.md",
+    "附录D：PPO数学推导.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "Excalidraw/1.2.excalidraw.md",
+    "附录C：广义优势估计（GAE）.md",
+    "6. 使用PPO微调LLM.md",
+    "11. 使用GRPO微调LLM.md",
+    "10. GRPO：组相对策略优化.md",
+    "附录B：KL散度.md",
+    "附录A：自己实现倒立摆环境.md",
+    "9. 思维链（Chain of Thoughts）.md",
+    "8. 使用DPO微调LLM.md",
+    "7. DPO：直接偏好优化.md",
+    "附录G：uv教程.md",
     "Excalidraw/1.5.excalidraw.md",
     "Excalidraw/2.3.excalidraw.md",
-    "Drawing 2025-09-15 08.44.38.excalidraw.md",
-    "1. 强化学习基础.md",
     "0. 强化学习大纲.canvas",
-    "6. 使用PPO微调LLM.md",
     "Excalidraw/PPO-Ratio.excalidraw.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
     "Excalidraw/重要性采样-1.excalidraw.md",
     "Excalidraw/重要性采样-2.excalidraw.md",
-    "Excalidraw/重要性采样-3.excalidraw.md",
     "img/置信域KdeleteL散度公式.png",
-    "附录F：重要性采样.md",
     "PPO推ddd导-de2.png",
     "deldddddted.png",
     "img/PPO目标函数-手写风格.png",
@@ -230,14 +271,6 @@
     "img/PPO更新目标函数示意图.png",
     "img/最优重要de性采样.png",
     "img/自然策略de梯度公式.png",
-    "Excalidraw/3.4.excalidraw.md",
-    "Excalidraw/3.6deleted.excalidraw.md",
-    "Excalidraw/3.7deleted.excalidraw.md",
-    "Excalidraw/3.8.excalidraw.md",
-    "Excalidraw/3.9.excalidraw.md",
-    "Excalidraw/3.2.excalidraw.md",
-    "Excalidraw/3.1.excalidraw.md",
-    "Excalidraw/3.5deleted.excalidraw.md",
     "papers/dapo.pdf",
     "papers/gspo.pdf",
     "papers/kto.pdf",
