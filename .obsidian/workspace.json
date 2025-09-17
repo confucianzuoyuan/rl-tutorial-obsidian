@@ -26,12 +26,50 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "4. 使用 PPO 玩倒立摆游戏.md",
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4. 使用 PPO 玩倒立摆游戏"
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
+            }
+          },
+          {
+            "id": "064230dd3c018312",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
+            }
+          },
+          {
+            "id": "88b5e35d33720012",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/7.1.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "7.1.excalidraw"
+            }
+          },
+          {
+            "id": "74c327fd0de6ce91",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/5.12.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "5.12.excalidraw"
             }
           },
           {
@@ -40,12 +78,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "4. 使用 PPO 玩倒立摆游戏.md",
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4. 使用 PPO 玩倒立摆游戏"
+              "title": "3. 策略梯度法的问题以及解决方案：PPO"
             },
             "group": "32c98ae884332665"
           },
@@ -77,13 +115,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "4. 使用 PPO 玩倒立摆游戏.md",
+                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "4. 使用 PPO 玩倒立摆游戏 的大纲"
+              "title": "3. 策略梯度法的问题以及解决方案：PPO 的大纲"
             },
             "group": "32c98ae884332665"
           }
@@ -249,18 +287,30 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "da788b6710240c07",
+  "active": "064230dd3c018312",
   "lastOpenFiles": [
-    "backprop.excalidraw.md",
-    "ppo-algo-array.excalidraw.md",
+    "10. GRPO：组相对策略优化.md",
+    "Excalidraw/5.8.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "Excalidraw/5.7.excalidraw.md",
     "7. DPO：直接偏好优化.md",
+    "6. 使用PPO微调LLM.md",
+    "papers/kto.pdf",
+    "papers/SimPO.pdf",
+    "Excalidraw/7.1.excalidraw.md",
+    "Excalidraw/5.12.excalidraw.md",
+    "Excalidraw/5.9.excalidraw.md",
+    "papers/dapo.pdf",
+    "papers/gspo.pdf",
+    "Excalidraw/5.1.excalidraw.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "附录C：广义优势估计（GAE）.md",
+    "ppo-algo-array.excalidraw.md",
+    "backprop.excalidraw.md",
     "2. 策略梯度法.md",
     "1. 强化学习基础.md",
     "0. 强化学习大纲.canvas",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "附录C：广义优势估计（GAE）.md",
-    "6. 使用PPO微调LLM.md",
     "附录B：KL散度.md",
     "附录F：重要性采样.md",
     "Excalidraw/ppo-clip-case-4.excalidraw.md",
@@ -271,17 +321,10 @@
     "附录D：PPO数学推导.md",
     "papers/trpo.pdf",
     "8. 使用DPO微调LLM.md",
-    "Excalidraw/1.2.excalidraw.md",
-    "Excalidraw/3.9.excalidraw.md",
-    "Excalidraw/ppo-object.excalidraw.md",
     "papers/ppo-self-contained-tutorial.pdf",
-    "Excalidraw/actor-critic-code-comments.excalidraw.md",
     "papers/未确认 169982.crdownload",
     "papers/ppo.pdf",
     "papers/grpo.pdf",
-    "附录E：策略梯度法的证明.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "11. 使用GRPO微调LLM.md",
     "img/置信域KdeleteL散度公式.png",
     "PPO推ddd导-de2.png",
     "deldddddted.png",
@@ -292,10 +335,6 @@
     "img/PPO更新目标函数示意图.png",
     "img/最优重要de性采样.png",
     "img/自然策略de梯度公式.png",
-    "papers/dapo.pdf",
-    "papers/gspo.pdf",
-    "papers/kto.pdf",
-    "papers/SimPO.pdf",
     "papers/未确认 819949.crdownload",
     "Untitled.canvas"
   ]
