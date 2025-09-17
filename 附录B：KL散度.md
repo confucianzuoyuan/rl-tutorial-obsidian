@@ -64,7 +64,7 @@ KL散度约为0.082。假设另一个人对这枚硬币的概率分布做了如�
 $$
 \begin{split}
 D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.2}+0.3\log\frac{0.3}{0.8} \\
-&= 0.058\cdots
+&= 0.58\cdots
 \end{split}
 $$
 
@@ -137,6 +137,10 @@ $$
 
 $$
 D_{KL}(P||Q) = -H(P) + H(P,Q)
+$$
+
+$$
+\frac{\partial D_{KL}(P\Vert Q)}{\partial\theta} = \frac{\partial H(P, Q)}{\partial \theta}
 $$
 
 其中：
