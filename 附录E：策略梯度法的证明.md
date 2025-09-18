@@ -76,6 +76,19 @@ $$
 
 这样我们就完成了 $\nabla_\theta{J(\theta)}$ 的推导。
 
+```ad-danger
+title: 从极大似然估计的角度看策略梯度
+
+$$
+\begin{aligned}
+J(θ) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
+&= G(\tau)\log{\left(\prod_{t=0}^T\pi_{\theta}(A_{t}|S_{t})\right)}
+\end{aligned}
+$$
+
+最大化目标就会提升某些状态对应的动作的概率。
+```
+
 ## 2. 基线的推导
 
 $$
