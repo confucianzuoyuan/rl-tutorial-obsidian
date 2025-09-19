@@ -22,6 +22,18 @@
             }
           },
           {
+            "id": "05bcdfafd089d6d9",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/ppo-loss-impl.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "ppo-loss-impl.excalidraw"
+            }
+          },
+          {
             "id": "0ccb0d22b6dd7318",
             "type": "leaf",
             "state": {
@@ -197,6 +209,9 @@
   },
   "active": "5f2e496d5cfdd4a1",
   "lastOpenFiles": [
+    "Excalidraw/ppo-loss-impl.excalidraw.md",
+    "8. 使用DPO微调LLM.md",
+    "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "7. DPO：直接偏好优化.md",
     "Excalidraw/7.1.excalidraw.md",
     "附录B：KL散度.md",
@@ -207,8 +222,6 @@
     "4. 使用 PPO 玩倒立摆游戏.md",
     "附录C：广义优势估计（GAE）.md",
     "Excalidraw/gae.excalidraw.md",
-    "Drawing 2025-09-19 10.02.51.excalidraw.md",
-    "8. 使用DPO微调LLM.md",
     "img/ultrachat数据集.png",
     "附录E：策略梯度法的证明.md",
     "附录H：torch.gather.md",
@@ -223,7 +236,6 @@
     "10. GRPO：组相对策略优化.md",
     "附录D：PPO数学推导.md",
     "Excalidraw/5.8.excalidraw.md",
-    "Excalidraw/5.7.excalidraw.md",
     "papers/kto.pdf",
     "papers/SimPO.pdf",
     "papers/dapo.pdf",
