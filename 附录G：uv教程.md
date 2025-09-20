@@ -26,3 +26,16 @@ source ~/.bashrc
 # 检查环境变量
 echo $UV_DEFAULT_INDEX
 ```
+
+## git-lfs
+
+```bash
+$ apt update
+$ apt install git-lfs
+$ git lfs install
+$ git clone https://hf-mirror.com/datasets/HuggingFaceH4/ultrafeedback_binarized
+$ git clone https://hf-mirror.com/datasets/HuggingFaceH4/ultrachat_200k
+$ git clone https://hf-mirror.com/Qwen/Qwen2.5-0.5B
+$ git clone https://hf-mirror.com/Qwen/Qwen2.5-3B-Instruct
+```
+

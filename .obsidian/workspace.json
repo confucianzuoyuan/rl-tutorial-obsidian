@@ -13,12 +13,48 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "8. 使用DPO微调LLM.md",
+                "file": "附录G：uv教程.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "8. 使用DPO微调LLM"
+              "title": "附录G：uv教程"
+            }
+          },
+          {
+            "id": "3ba7ab5b742cb1f8",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Drawing 2025-09-20 11.07.16.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2025-09-20 11.07.16.excalidraw"
+            }
+          },
+          {
+            "id": "96aa090443591076",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/ppo-loss-impl.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "ppo-loss-impl.excalidraw"
+            }
+          },
+          {
+            "id": "0cce83bbd113f2dd",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Excalidraw/sft-loss.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "sft-loss.excalidraw"
             }
           },
           {
@@ -209,15 +245,23 @@
   },
   "active": "5f2e496d5cfdd4a1",
   "lastOpenFiles": [
-    "Excalidraw/ppo-loss-impl.excalidraw.md",
     "8. 使用DPO微调LLM.md",
-    "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "7. DPO：直接偏好优化.md",
+    "Drawing 2025-09-20 11.07.16.excalidraw.md",
+    "Excalidraw/ppo-loss-impl.excalidraw.md",
+    "Excalidraw/sft-loss.excalidraw.md",
+    "11. 使用GRPO微调LLM.md",
+    "10. GRPO：组相对策略优化.md",
+    "9. 思维链（Chain of Thoughts）.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "Excalidraw/ppo-batch-loss.excalidraw.md",
+    "codes/chat-test.py~",
+    "codes/chat-test.py",
+    "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "Excalidraw/7.1.excalidraw.md",
     "附录B：KL散度.md",
     "Excalidraw/ppo-reward-calculate.excalidraw.md",
     "Excalidraw/ppo-reward.excalidraw.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "6. 使用PPO微调LLM.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "附录C：广义优势估计（GAE）.md",
@@ -230,12 +274,6 @@
     "附录G：uv教程.md",
     "Excalidraw/raw-pg-code.excalidraw.md",
     "Excalidraw/5.12.excalidraw.md",
-    "2. 策略梯度法.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "11. 使用GRPO微调LLM.md",
-    "10. GRPO：组相对策略优化.md",
-    "附录D：PPO数学推导.md",
-    "Excalidraw/5.8.excalidraw.md",
     "papers/kto.pdf",
     "papers/SimPO.pdf",
     "papers/dapo.pdf",
@@ -245,7 +283,6 @@
     "papers/ppo-self-contained-tutorial.pdf",
     "papers/未确认 169982.crdownload",
     "papers/ppo.pdf",
-    "papers/grpo.pdf",
     "img/置信域KdeleteL散度公式.png",
     "PPO推ddd导-de2.png",
     "deldddddted.png",
@@ -255,7 +292,6 @@
     "img/PPO裁剪函数详细说明.png",
     "img/PPO更新目标函数示意图.png",
     "img/最优重要de性采样.png",
-    "papers/未确认 819949.crdownload",
     "Untitled.canvas"
   ]
 }
