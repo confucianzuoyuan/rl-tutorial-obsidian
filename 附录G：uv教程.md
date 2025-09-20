@@ -1,7 +1,7 @@
 
 ```bash
 $ pip install uv
-$ uv rlhf-env # 创建虚拟环境
+$ uv venv rlhf-env # 创建虚拟环境
 $ source rlhf-env/bin/activate # 进入虚拟环境
 $ uv pip install jinja2
 $ uv pip install pandas
