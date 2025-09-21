@@ -6,6 +6,7 @@
       {
         "id": "693b0bf6f8f240e5",
         "type": "tabs",
+        "dimension": 80.20434227330779,
         "children": [
           {
             "id": "5f2e496d5cfdd4a1",
@@ -13,12 +14,27 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "附录G：uv教程.md",
+                "file": "11. 使用GRPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "附录G：uv教程"
+              "title": "11. 使用GRPO微调LLM"
+            },
+            "group": "316abfeb27a0920f"
+          },
+          {
+            "id": "e689f97da8ed9dbd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "11. 使用GRPO微调LLM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "11. 使用GRPO微调LLM"
             }
           },
           {
@@ -80,6 +96,29 @@
               "icon": "excalidraw-icon",
               "title": "7.1.excalidraw"
             }
+          }
+        ]
+      },
+      {
+        "id": "e430f5e5be70633f",
+        "type": "tabs",
+        "dimension": 19.79565772669221,
+        "children": [
+          {
+            "id": "4229b7507b635369",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "11. 使用GRPO微调LLM.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "11. 使用GRPO微调LLM 的大纲"
+            },
+            "group": "316abfeb27a0920f"
           }
         ]
       }
@@ -245,14 +284,19 @@
   },
   "active": "5f2e496d5cfdd4a1",
   "lastOpenFiles": [
+    "附录I：Qwen2模型结构和分词器代码.md",
+    "11. 使用GRPO微调LLM.md",
     "8. 使用DPO微调LLM.md",
     "7. DPO：直接偏好优化.md",
+    "6. 使用PPO微调LLM.md",
+    "1. 强化学习基础.md",
+    "2. 策略梯度法.md",
+    "10. GRPO：组相对策略优化.md",
+    "9. 思维链（Chain of Thoughts）.md",
+    "附录G：uv教程.md",
     "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Excalidraw/ppo-loss-impl.excalidraw.md",
     "Excalidraw/sft-loss.excalidraw.md",
-    "11. 使用GRPO微调LLM.md",
-    "10. GRPO：组相对策略优化.md",
-    "9. 思维链（Chain of Thoughts）.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "Excalidraw/ppo-batch-loss.excalidraw.md",
     "codes/chat-test.py~",
@@ -262,7 +306,6 @@
     "附录B：KL散度.md",
     "Excalidraw/ppo-reward-calculate.excalidraw.md",
     "Excalidraw/ppo-reward.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "附录C：广义优势估计（GAE）.md",
     "Excalidraw/gae.excalidraw.md",
@@ -270,10 +313,6 @@
     "附录E：策略梯度法的证明.md",
     "附录H：torch.gather.md",
     "Excalidraw/backprop.excalidraw.md",
-    "Excalidraw/ppo-algo-array.excalidraw.md",
-    "附录G：uv教程.md",
-    "Excalidraw/raw-pg-code.excalidraw.md",
-    "Excalidraw/5.12.excalidraw.md",
     "papers/kto.pdf",
     "papers/SimPO.pdf",
     "papers/dapo.pdf",
