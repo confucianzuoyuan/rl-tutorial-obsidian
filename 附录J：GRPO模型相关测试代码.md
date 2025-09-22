@@ -79,3 +79,15 @@ for episode in episodes:
     print("===============text=======================")
 ```
 
+```
+('<|im_start|>system\n'
+ '你是一个有用的助手。你首先在脑海中思考推理过程，然后为用户提供答案。<|im_end|>\n'
+ '<|im_start|>user\n'
+ '使用这些数字 [1, 2, 3]，创建一个等于 6 的等式。你可以使用基本算术运算（+、-、*、/），每个数字只能使用一次。在 <think> '
+ '</think> 标签中展示你的解题过程。并在 <answer> </answer> 标签中返回最终答案，例如 <answer> (1 + 2) / 3 '
+ '</answer>。<|im_end|>\n'
+ '<|im_start|>assistant\n'
+ '让我一步步来解决这个问题。\n'
+ '<think>')
+```
+

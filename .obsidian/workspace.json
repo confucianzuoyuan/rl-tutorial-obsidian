@@ -13,6 +13,20 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "11. 使用GRPO微调LLM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "11. 使用GRPO微调LLM"
+            }
+          },
+          {
+            "id": "bfcae642aa252b67",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "10. GRPO：组相对策略优化.md",
                 "mode": "source",
                 "source": false
@@ -22,27 +36,15 @@
             }
           },
           {
-            "id": "56b13d64a675cf55",
+            "id": "9c72662ac456e97b",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/8.8.excalidraw.md"
+                "file": "Excalidraw/grpo-in-detail.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "8.8.excalidraw"
-            }
-          },
-          {
-            "id": "5eefb0b29f069abf",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/8.7.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "8.7.excalidraw"
+              "title": "grpo-in-detail.excalidraw"
             }
           }
         ]
@@ -209,28 +211,32 @@
   },
   "active": "24ddd8ee2a7ff3cd",
   "lastOpenFiles": [
+    "附录I：Qwen2模型结构和分词器代码.md",
+    "11. 使用GRPO微调LLM.md",
+    "10. GRPO：组相对策略优化.md",
+    "Excalidraw/grpo-in-detail.excalidraw.md",
+    "Drawing 2025-09-20 11.07.16.excalidraw.md",
+    "Excalidraw/8.8.excalidraw.md",
+    "papers/gspo.pdf",
+    "附录J：GRPO模型相关测试代码.md",
+    "附录G：uv教程.md",
+    "papers/dapo.pdf",
+    "Excalidraw/ppovsgrpo.excalidraw.md",
+    "papers/attention-is-all-you-need.pdf",
     "papers/learning-representations-by-back-propagating-errors.pdf",
     "papers/deepseek-v3.pdf",
     "papers/deepseek-r1.pdf",
-    "papers/attention-is-all-you-need.pdf",
     "9. 思维链（Chain of Thoughts）.md",
-    "Excalidraw/8.8.excalidraw.md",
     "Excalidraw/8.7.excalidraw.md",
     "Excalidraw/8.5.excalidraw.md",
     "Excalidraw/8.4.excalidraw.md",
     "8. 使用DPO微调LLM.md",
     "附录H：torch.gather.md",
-    "附录J：GRPO模型相关测试代码.md",
-    "附录I：Qwen2模型结构和分词器代码.md",
-    "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
-    "11. 使用GRPO微调LLM.md",
     "7. DPO：直接偏好优化.md",
     "6. 使用PPO微调LLM.md",
     "1. 强化学习基础.md",
     "2. 策略梯度法.md",
-    "10. GRPO：组相对策略优化.md",
-    "附录G：uv教程.md",
     "Excalidraw/ppo-loss-impl.excalidraw.md",
     "Excalidraw/sft-loss.excalidraw.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
@@ -238,15 +244,10 @@
     "codes/chat-test.py~",
     "codes/chat-test.py",
     "Excalidraw/7.1.excalidraw.md",
-    "附录B：KL散度.md",
-    "Excalidraw/ppo-reward-calculate.excalidraw.md",
     "img/ultrachat数据集.png",
     "papers/kto.pdf",
     "papers/SimPO.pdf",
-    "papers/dapo.pdf",
-    "papers/gspo.pdf",
     "0. 强化学习大纲.canvas",
-    "papers/trpo.pdf",
     "img/置信域KdeleteL散度公式.png",
     "PPO推ddd导-de2.png",
     "deldddddted.png",
