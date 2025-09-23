@@ -107,12 +107,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "12. 强化学习面试题.md",
+                "file": "6. 使用PPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "12. 强化学习面试题"
+              "title": "6. 使用PPO微调LLM"
             }
           }
         ],
@@ -280,23 +280,23 @@
   },
   "active": "d29d0b540713ea4d",
   "lastOpenFiles": [
-    "Drawing 2025-09-20 11.07.16.excalidraw.md",
+    "8. 使用DPO微调LLM.md",
+    "ppo项目架构图.excalidraw.md",
+    "6. 使用PPO微调LLM.md",
     "12. 强化学习面试题.md",
+    "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "附录L：GRPO-Fine-tuning-Pipeline.md",
     "附录K：GRPO微调医疗问答思维链.md",
     "grpo项目架构图.excalidraw.md",
     "dpo项目架构图.excalidraw.md",
-    "ppo项目架构图.excalidraw.md",
     "11. 使用GRPO微调LLM.md",
     "附录J：GRPO模型相关测试代码.md",
     "7. DPO：直接偏好优化.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "6. 使用PPO微调LLM.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "附录G：uv教程.md",
     "Excalidraw/grpo-in-detail.excalidraw.md",
-    "8. 使用DPO微调LLM.md",
     "10. GRPO：组相对策略优化.md",
     "附录I：Qwen2模型结构和分词器代码.md",
     "Excalidraw/8.8.excalidraw.md",
