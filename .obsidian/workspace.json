@@ -105,12 +105,14 @@
             "id": "d29d0b540713ea4d",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "dpo项目架构图.excalidraw.md"
+                "file": "12. 强化学习面试题.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "dpo项目架构图.excalidraw"
+              "icon": "lucide-file",
+              "title": "12. 强化学习面试题"
             }
           }
         ],
@@ -278,18 +280,19 @@
   },
   "active": "d29d0b540713ea4d",
   "lastOpenFiles": [
-    "ppo项目架构图.excalidraw.md",
+    "Drawing 2025-09-20 11.07.16.excalidraw.md",
+    "12. 强化学习面试题.md",
+    "附录L：GRPO-Fine-tuning-Pipeline.md",
+    "附录K：GRPO微调医疗问答思维链.md",
     "grpo项目架构图.excalidraw.md",
     "dpo项目架构图.excalidraw.md",
+    "ppo项目架构图.excalidraw.md",
     "11. 使用GRPO微调LLM.md",
-    "附录K：GRPO微调医疗问答思维链.md",
-    "附录L：GRPO-Fine-tuning-Pipeline.md",
     "附录J：GRPO模型相关测试代码.md",
     "7. DPO：直接偏好优化.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "6. 使用PPO微调LLM.md",
-    "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "附录G：uv教程.md",
     "Excalidraw/grpo-in-detail.excalidraw.md",
@@ -309,7 +312,6 @@
     "Excalidraw/8.5.excalidraw.md",
     "Excalidraw/8.4.excalidraw.md",
     "附录H：torch.gather.md",
-    "1. 强化学习基础.md",
     "codes/chat-test.py~",
     "codes/chat-test.py",
     "img/ultrachat数据集.png",
