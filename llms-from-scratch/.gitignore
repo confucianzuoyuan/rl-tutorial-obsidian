@@ -1,0 +1,4 @@
+Qwen3-0.6B-Base/
+__pycache__/
+*.pth
+*.pdf

@@ -1,0 +1,36 @@
+\documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
+
+
+\begin{document}
+
+\tikzset{
+  point/.style = {% define a style for the function points
+    circle,
+    fill=#1,
+    draw=black,
+    inner sep=1pt,
+  },
+  point/.default = {violet!60}
+}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{0.4\textwidth}{!}{%
+\begin{tikzpicture}[declare function={f(\x)=(\x-5)^2;}]
+    \draw[thick, dashed](0,0)--(15,0) node[right]{$\theta$};
+    \draw[thick, dashed](0,0)--(0,30) node[above]{Cost};
+    \draw[thick, dashed](0.6, {f(0.6)}) -- (0.6,0)
+          node[below, text width=4em, align=center]{Random initial value};
+    \draw[thick, dashed](3, {f(3)}) -- (3,0) node[below]{$\hat\theta$};
+    \draw[domain=4:6, smooth, thick, gray] plot (\x, f(\x);
+    \foreach \a [count=\c, remember=\c as \C] in {4, 4.2, 4.36, 4.488, 4.5904} {
+      \node[point] (\c) at (\a, {f(\a)}){};
+      \ifnum\c>1 % after the first coordinate draw an arrow
+         \draw[->, bend left](\C) to (\c);
+      \fi
+    }
+ \end{tikzpicture}
+}
+\end{figure}
+
+\end{document}
