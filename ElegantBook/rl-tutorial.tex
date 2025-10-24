@@ -1413,6 +1413,66 @@ $\begin{aligned}
 \label{fig:my_label123}
 \end{figure}
 
+\mybox[blue]{深入讨论}{
+采样一条轨迹的梯度是 $\nabla_{\theta}J(\theta) \approx \sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$
+\\
+如果将梯度符号去掉，可以得到如下：
+$$
+\begin{aligned}
+J(\theta) & \approx \sum_{t=0}^TG(\tau)\log\pi_{\theta}(A_t|S_t) \\
+& = G(\tau)\sum_{t=0}^T\log\pi_{\theta}(A_t|S_t) \\
+& = G(\tau)\left( \log\pi_\theta(A_0|S_0) + \log\pi_\theta(A_1|S_1) + \dots\right)
+\end{aligned}
+$$
+我们的目标是让 $J(\theta)$ 越大越好，那么在经过梯度上升算法之后，$J(\theta)$会变大，那么肯定有的 $\log\pi_\theta(A_t|S_t)$ 变大了，也可能有的 $\log\pi_\theta(A_{t'}|S_{t'})$ 变小了，但总和肯定变大了。也就是说，
+\bigskip
+策略梯度法的本质是，我们使用\textbf{当前策略}$\pi_\theta$采样一条轨迹$\tau$，如果采样的轨迹的回报$G(\tau)$很高，那么说明我们在某个状态$S_t$采取的动作$A_t$比较好，导致了总的奖励也就是回报比较高。那么通过梯度上升法，更新$\theta$之后，新的策略$\pi_{\theta_\text{new}}$会提升\textbf{在 $S_t$ 时执行 $A_t$ 的概率}。例如 $A_t$ 是 “向左推车” ，那么在 $S_t$ 状态下策略采取 “向左推车” 的概率就会提升，而同时策略采取 “向右推车” 的概率就会下降。
+\bigskip
+举一个最简单的例子，我们采样的轨迹只执行了一步动作，就结束了。那么有如下公式
+$$
+J(\theta) = G(\tau)\log\pi_\theta(A_0|S_0)
+$$
+\begin{itemize}
+\item 如果$G>0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变大。
+\item 如果$G<0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变小。
+\end{itemize}
+如果$G$特别大，例如$G=10000$，或者$G$特别小，例如$G=-10000$，那么梯度上升算法的步长$\alpha G\nabla_\theta\log_{\pi_{\theta}}(A_0|S_0)$的绝对值一定会很大，进而导致策略的参数$\theta$更新幅度巨大，进而导致策略$\pi_\theta$爆炸式的更新。
+\bigskip
+换句话说，我们只是提高了在状态$S_0=s$是采取动作$A_0$的概率，但是在玩倒立摆游戏时，并不能保证状态$s$经常出现。碰到其它的状态，更新后的策略表现可能非常的差。好比一个人，突然间中了1000万，那么如此大的奖励会直接彻底改变这个人的策略，他的策略彻底变成了靠运气生活。或者一个人犯了一点点小错误，却得到了巨大的惩罚，如此大的惩罚也会让一个人信心崩溃。这就是策略崩溃的例子。
+\begin{figure}[H]
+\centering
+\resizebox{0.5\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw (8.75,20) to[short] (16.25,20);
+\draw [short] (16.25,20) .. controls (17,24.75) and (18.25,24.75) .. (21.5,25.5);
+\draw [short] (21.5,25.5) -- (25.75,20);
+\draw [short] (25.75,20) -- (32,20);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (18,24.25) circle (0.25cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24) circle (0cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24.25) circle (0cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18.25,24) circle (0cm);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (19.75,25) circle (0.25cm);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (25,21) circle (0.25cm);
+\draw [dashed] (18,27.5) -- (18,19);
+\draw [dashed] (19.75,27.5) -- (19.75,23.75);
+\draw [dashed] (25,22.25) -- (25,19);
+\draw [<->, >=Stealth] (18,27) -- (19.75,27);
+\draw [<->, >=Stealth] (18,19.5) -- (25,19.5);
+\draw [->, >=Stealth, dashed] (19,27) -- (17.75,30);
+\draw [->, >=Stealth, dashed] (21.5,19.5) -- (20.5,16.5);
+\node [font=\LARGE] at (17.75,30.5) {理想的步长};
+\node [font=\LARGE] at (21,15.75) {步子太大，梯度爆炸式更新};
+\end{circuitikz}
+}%
+\caption{梯度爆炸式更新}
+\label{fig:gradient-explode}
+\end{figure}
+\bigskip
+}
+
+
+
 接下来，我们用代码来实现一下策略梯度法。
 
 我们讲一些实现细节。我们可以把强化学习想成一个分类问题，这个分类问题就是输入倒立摆的状态，输出某个类。在解决分类问题时，我们要收集一些训练数据，数据中要有输入与输出的对。在实现的时候，我们把倒立摆的状态当作分类器的输入，就像在解决图像分类的问题，只是现在的类不是图像里面的东西，而是看到倒立摆的状态我们要采取什么样的动作，每一个动作就是一个类。比如第一个类是向左，第二个类是向右。
