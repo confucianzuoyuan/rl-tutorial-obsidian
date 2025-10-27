@@ -1,36 +1,21 @@
-\documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
-
-
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{circuitikz}
+\usepackage[demo]{tikzpeople}
 \begin{document}
 
-\tikzset{
-  point/.style = {% define a style for the function points
-    circle,
-    fill=#1,
-    draw=black,
-    inner sep=1pt,
-  },
-  point/.default = {violet!60}
-}
+\begin{tikzpicture}[pin distance=1cm,every pin/.append style={font=\sffamily\itshape}]
+\node[jester,minimum size=3cm,
+pin={[text width=8em]95:{Move left}}]
+{Actor};
 
-\begin{figure}[!ht]
-\centering
-\resizebox{0.4\textwidth}{!}{%
-\begin{tikzpicture}[declare function={f(\x)=(\x-5)^2;}]
-    \draw[thick, dashed](0,0)--(15,0) node[right]{$\theta$};
-    \draw[thick, dashed](0,0)--(0,30) node[above]{Cost};
-    \draw[thick, dashed](0.6, {f(0.6)}) -- (0.6,0)
-          node[below, text width=4em, align=center]{Random initial value};
-    \draw[thick, dashed](3, {f(3)}) -- (3,0) node[below]{$\hat\theta$};
-    \draw[domain=4:6, smooth, thick, gray] plot (\x, f(\x);
-    \foreach \a [count=\c, remember=\c as \C] in {4, 4.2, 4.36, 4.488, 4.5904} {
-      \node[point] (\c) at (\a, {f(\a)}){};
-      \ifnum\c>1 % after the first coordinate draw an arrow
-         \draw[->, bend left](\C) to (\c);
-      \fi
-    }
- \end{tikzpicture}
-}
-\end{figure}
+\node (rect) at (3.5,-1) [draw=gray,fill=gray,thick,minimum width=2cm,minimum height=1cm] {};
+\node (rect) at (4,0.5) [rotate around={-30:(-1,0.5)},draw=brown,fill=brown,thick,minimum width=0.05cm,minimum height=2cm] {};
+
+\node[judge,mirrored,minimum size=3cm,
+pin={Moving in.}] at (7cm,0)
+{Critic};
+\end{tikzpicture}
 
 \end{document}

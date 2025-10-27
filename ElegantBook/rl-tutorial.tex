@@ -9,6 +9,7 @@
                 intersections,
                 quotes,
                 shapes.geometric}
+\usepackage[demo]{tikzpeople}
 \tcbuselibrary{minted,skins,breakable}
 % 灵活版本（可选颜色）
 \NewDocumentCommand{\mybox}{O{red} m m}{%
@@ -16,6 +17,8 @@
     #3
   \end{tcolorbox}%
 }
+
+
 
 \newtcolorbox{marker}[1][]{enhanced,
   before skip=2mm,after skip=3mm,
@@ -1471,13 +1474,21 @@ $$
 \bigskip
 }
 
-
-
 接下来，我们用代码来实现一下策略梯度法。
 
 我们讲一些实现细节。我们可以把强化学习想成一个分类问题，这个分类问题就是输入倒立摆的状态，输出某个类。在解决分类问题时，我们要收集一些训练数据，数据中要有输入与输出的对。在实现的时候，我们把倒立摆的状态当作分类器的输入，就像在解决图像分类的问题，只是现在的类不是图像里面的东西，而是看到倒立摆的状态我们要采取什么样的动作，每一个动作就是一个类。比如第一个类是向左，第二个类是向右。
 
 在解决分类问题时，我们要有输入和正确的输出，要有训练数据。但在强化学习中，我们通过采样来获得训练数据。假设在采样的过程中，在某个状态下，我们采样到要采取动作 $A$， 那么就把动作 $A$ 当作标准答案（ground truth）。比如，我们在某个状态下，采样到要向左。因为是采样，所以向左这个动作不一定概率最高。假设我们采样到向左，在训练的时候，让智能体调整网络的参数，如果看到某个状态，我们就向左。在一般的分类问题里面，我们在实现分类的时候，目标函数都会写成最小化交叉熵（cross entropy），最小化交叉熵就是最大化对数似然（log likelihood）。
+
+\mybox[blue]{从极大似然估计的角度看策略梯度}{
+$$
+\begin{aligned}
+J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
+&= G(\tau)\log{\left(\prod_{t=0}^T\pi_{\theta}(A_{t}|S_{t})\right)}
+\end{aligned}
+$$
+最大化目标就会提升某些状态对应的动作的概率。
+}
 
 \newpage
 \begin{codebox}{python}{策略神经网络}
@@ -1836,26 +1847,415 @@ class Agent:
 
 \section{基线（baseline）}
 
-    \begin{tikzpicture}[
-every edge/.style = {draw, -{Triangle[angle=60:1pt 3,flex]},
-                             bend right=11, blue,ultra thick},
-every edge quotes/.style = {font=\scriptsize, inner sep=1pt, 
-                            auto, sloped}
-                            ]
-\fill (0,0) circle[radius=3pt];
-\path[name path=C] foreach \i in {4, 8, 16, 22, 28}
-        {(0,0) circle[draw=red!\i, x radius=2*\i mm, y radius=\i mm, rotate=-5]};
-\foreach \i in  {4, 8, 16, 22, 28}
-    \draw[line width=11.2/\i, draw=white!\i!gray]
-        (0,0) circle[x radius=2*\i mm, y radius=\i mm, rotate=-5];
-\path[name path=V] (-4,2.4) .. controls + (0,-2) and + (-2,0) .. (0,0);
-%
-\draw [name intersections={of=C and V, sort by=C, name=A}]
-        (A-5) edge ["${w[0]}$"] (A-4)
-        (A-4) edge ["${w[1]}$"] (A-3)
-        (A-3) edge ["${w[2]}$"] (A-2);
-    \end{tikzpicture}
+\mybox[blue]{使用REINFORCE玩倒立摆的问题}{
+前面介绍的REINFORCE玩倒立摆有一个问题，那就是不管我们怎么推车，获得的奖励都是正奖励。也就是说不管怎么玩，我们都会提升某个状态采取某个动作的概率，即使奖励很少也是如此。其实我们在玩倒立摆时，获得的奖励很少时，应该降低某个状态下采取某个动作的概率。也就是说，我们应该在获得的奖励很多时，给予策略正的奖励，而在获得奖励很少时，给予策略负的奖励。这样会更加的合理。这就是\textbf{基线}的技术。
+\newline
+\newline
+倒立摆环境中只要倒立摆没有倒，给出的奖励总是 1 。也就是不管策略多么的差劲，采样出的轨迹的回报一定是正的。也就是说，即使轨迹的回报很低，也会提升在 $S_t$ 采取 $A_t$ 的概率，只是可能提升的不大。
+\newline
+\newline
+如果加入基线，那么如果轨迹的回报很低，权重就会成为负值，从而在策略更新之后，直接降低在 $S_t$ 采取 $A_t$ 的概率。所以训练速度会加快。
+}
+
+下面介绍一种叫作基线（baseline）的技术，该技术可以改进REINFORCE。让我们先通过一个简单的例子来了解一下基线的思路，然后再将基线应用于REINFORCE。
+
+\subsection{带基线的策略梯度法}
+
+式(1)是REINFORCE的数学式。将基线应用于这个REINFORCE的数学式如式(2)所示。
+
+$$
+\begin{aligned}
+\nabla_{\theta}J(\theta) &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T G_t\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \quad\quad\quad\quad\quad\quad(1) \\
+&= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T (G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \quad\quad(2)
+\end{aligned}
+$$
+
+式(2)用 $G_t-b(S_t)$ 代替了 $G_t$ 。这里 $b(S_t)$ 可以是任何函数。也就是说，只要输入是 $S_t$ ， $b(S_t)$ 是什么函数都行。这个 $b(S_t)$ 就是基线（baseline）。
+
+式（2）中的 $b(S_t)$ 可以是任何函数。例如，在状态 $S_t$ 下，可以考虑使用之前获得的奖励的平均值作为 $b(S_t)$ 。实践中经常使用的是价值函数，数学式为 $b(S_t)=V_{\pi_{\theta}}(S_t)$ 。如果能够使用基线减小方差，那么就可以进行样本效率更高的训练。另外，将价值函数作为基线使用时，我们是不知道真正的价值函数 $v_{\pi_{\theta}}(S_t)$ 的。这种情况下还需要训练价值函数神经网络。
+
+最后，我们再通过直观介绍补充说明一下为什么使用基线更好。这里以倒立摆为例，思考图示的状态。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [short] (13.5,19.5) -- (31,19.5);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (20.75,19.75) rectangle (21.75,19);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,195; green,162; blue,136}, rotate around={-19:(19.75, 20.125)}] (18.25,20.25) rectangle (21.25,20);
+\end{circuitikz}
+}%
+\caption{无论怎么推，倒立摆都会在3步之后倒下}
+\label{fig:cartpole-failed}
+\end{figure}
+
+图\ref{fig:cartpole-failed}表示游戏结束之前的杆子失去平衡的状态。在这种状态下，无论采取什么样的行动，在几个时间步之后游戏都将结束。
+
+设图的状态为 $s$ ，在此状态下采取的行动为 $a$ 。假定从状态 $s$ 开始几个时间步（比如3个时间步）后游戏一定会结束。在这种情况下，状态 $s$ 的回报 $G$ 为 $3$ （这里设折扣因子 $\gamma$ 为 $1$ 。如果使用的是没有基线的REINFORCE，那么状态 $s$ 下的行动 $a$ 就会因为权重 $3$ 而被增强（状态 $s$ 下选择行动 $a$ 的概率会变高）。但无论采取什么样的行动，3 个时间步之后游戏一定会结束，所以可以说这种提高行动 $a$ 被选择的概率的工作是无意义的。
+
+此时就要用到基线了。这里使用价值函数作为基线，假设我们已经知道图中的例子中的 $V_{\pi_{\theta}}(S_t)=3$ 。此时的权重为 $G_t-V_{\pi_{\theta}}$ 所以是 0 。由于权重是 0 ，因此无论选择什么行动，采取那个行动的概率都不会变大，也不会变小。像这样使用基线，有望减少无谓的训练。
+
+\section{Actor-Critic（演员-评论家）}
+
+如果在上节介绍的带基线的REINFORCE中使用价值函数作为基线，那么就可以将其视为基于价值且基于策略的方法。本节将进一步改进带基线的REINFORCE，推导一个叫作Actor-Critic的算法。Actor-Critic也是基于价值且基于策略的方法。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{0.6\textwidth}{!}{%
+\begin{tikzpicture}[pin distance=1cm,every pin/.append style={font=\sffamily\itshape}]
+\node[jester,minimum size=3cm,
+pin={[text width=8em]95:{向左移动}}]
+{Actor};
+
+\node (rect) at (3.5,-1) [draw=gray,fill=gray,thick,minimum width=2cm,minimum height=1cm] {};
+\node (rect) at (4,0.5) [rotate around={-30:(-1,0.5)},draw=brown,fill=brown,thick,minimum width=0.05cm,minimum height=2cm] {};
+
+\node[judge,mirrored,minimum size=3cm,
+pin={价值很低}] at (7cm,0)
+{Critic};
+\end{tikzpicture}}
+\caption{演员-评论家}
+\label{fig:actor-critic}
+\end{figure}
+
+\subsection{Actor-Critic的数学推导}
+
+首先从复习带基线的REINFORCE开始。带基线的REINFORCE的目标函数的梯度的数学式如下所示。
+
+$$
+\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
+$$
+
+式中的 $G_t$ 表示回报，$b(S_t)$ 表示基线。可以使用任何函数作为基线。这里我们使用基于神经网络建模的价值函数作为基线。因此，我们要用到以下这些新的记号。
+
+\begin{itemize}
+\item $\omega$ ：表示价值函数的神经网络的所有权重参数。
+\item $V_{\omega}(S_t)$ ：将价值函数模型化的神经网络。
+\end{itemize}
+
+此时目标函数的梯度的数学式如下所示
+
+$$
+\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(G_t-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
+$$
+
+式中存在一个问题，即只要没抵达目标，就无法确定回报 $G_t$ 的值。也就是说，在抵达目标之前，无法更新策略和价值函数。如果这是基于蒙特卡洛方法的算法，那么二者无法更新就是它的缺点。
+
+\mybox[blue]{蒙特卡洛采样}{
+  我们之前使用的是蒙特卡洛采样，也就是采样出一条完整的轨迹。然后更新策略神经网络$\pi_\theta$。
+}
+
+消除这个缺点的方法是\textbf{时序-差分方法}（TD方法，Time Difference Method）。使用TD方法训练价值函数时，使用1个时间步（或 $n$ 个时间步）后的结果就能进行更新，如图所示。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,255; green,243; blue,189} , rounded corners = 17.4] (12.75,26.5) rectangle (16.75,21.5);
+\draw [ fill={rgb,255:red,251; green,249; blue,249} ] (14.75,24.5) circle (1cm);
+\draw [ fill={rgb,255:red,228; green,216; blue,216} ] (14.75,24.25) circle (0cm);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} , rounded corners = 17.4] (21.75,26.5) rectangle (39.5,21.5);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (23.5,24.5) circle (0.5cm);
+\draw [ fill={rgb,255:red,251; green,249; blue,249} ] (27,24.5) circle (1cm);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (32.75,24.5) circle (0.5cm);
+\draw [ fill={rgb,255:red,248; green,242; blue,242} , rounded corners = 6.0] (36,25.25) rectangle (38,23.5);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} , rounded corners = 0.0] (37,24.25) rectangle (37,24.25);
+\draw [->, >=Stealth] (15.75,24.5) -- (23,24.5);
+\draw [->, >=Stealth] (24,24.5) -- (26,24.5);
+\draw [->, >=Stealth] (28,24.5) -- (29.25,24.5);
+\draw [dashed] (29.25,24.5) -- (30.5,24.5);
+\draw [->, >=Stealth] (30.75,24.5) -- (32.25,24.5);
+\draw [->, >=Stealth] (33.25,24.5) -- (36,24.5);
+\node [font=\LARGE] at (14.75,22.5) {$S_t$};
+\node [font=\LARGE] at (23.5,22.5) {$A_t$};
+\node [font=\LARGE] at (25,22.5) {$R_t$};
+\node [font=\LARGE] at (27,22.5) {$S_{t+1}$};
+\node [font=\LARGE] at (32.75,22.5) {$A_{T-1}$};
+\node [font=\LARGE] at (34.5,22.5) {$R_{T-1}$};
+\node [font=\LARGE] at (37,22.5) {$A_{T-1}$};
+\draw [dashed] (14.75,21.5) .. controls (15.25,20) and (15.25,19.75) .. (16.5,19.5);
+\draw [dashed] (26,21.5) .. controls (24.75,20) and (24.75,19.75) .. (22.25,19.5);
+\node [font=\LARGE] at (17.25,19.25) {$V_{\omega}(S_t)$};
+\draw [->, >=Stealth] (18.25,19.25) -- (21.25,19.25);
+\node [font=\LARGE] at (21.75,19.25) {$G_t$};
+\draw [ fill={rgb,255:red,255; green,243; blue,189} , rounded corners = 17.4] (12.5,16.25) rectangle (16.5,11.25);
+\draw [ fill={rgb,255:red,251; green,249; blue,249} ] (14.5,14.25) circle (1cm);
+\draw [ fill={rgb,255:red,228; green,216; blue,216} ] (14.5,14) circle (0cm);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} , rounded corners = 17.4] (21.5,16.25) rectangle (28.5,11.25);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} ] (23.25,14.25) circle (0.5cm);
+\draw [ fill={rgb,255:red,251; green,249; blue,249} ] (26.75,14.25) circle (1cm);
+\draw [ fill={rgb,255:red,0; green,0; blue,0} , rounded corners = 0.0] (36.75,14) rectangle (36.75,14);
+\draw [->, >=Stealth] (15.5,14.25) -- (22.75,14.25);
+\draw [->, >=Stealth] (23.75,14.25) -- (25.75,14.25);
+\node [font=\LARGE] at (14.5,12.25) {$S_t$};
+\node [font=\LARGE] at (23.25,12.25) {$A_t$};
+\node [font=\LARGE] at (24.75,12.25) {$R_t$};
+\node [font=\LARGE] at (26.75,12.25) {$S_{t+1}$};
+\draw [dashed] (14.5,11.25) .. controls (15,9.75) and (15,9.5) .. (16.25,9.25);
+\draw [dashed] (25.75,11.25) .. controls (24.5,10.25) and (25,10) .. (23.25,9.5);
+\node [font=\LARGE] at (17,9) {$V_{\omega}(S_t)$};
+\draw [->, >=Stealth] (18,9) -- (21,9);
+\node [font=\LARGE] at (23,9) {$R_t+\gamma V_\omega(S_{t+1})$};
+\node [font=\LARGE] at (22,28.75) {蒙特卡洛方法};
+\node [font=\LARGE] at (22,17.5) {时序差分方法};
+\end{circuitikz}
+}%
+\caption{蒙特卡洛方法和TD方法}
+\label{fig:montecarlo-vs-td}
+\end{figure}
+
+如图所示，在训练价值函数 $V_{\omega}(S_t)$ 时，蒙特卡洛方法使用的是回报 $G_t$ ，而TD方法使用的是 $R_t+\gamma V_{\omega}(S_{t+1})$ 。
+
+\mybox[blue]{时序差分误差}{
+使用神经网络对价值函数建模时，我们以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 的值。具体来说就是将 $V_{\omega}(S_t)$ 和 $R_t+\gamma V_{\omega}(S_{t+1})$ 的均方差作为损失函数，通过梯度下降法更新神经网络的权重。
+\newline
+贝尔曼期望方程：$V_\omega(S_t)=\mathbb{E}_\pi\left[ R_t + \gamma V_\omega(S_{t+1}) | S_t \right]$
+\newline
+可以看到$V_{\omega}(S_t)\leftarrow{R_t+\gamma V_{\omega}(S_{t+1})}$是由贝尔曼期望方程而来的。
+}
+
+下面将基于蒙特卡洛方法的公式切换为TD方法，其中，代替 $G_t$ 的是 $R_t+\gamma V_{\omega}(S_{t+1})$ 。此时得到的式子如下所示。
+
+$$
+\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(R_t+\gamma V_{\omega}(S_{t+1})-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
+$$
+
+1步TD误差经常表示为 $\delta = R_{t} + \gamma V_{\omega}(S_{t+1}) - V_{\omega}(S_{t})$
+
+基于上面的公式的算法就是 Actor-Critic 。策略 $\pi_{\theta}$ 和价值函数 $V_{\omega}$ 是神经网络，我们要同时训练这两个神经网络。具体来说，对于策略 $\pi_{\theta}$ 要基于上面的公式进行训练；而对于价值函数 $V_{\omega}$ ，则通过 TD 方法，以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 这个神经网络。
+
+\mybox[blue]{Actor}{
+Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，也就是采取动作的人，相当于策略 $\pi_{\theta}$ 。而 Critic 是\textbf{评论家}的意思，相当于价值函数 $V_{\omega}$ 。因此，Actor-Critic 的意思是“使用 $V_{\omega}$ ，来评论基于策略 $\pi_{\theta}$ 采取的动作的好坏”。
+}
+
+\subsection{Actic-Critic 的代码实现}
+
+下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如下所示。
+
+下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如下所示。
+
+\begin{codebox}{python}{策略网络和价值网络}
+import numpy as np
+import gym
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.distributions import Categorical
+
+class PolicyNet(nn.Module):
+    def __init__(self, action_size):
+        super().__init__()
+        self.l1 = nn.Linear(4, 128)β\tikzmark{actorcritic1}β
+        self.l2 = nn.Linear(128, action_size)β\tikzmark{actorcritic2}β
+
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = F.softmax(self.l2(x), dim=1)
+        return x
+
+class ValueNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(4, 128)
+        self.l2 = nn.Linear(128, 1)β\tikzmark{actorcritic3}β
+
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = self.l2(x)
+        return xβ\tikzmark{actorcritic4}β
+\end{codebox}
+
+\begin{tikzpicture}[
+  remember picture,
+  overlay,
+  annotation/.style={
+    inner sep=0pt,
+    outer sep=0pt,
+    outer xsep=1mm,
+    fill=yellow!80!black,
+    text width=5cm
+  },
+  >={Stealth[inset=0pt, angle=45:7pt]}
+]
+\draw[<-] (pic cs:actorcritic1)  ++(0.5,0.4) -| ++(1.6,1.1)
+node[annotation, below right]
+{$Y_{{1}\times{128}}=X_{1\times{4}}W_{4\times{128}}+B_{{1}\times{128}}$};
+\draw[<-] (pic cs:actorcritic2)  ++(0.5,0.4) -| ++(2,1.1)
+node[annotation, below right]
+{$Y_{{1}\times{2}}=X_{1\times{128}}W_{128\times{2}}+B_{{1}\times{2}}$};
+\draw[<-] (pic cs:actorcritic3)  ++(0.5,0.4) -| ++(2,1.1)
+node[annotation, below right]
+{$Y_{{1}\times{1}}=X_{1\times{128}}W_{128\times{1}}+B_{{1}\times{1}}$};
+\draw[<-] (pic cs:actorcritic4)  ++(0.5,0.4) -| ++(2.5,1.1)
+node[annotation, below right]
+{$V_\omega(S_t)$输出的是一个标量值（当前状态的价值）};
+\end{tikzpicture}
+
+上面的代码将策略的网络实现为了 \py{PolicyNet} 类，将价值函数的网络实现为了 \py{ValueNet} 类。策略的最终输出是 \py{Softmax} 函数的输出，所以输出的是概率。接下来是 \py{Agent} 类的代码。
+
+\begin{codebox}{python}{智能体代码-1}
+class Agent:
+    def __init__(self):
+        self.gamma = 0.98 # 折扣因子
+        self.lr_pi = 0.0002 # 策略网络的学习率
+        self.lr_v = 0.0005 # 价值网络的学习率
+        self.action_size = 2 # 两个动作
+        # 初始化策略网络
+        self.pi = PolicyNet(self.action_size)
+        # 初始化价值函数网络
+        self.v = ValueNet()
+
+        self.optimizer_pi = optim.Adam(
+            self.pi.parameters(),
+            lr=self.lr_pi
+        )
+        self.optimizer_v = optim.Adam(
+            self.v.parameters(),
+            lr=self.lr_v
+        )
+
+    def get_action(self, state):
+        # 张量形状：β$(4,)\rightarrow{(1,4)}$β
+        state = torch.tensor(state[np.newaxis, :])
+        # 动作的概率分布
+        probs = self.pi(state)
+        probs = probs[0]
+        # 根据概率分布初始化一个二项分布
+        m = Categorical(probs)
+        # 使用二项分布采样一个动作
+        action = m.sample().item()
+        return action, probs[action]
+\end{codebox}
+
+\newpage
+\begin{codebox}{python}{智能体代码-2}
+class Agent:
+    ...
+
+    def update(
+        self,
+        state, # β$S_t$β
+        action_prob, # β$\pi(A_t|S_t)$β
+        reward, # β$R_t$β
+        next_state, # β$S_{t+1}$β
+        done
+    ):
+        state = torch.tensor(state[np.newaxis, :])β\tikzmark{acagent2}β
+        next_state = torch.tensor(next_state[np.newaxis, :])β\tikzmark{acagent3}β
+
+        # β$\circled{1}$βself.v 的损失：均方差
+        target = reward + self.gamma * self.v(next_state) * (1 - done)β\tikzmark{acagent1}β
+        # 从计算图中剥离，不参与反向传播
+        target.detach()
+        v = self.v(state)β\tikzmark{acagent4}β
+        loss_fn = nn.MSELoss()
+        loss_v = loss_fn(v, target)β\tikzmark{acagent5}β
+
+        # β$\circled{2}$βself.pi 的损失
+        delta = target - vβ\tikzmark{acagent6}β
+        loss_pi = -torch.log(action_prob) * delta.item()β\tikzmark{acagent7}β
+
+        self.optimizer_v.zero_grad()
+        self.optimizer_pi.zero_grad()
+        loss_v.backward()
+        loss_pi.backward()
+        self.optimizer_v.step()
+        self.optimizer_pi.step()
+\end{codebox}
+
+\begin{tikzpicture}[
+  remember picture,
+  overlay,
+  annotation/.style={
+    inner sep=0pt,
+    outer sep=0pt,
+    outer xsep=1mm,
+    fill=yellow!80!black,
+    text width=4.2cm
+  },
+  >={Stealth[inset=0pt, angle=45:7pt]}
+]
+\draw[<-] (pic cs:acagent1)  ++(0.5,0.4) -| ++(0.52,1.1)
+node[annotation, below right]
+{{\small $\text{TD目标}=R_t+\gamma V_\omega(S_{t+1})$}};
+\draw[<-] (pic cs:acagent2)  ++(0.5,0.4) -| ++(0.6,1.1)
+node[annotation, below right]
+{$S_t$};
+\draw[<-] (pic cs:acagent3)  ++(0.5,0.4) -| ++(0.6,1.1)
+node[annotation, below right]
+{$S_{t+1}$};
+\draw[<-] (pic cs:acagent4)  ++(0.5,0.4) -| ++(1.6,0.6)
+node[annotation, below right]
+{$V_\omega(S_t)$};
+\draw[<-] (pic cs:acagent5)  ++(0.5,0.4) -| ++(1.6,0.6)
+node[annotation, below right]
+{{\tiny $(R_t+\gamma V_\omega(S_{t+1})-V_\omega(S_t))^2\rightarrow{0}$}};
+\draw[<-] (pic cs:acagent6)  ++(0.5,0.4) -| ++(1.6,0.6)
+node[annotation, below right]
+{{\tiny $\delta=R_t+\gamma V_\omega(S_{t+1})-V_\omega(S_t)$}};
+\draw[<-] (pic cs:acagent7)  ++(0.5,0.4) -| ++(1.6,0.6)
+node[annotation, below right]
+{{\tiny $-(R_t+\gamma V_\omega(S_{t+1})-V_\omega(S_t))\log{\pi_\theta(A_t|S_t)}$}};
+\end{tikzpicture}
+
+\py{get_action} 方法可以基于策略取出动作。需要注意的是，由于输入到神经网络中的数据将作为小批量进行处理，因此在处理其中一个数据（状态）时需要小批量的轴。另外，\py{get_action} 方法返回了两个值，即选择的动作及其概率。选择动作的概率将在稍后的损失函数计算中使用。
+
+\py{update}方法可以训练价值函数和策略。在代码 $\circled{1}$ 处为价值函数(\py{self.v})计算损失。为此要计算TD目标（target），求出当前状态下其与价值函数（v）的均方差。然后，在代码 $\circled{2}$ 处为策略（\py{self.pi}）计算损失。需要将其乘以 $-1$ 的值作为损失。剩下的就是一直以来的神经网络的训练代码。
+
+\begin{codebox}{python}{Actor-Critic智能体的训练代码}
+for episode in range(2000):
+    state = env.reset()
+    done = False
+    total_reward = 0
+
+    while not done:
+        action, prob = agent.get_action(state)
+        next_state, reward, done, info = env.step(action)
+        # 执行完一个动作，立即更新 β$\pi_\theta$β 和 β$V_\omega$β 这两个网络
+        agent.update(state, prob, reward, next_state, done)
+
+        state = next_state
+        total_reward += reward
+
+    reward_history.append(total_reward)
+    if episode % 100 == 0:
+        print("episode :{}, \
+               total reward : {:.1f}" \
+            .format(episode, total_reward))
+
+plt.xlabel('Episode')
+plt.ylabel('Total Reward')
+plt.plot(range(len(reward_history)), reward_history)
+plt.show()
+\end{codebox}
+
+得到的结果如下图所示。
+
+\section{总结}
+
+在本章中，我们学习了基于策略的方法——策略梯度法。具体来说，我们学习了 4 种策略梯度法的算法。它们的统一的数学式如下所示。
+
+$$
+\nabla_\theta J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T\Phi_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
+$$
+
+\begin{tabular}{lll}
+1. & $\Phi_t=G(\tau)$                             & （最简单的策略梯度法） \\
+2. & $\Phi_t=G_t$                                 & （REINFORCE） \\
+3. & $\Phi_t=G_t-b(S_t)$                          & （带基线的REINFORCE） \\
+4. & $\Phi_t = R_t + \gamma V(S_{t+1})-V(S_t)$    & （Actor-Critic）
+\end{tabular}
+
+
+上面4种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入“基线”这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
 
 \part{基于人类反馈的强化学习（RLHF）}
+
+\chapter{大语言模型的预训练}
+
+
 
 \end{document}
