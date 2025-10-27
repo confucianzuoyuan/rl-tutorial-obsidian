@@ -177,12 +177,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2. 策略梯度法.md",
+                "file": "附录E：策略梯度法的证明.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2. 策略梯度法"
+              "title": "附录E：策略梯度法的证明"
             }
           },
           {
@@ -414,6 +414,8 @@
   },
   "active": "9c72662ac456e97b",
   "lastOpenFiles": [
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "2. 策略梯度法.md",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
     "ElegantBook/_minted/E707D3605A1C15B99960822D5D628447.highlight.minted",
@@ -424,16 +426,13 @@
     "ElegantBook/_minted/C7E68D528E2C2FC7052531587340C6C3.highlight.minted",
     "ElegantBook/_minted/0202FFAFB31E0175B7D511912C313722.highlight.minted",
     "ElegantBook/_minted/29194B8B3C4C6B7AB2B8E071B15E5BA6.highlight.minted",
-    "ElegantBook/rl-tutorial.aux",
     "附录C：广义优势估计（GAE）.md",
     "附录E：策略梯度法的证明.md",
-    "2. 策略梯度法.md",
     "1. 强化学习基础.md",
     "6. 使用PPO微调LLM.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "8. 使用DPO微调LLM.md",
     "未命名.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
