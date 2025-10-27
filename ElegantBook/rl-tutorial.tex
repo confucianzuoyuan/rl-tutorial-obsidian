@@ -2241,22 +2241,20 @@ plt.show()
 当 $J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack$ 时，其梯度如下面的式子所示。
 
 $$
-\nabla_\theta{J_\theta}=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG(\tau)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
+\nabla_\theta{J(\theta)}=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG(\tau)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
 $$
 
-下面对上面的式子进行证明。$(f\cdot g)' = f'g + fg'$ 。
-
-$\nabla_{\theta}J(\theta) = \frac{\partial J(\theta)}{\partial\theta}$
+下面对上面的式子进行证明。
 
 $$
 \begin{aligned}
 \nabla_\theta{J(\theta)} &= \nabla_\theta\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack \\
-&= \nabla_\theta\sum_\tau{\Pr(\tau|\theta)G(\tau)} \quad\text{（展开期望值）} \\
-&= \sum_\tau\nabla_\theta(\Pr(\tau|\theta)G(\tau)) \quad\text{（将}\nabla_\theta\text{移动到}\sum\text{中）} \\
-&= \sum_\tau\left\lbrace{G(\tau)\nabla_\theta\Pr(\tau|\theta)+\Pr(\tau|\theta)\nabla_\theta{G(\tau)}}\right\rbrace \quad\text{（积的微分）} \\
-&= \sum_\tau{G(\tau)\nabla_\theta\Pr(\tau|\theta)} \quad\text{（}\nabla_\theta{G(\tau)}\text{永远为0）} \\
-&= \sum_\tau G(\tau)\Pr(\tau|\theta)\frac{\nabla_\theta\Pr(\tau|\theta)}{\Pr(\tau|\theta)} \quad\text{（乘以}{\frac{\Pr(\tau|\theta)}{\Pr(\tau|\theta)}}\text{）} \\
-&= \sum_\tau G(\tau)\Pr(\tau|\theta)\nabla_\theta\log\Pr(\tau|\theta) \quad\text{（}\log\text{梯度的技巧）} \\
+&= \nabla_\theta\sum_\tau{\Pr(\tau|\theta)G(\tau)} \quad{\color{cyan}\text{（展开期望值）}} \\
+&= \sum_\tau\nabla_\theta(\Pr(\tau|\theta)G(\tau)) \quad{\color{cyan}\text{（将}\nabla_\theta\text{移动到}\sum\text{中）}} \\
+&= \sum_\tau\left\lbrace{G(\tau)\nabla_\theta\Pr(\tau|\theta)+\Pr(\tau|\theta)\nabla_\theta{G(\tau)}}\right\rbrace \quad{\color{cyan}\text{（积的微分）}} \\
+&= \sum_\tau{G(\tau)\nabla_\theta\Pr(\tau|\theta)} \quad{\color{cyan}\text{（}\nabla_\theta{G(\tau)}\text{永远为0）}} \\
+&= \sum_\tau G(\tau)\Pr(\tau|\theta){\color{red}\frac{\nabla_\theta\Pr(\tau|\theta)}{\Pr(\tau|\theta)} \quad{\color{cyan}\text{（乘以}{\frac{\Pr(\tau|\theta)}{\Pr(\tau|\theta)}}\text{）}}} \\
+&= \sum_\tau G(\tau)\Pr(\tau|\theta){\color{red}\nabla_\theta\log\Pr(\tau|\theta)} \quad{\color{cyan}\text{（}\log\text{梯度的技巧）}} \\
 &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)\nabla_\theta\log\Pr(\tau|\theta)}\right\rbrack
 \end{aligned}
 $$
@@ -2278,7 +2276,7 @@ $$
 \nabla_\theta\Pr(\tau|\theta)=\Pr(\tau|\theta)\nabla_\theta\log\Pr(\tau|\theta)
 $$
 
-这就是著名的 **log 梯度的技巧** 。是机器学习领域常用的数学式的变形形式。
+这就是著名的\textbf{log梯度的技巧}。是机器学习领域常用的数学式的变形形式。
 
 接下来，我们将利用以下等式进一步展开$(1)$。
 
@@ -2314,6 +2312,16 @@ $$
 $$
 
 这样我们就完成了 $\nabla_\theta{J(\theta)}$ 的推导。
+
+\mybox[blue]{从极大似然估计的角度看策略梯度}{
+$$
+\begin{aligned}
+J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
+&= G(\tau)\log{\left(\prod_{t=0}^T\pi_{\theta}(A_{t}|S_{t})\right)}
+\end{aligned}
+$$
+最大化目标就会提升某些状态对应的动作的概率。
+}
 
 \section{总结}
 
