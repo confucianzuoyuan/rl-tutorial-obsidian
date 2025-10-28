@@ -1,21 +1,15 @@
 \documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{circuitikz}
-\usepackage[demo]{tikzpeople}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
 \begin{document}
-
-\begin{tikzpicture}[pin distance=1cm,every pin/.append style={font=\sffamily\itshape}]
-\node[jester,minimum size=3cm,
-pin={[text width=8em]95:{Move left}}]
-{Actor};
-
-\node (rect) at (3.5,-1) [draw=gray,fill=gray,thick,minimum width=2cm,minimum height=1cm] {};
-\node (rect) at (4,0.5) [rotate around={-30:(-1,0.5)},draw=brown,fill=brown,thick,minimum width=0.05cm,minimum height=2cm] {};
-
-\node[judge,mirrored,minimum size=3cm,
-pin={Moving in.}] at (7cm,0)
-{Critic};
-\end{tikzpicture}
-
-\end{document}
+\begin{algorithm}
+    \caption{My algorithm}\label{a1}
+        \begin{algorithmic}[1]
+            \State $i \gets 1$
+            \While {$i > 10$}
+            \State Statement
+            \EndWhile
+        \end{algorithmic}
+\end{algorithm}
+\end{document} 
