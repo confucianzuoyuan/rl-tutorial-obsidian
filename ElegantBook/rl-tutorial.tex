@@ -204,10 +204,9 @@
 \resizebox{1\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
-\node [font=\LARGE] at (19.5,21.5) {要采取的动作的概率分布   =   策略函数(环境的状态)};
+\node [font=\LARGE] at (19.5,21.5) {要采取的动作的概率分布   =   {\colorbox{red!30}{策略函数}}(环境的状态)};
 \draw [ fill={rgb,255:red,215; green,29; blue,157} ] (35.5,24.25) rectangle (35.5,24);
 \draw [ fill={rgb,255:red,215; green,29; blue,157} ] (19.25,24.75) rectangle (19.25,24.75);
-\draw [ color={rgb,255:red,219; green,10; blue,10}, line width=1.2pt, short] (20.25,21) -- (22.5,21);
 \draw [short] (12.5,12.5) -- (27.25,12.5);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (15.5,15.25) rectangle (16.75,12.5);
 \draw [ fill={rgb,255:red,178; green,242; blue,187} ] (21.5,19.75) rectangle (22.75,12.5);
@@ -626,7 +625,7 @@ MDP通过假设马尔可夫性质的存在来模拟状态转移和奖励。引�
 \mybox[blue]{倒立摆环境中的奖励}{
 倒立摆环境中的奖励是确定性的，只要木杆不倒下，就给奖励 1 。
 \\
-而通常情况下，奖励函数也是一个神经网络。
+奖励函数也可能是一个神经网络。
 }
 
 \subsection{策略}
@@ -2322,6 +2321,75 @@ J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
 $$
 最大化目标就会提升某些状态对应的动作的概率。
 }
+
+\subsection{基线的推导}
+
+$$
+\begin{aligned}
+\nabla_\theta J(\theta) &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
+&= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T(G_t-b(S_t))\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
+&= \mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^TG_{t}\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t})\right] -\mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^Tb(S_{t})\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t}) \right] \\
+&= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
+\end{aligned}
+$$
+
+如上面的式子所示，我们可以使用 $G_t-b(S_t)$ 代替 $G_t$ 。$b(S_t)$ 是\textbf{任何函数}，我们称之为“基线”。下面进行上式的推导。
+
+首先，证明以下式子成立。
+
+$$
+\mathbb{E}_{x\sim P_\theta}\left\lbrack{\nabla_\theta\log P_\theta(x)}\right\rbrack = 0
+$$
+
+这里假设随机变量 $x$ 是基于概率分布 $P_\theta(x)$ 生成的。$P_\theta(x)$ 会根据参数 $\theta$ 改变概率分布的形状。此时有以下式子成立。
+
+$$
+\sum_xP_\theta(x)=1
+$$
+
+由于 $P_\theta(x)$ 是概率分布，因此所有 $x$ 的值的和为 1 。然后，求这个式子的梯度。
+
+$$
+\nabla_\theta\sum_xP_\theta(x)=\nabla_\theta 1 = 0
+$$
+
+接下来，使用log梯度的技巧将式子展开，过程如下所示。
+
+$$
+\begin{aligned}
+0 &= \nabla_\theta\sum_xP_\theta(x) \\
+&= \sum_x\nabla_\theta P_\theta(x) \\
+&= \sum_xP_\theta(x)\nabla_\theta\log P_\theta(x) \\
+&= \mathbb{E}_{x\sim P_\theta}\left\lbrack{\nabla_\theta\log P_\theta(x)}\right\rbrack
+\end{aligned}
+$$
+
+证明(1)完毕。接下来将证明的式子用于我们的问题。具体来说，用 $A_t$ 代替(1)中的 $x$ ，然后使用 $\pi_\theta(\cdot|S_t)$ 代替 $P_\theta(\cdot)$ 。这样就可以得到以下式子。
+
+$$
+\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
+$$
+
+上面的式子是对 $A_t$ 的期望值。因此，我们可以像下面的式子那样，将任何函数 $b(S_t)$ 放入期望值中。$E[x]=0\to E[cx]=c\cdot 0=0$ 。
+
+$$
+\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{b(S_t)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
+$$
+
+$b(S_t)$ 是以 $S_t$ 为参数的函数，即使 $A_t$ 发生变化，它的值也不会改变。由于式子(2)是对 $A_t$ 的期望值，因此即使在期望值中加入函数 $b(S_t)$ ，等式也成立。
+
+\mybox[blue]{NOTE}{
+动作 $A_t$ 的变化会导致收益 $G_t$ 的变化，因此以下式子不成立。
+$$\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{G_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0$$
+}
+
+式子(2)在整个 $t=0\sim T$ 的范围都成立，所以可以得到以下式子。
+
+$$
+\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{\sum_{t=0}^Tb(S_t)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
+$$
+
+所以基线证明完毕。
 
 \section{总结}
 
