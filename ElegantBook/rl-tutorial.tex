@@ -2779,7 +2779,287 @@ $$
 
 PPO增加了一个软约束（裁剪机制），可以通过一阶优化器（求一阶导数）进行优化。我们偶尔可能会做出一些错误的决策，但它在优化速度上取得了良好的平衡。实验结果证明，这种平衡能够以最简单的方式实现最佳性能。
 
+\chapter{使用PPO玩倒立摆游戏}
 
+\section{网络结构的定义}
+
+\begin{marker}
+\begin{itemize}
+    \item 演员网络：策略网络
+    \item 评论家网络：价值函数网络
+\end{itemize}
+\end{marker}
+
+\begin{codebox}{python}{策略网络和价值函数网络的定义}
+import numpy as np
+import gym
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.distributions import Categorical
+import matplotlib.pyplot as plt
+
+class PolicyNet(nn.Module):
+    def __init__(self, action_size):
+        super().__init__()
+        self.l1 = nn.Linear(4, 128)
+        self.l2 = nn.Linear(128, action_size)
+
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = F.softmax(self.l2(x), dim=1)
+        return x
+
+class ValueNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.l1 = nn.Linear(4, 128)
+        self.l2 = nn.Linear(128, 1)
+
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = self.l2(x)
+        return x
+\end{codebox}
+
+\section{PPO算法的实现}
+
+我们来实现Agent。
+
+\begin{codebox}{python}{PPO-Agent-1}
+class Agent:
+    def __init__(self, device):
+        self.gamma = 0.98
+        self.lr_pi = 0.001
+        self.lr_v = 0.02
+        self.action_size = 2
+        self.device = device
+
+        self.pi = PolicyNet(self.action_size).to(device)
+        self.v = ValueNet().to(device)
+
+        self.optimizer_pi = optim.Adam(self.pi.parameters(), lr=self.lr_pi)
+        self.optimizer_v = optim.Adam(self.v.parameters(), lr=self.lr_v)
+
+    def get_action(self, state):
+        state = torch.tensor(state[np.newaxis, :]).to(self.device)
+        probs = self.pi(state)
+        probs = probs[0]
+        m = Categorical(probs)
+        action = m.sample().item()
+        return action, probs[action]
+\end{codebox}
+
+接下来我们要实现智能体的更新（\py{update}）代码，在PPO算法中，我们需要用到旧策略采样的轨迹。所以需要一个字典来保存旧策略采样的轨迹的完整信息。
+
+我们采样的轨迹是：
+
+$$
+\tau = \left[ s_0, a_0, R_0, s_1, a_1, R_1, \dots, s_T, a_T, R_T \right]
+$$
+
+那么我们创建一个字典 \py{transition_dict} 。结构如下
+
+$$
+\text{transition\_dict}
+=
+\begin{cases}
+\text{states}: \left[ s_0, s_1, \dots, s_{T-1} \right] \\
+\text{next\_states}: \left[ s_1, s_2, \dots, s_T \right] \\
+\text{actions}: \left[ a_0, a_1, \dots, a_{T-1} \right] \\
+\text{action\_probs}: \left[ \pi_{\theta_\text{old}}(a_0|s_0), \pi_{\theta_\text{old}}(a_1|s_1), \dots, \pi_{\theta_\text{old}}(a_{T-1}|s_{T-1}) \right] \\
+\text{rewards}: \left[ R_0, R_1, \dots, R_{T-1} \right] \\
+\text{dones}: \left[ \text{False}, \text{False}, \dots, \text{True} \right]
+\end{cases}
+$$
+
+有了旧策略采样的轨迹的所有详细信息，我们就可以来实现PPO算法了。
+
+\begin{codebox}{python}{PPO-Agent-2}
+class Agent:
+    ...
+
+    def update(self, transition_dict):
+        # β$s_t$β
+        states = torch.tensor(transition_dict["states"], dtype=torch.float).to(self.device)
+        # β$a_t$β
+        actions = torch.tensor(transition_dict["actions"]).view(-1, 1).to(self.device)
+        # β$R_t$β
+        rewards = torch.tensor(transition_dict["rewards"], dtype=torch.float).view(-1, 1).to(self.device)
+        # β$s_{t+1}$β
+        next_states = torch.tensor(transition_dict["next_states"], dtype=torch.float).to(self.device)
+        # 是否结束的标志位组成的数组
+        dones = torch.tensor(transition_dict["dones"], dtype=torch.float).view(-1, 1).to(self.device)
+        # β$V(s_t)$β
+        V = self.v(states).detach()
+        # β$\text{TD目标}=R_t+\gamma V(s_{t+1})$β
+        td_target = rewards + self.gamma * self.v(next_states) * (1 - dones)
+        # 一步TD误差：β$\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$β
+        td_delta = td_target - V
+        # 计算每个时刻t的广义优势估计（GAE）
+        gae = compute_gae(self.gamma, td_delta.cpu()).to(self.device)
+        # 冻结一份旧策略采取动作的对数概率β$\log{\pi_{\theta_\text{old}}(a_t|s_t)}$β
+        old_probs = torch.tensor(transition_dict["action_probs"], dtype=torch.float).view(-1, 1)
+        old_log_probs = torch.log(old_probs).to(self.device).detach()
+        # 每条轨迹使用10次，也就是更新10次策略网络
+        for _ in range(10):
+            # 新策略采取动作的对数概率：β$\log{\pi_\theta(a_t|s_t)}$β
+            log_probs = torch.log(self.pi(states).gather(1, actions))
+            # 计算比率：β$p_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$β
+            ratio = torch.exp(log_probs - old_log_probs)
+            # β$p_t(\theta)A^{\pi_{\theta_\text{old}}}_t$β
+            surr1 = ratio * gae
+            # β$\text{clip}(p_t(\theta),1-\epsilon,1+\epsilon)A^{\pi_{\theta_\text{old}}}_t|_{\epsilon=0.2}$β
+            surr2 = torch.clamp(ratio, 1 - 0.2, 1 + 0.2) * gae
+            pi_loss = torch.mean(-torch.min(surr1, surr2))
+            v_loss = torch.mean(F.mse_loss(self.v(states), gae + V))
+            self.optimizer_pi.zero_grad()
+            self.optimizer_v.zero_grad()
+            pi_loss.backward()
+            v_loss.backward()
+            self.optimizer_pi.step()
+            self.optimizer_v.step()
+\end{codebox}
+
+\mybox[blue]{比值的计算方法}{
+因为$A=e^{\log{A}}$，所以有如下成立
+$$
+\frac{A}{B}=e^{\log{A}-\log{B}}=\frac{e^{\log{A}}}{e^{\log{B}}}
+$$
+}
+
+\section{广义优势估计的计算}
+
+\begin{codebox}{python}{GAE}
+def compute_gae(gamma, td_delta):
+    # β$\delta_t$β
+    td_delta = td_delta.detach().numpy()
+    gae_list = []
+    last_gae = 0.0
+    lmbda = 0.95
+    # β$A_t=\delta_t+\gamma\lambda A_{t+1}$β
+    for delta in td_delta[::-1]:
+        last_gae = gamma * lmbda * last_gae + delta
+        gae_list.append(last_gae)
+    gae_list.reverse()
+    return torch.tensor(gae_list, dtype=torch.float)
+\end{codebox}
+
+\section{训练循环}
+
+\begin{codebox}{python}{PPO训练循环}
+def train(env, agent):
+    return_list = []
+    for i in range(10):
+        for episode in range(50):
+            episode_return = 0
+            transition_dict = {
+                "states": [],
+                "actions": [],
+                "next_states": [],
+                "rewards": [],
+                "action_probs": [],
+                "dones": []
+            }
+            state = env.reset()
+            done = False
+            while not done:
+                action, action_prob = agent.get_action(state)
+                next_state, reward, done, _ = env.step(action)
+                transition_dict['states'].append(state)
+                transition_dict['actions'].append(action)
+                transition_dict['next_states'].append(next_state)
+                transition_dict['rewards'].append(reward)
+                transition_dict['dones'].append(done)
+                transition_dict["action_probs"].append(action_prob)
+                state = next_state
+                episode_return += reward
+            return_list.append(episode_return)
+            agent.update(transition_dict)
+            if (episode + 1) % 10 == 0:
+                print(f"episode: {50 * i + episode + 1}, return: {np.mean(return_list[-10:])}")
+    return return_list
+
+def main():
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    env = gym.make("CartPole-v0")
+    env.seed(0)
+    torch.manual_seed(0)
+    agent = Agent(device)
+    return_list = train(env, agent)
+    episodes_list = list(range(len(return_list)))
+    f = plt.figure()
+    plt.plot(episodes_list, return_list)
+    plt.xlabel('Episodes')
+    plt.ylabel('Returns')
+    plt.title('CartPole-v0')
+    plt.show()
+    f.savefig("ppo-loss.pdf", bbox_inches="tight")
+
+if __name__ == "__main__":
+    main()
+\end{codebox}
+
+获得的奖励可视化如下：
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics{ppo-loss.pdf}
+    \caption{PPO算法获得的奖励}
+\end{figure}
+
+\chapter{近端策略优化背后的数学理论}
+
+在使用策略梯度算法训练智能体时，一个挑战是它们容易出现性能崩溃：智能体会突然表现很差。这种情况很难恢复，因为智能体会开始生成质量较差的轨迹，而这些轨迹又被用于进一步训练策略。我们还看到，on-policy（同策略）算法的样本效率较低，因为它们无法重用数据。
+
+Schulman等人提出的近端策略优化（Proximal Policy Optimization, PPO）是一类优化算法，用来解决这两个问题。PPO的核心思想是在目标函数中引入一个代理（surrogate）目标，它通过保证策略的单调改进来避免性能崩溃。该目标还有一个好处，就是可以在训练过程中重用离策略（off-policy）数据。
+
+PPO可以通过将原始的目标函数 $J(\theta)$ 替换为修改后的 PPO 目标，来扩展 REINFORCE 或者 Actor-Critic。此修改带来了更稳定、且样本效率更高的训练过程。
+
+在本章中，我们首先在第 7.1.1 节讨论性能崩溃问题。随后在第 7.1.2 节中，通过单调改进理论来应对该问题。我们将该理论应用于策略梯度目标，将其改造为一个代理目标。
+
+在介绍完理论基础后，我们在第 7.2 节讨论 PPO 算法。接着在第 7.4 节展示如何在 SLM Lab 中将 PPO 作为 Actor-Critic 的扩展进行实现。
+
+\section{替代目标}
+
+在本节中，我们将介绍用于 PPO 算法的代理（surrogate）目标。首先，我们通过讨论性能崩溃问题来引出这一动机。随后我们将看到如何修改原始的策略梯度目标以避免该问题。
+
+\subsection{性能崩溃}
+
+在我们对策略梯度算法的讨论中，我们看到，通过使用策略梯度 $\nabla_{\theta}J(\theta)$ 来改变策略参数 $\theta$，即可优化策略 $\pi_{\theta}$。这是一种间接的方法，因为我们是在一个无法直接控制的策略空间中搜索最优策略。要理解原因，我们首先需要区分策略空间与参数空间。
+
+在优化过程中，我们在所有策略的集合中搜索一系列策略 $\pi_{1}, \pi_{2}, \pi_{3},\dots,\pi_{n}$。这个集合被称为策略空间 $\Pi$。
+
+$$
+\Pi = \left\{ \pi_{i} \right\} 
+$$
+
+当策略被参数化为 $\pi_{\theta}$ 时，我们也可以方便地表示参数 $\theta$ 的参数空间。每一个唯一的 $\theta$ 都对应着一个策略实例。参数空间记为 $\Theta$。
+
+$$
+\Theta=\left\{ \theta\in \mathbb{R}^m, \text{其中}\; m \;\text{是策略模型的参数数量} \right\} 
+$$
+
+尽管目标函数 $J(\pi_{\theta})$ 是用策略空间中的策略 $\pi_{\theta}\in\Pi$ 所生成的轨迹来计算的，但对最优策略的搜索实际上是在参数空间中通过寻找合适的参数 $\theta\in\Theta$ 来进行的。也就是说，我们的可控量在 $\Theta$，而结果体现在 $\Pi$。在实践中，我们用学习率 $\alpha$ 来控制参数更新的步长，如等式 7.3 所示。
+
+$$
+\Delta\theta=\alpha \nabla _{\theta}J(\pi_{\theta})
+$$
+
+不幸的是，策略空间与参数空间并不总是同构映射，两者的距离也不一定对应。以两对参数 $(\theta_{1},\theta_{2})$ 和 $(\theta_{2},\theta_{3})$ 为例，假设它们在参数空间中的距离相同，即 $d_{\theta}(\theta_{1},\theta_{2})=d_{\theta}(\theta_{2},\theta_{3})$。然而，它们映射得到的策略对 $(\pi_{\theta_{1}},\pi_{\theta_{2}})$ 与 $(\pi_{\theta_{2}}, \pi_{\theta_{3}})$ 的距离未必相同。也就是说，
+
+$$
+d_{\theta}(\theta_{1},\theta_{2})=d_{\theta}(\theta_{2},\theta_{3})\nLeftrightarrow d_{\pi}(\pi_{\theta_{1}},\pi_{\theta_{2}})=d_{\pi}(\pi_{\theta_{2}},\pi_{\theta_{3}})
+$$
+
+这带来了潜在问题：参数更新的理想步长 $\alpha$ 难以确定。事先并不清楚它在策略空间 $\Pi$ 中会对应多小或多大的步幅。若 $\alpha$ 过小，就需要很多次迭代，训练会很慢，且策略可能陷入某个局部最优。若 $\alpha$ 过大，策略空间中的对应步长可能越过优良策略的邻域，导致性能崩溃。一旦发生这种情况，新策略会更差，用它生成的轨迹数据也会很差，从而用于下一次更新，进而破坏后续的策略迭代。因此，性能崩溃往往很难恢复。
+
+一般而言，恒定步长并不能避免这些问题。在梯度上升 $\theta\leftarrow\theta+\alpha \nabla_{\theta} J(\pi_{\theta})$ 中，学习率 $\alpha$ 通常是固定的或按计划衰减的，只有方向 $\nabla_{\theta}J(\pi_{\theta})$ 在变化。然而，由于映射是非等距的，恒定步长在映射到 $\Pi$ 时仍可能对应为不同的距离。
+
+最优的 $\alpha$ 选择会随当前策略 $\pi_{\theta}$ 在策略空间 $\Pi$ 中的位置，以及当前参数 $\theta$ 从其在 $\Theta$ 的邻域映射到 $\Pi$ 中 $\pi_{\theta}$ 邻域的方式而变化。理想情况下，算法应能根据这些因素自适应地调整参数步长。
+
+为了基于参数空间中的一次具体更新将如何影响策略空间来推导自适应步长，我们首先需要一种度量，用于衡量两个策略之间性能差异。
 
 \part{基于人类反馈的强化学习（RLHF）}
 

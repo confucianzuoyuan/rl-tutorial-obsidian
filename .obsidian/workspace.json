@@ -253,12 +253,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
+                "file": "4. 使用 PPO 玩倒立摆游戏.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "3. 策略梯度法的问题以及解决方案：PPO"
+              "title": "4. 使用 PPO 玩倒立摆游戏"
             }
           },
           {
@@ -492,12 +492,19 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "4. 使用 PPO 玩倒立摆游戏.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "ElegantBook/_minted/759461699EF98B1908DB90DB08A0B905.highlight.minted",
+    "ElegantBook/_minted/E5C98B3171C7952CF3134815E290FBD2.highlight.minted",
+    "ElegantBook/_minted/267AEC90920E2F3B8B75E82365648C29.highlight.minted",
     "ElegantBook/rl-tutorial.toc",
     "ElegantBook/rl-tutorial.out",
     "ElegantBook/rl-tutorial.aux",
-    "ElegantBook/t.aux",
+    "ElegantBook/_minted/80B3D7AC94AC5A5191AACB34B8FB7208.highlight.minted",
+    "ElegantBook/_minted/A25E66949C9F88D0456F6A7232D5D873.highlight.minted",
+    "2. 策略梯度法.md",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "ElegantBook/_minted/50EFEAA4688840B8796C49CE6FC655CE.highlight.minted",
+    "3. 策略梯度法的问题以及解决方案：PPO.md",
+    "未命名.md",
     "附录C：广义优势估计（GAE）.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "img/置信域.png",
@@ -517,15 +524,9 @@
     "Excalidraw/2.12.excalidraw.md",
     "附录E：策略梯度法的证明.md",
     "1. 强化学习基础.md",
-    "2. 策略梯度法.md",
     "附录D：PPO数学推导.md",
-    "ElegantBook/_minted/E707D3605A1C15B99960822D5D628447.highlight.minted",
-    "ElegantBook/_minted/E0C7A1F95908C98BE20E11E307EB2BB0.highlight.minted",
-    "ElegantBook/_minted/B2C82560088A81299B87CCE68BE8AF02.highlight.minted",
-    "ElegantBook/_minted/C3C293E38B3914085B3792BFE6E708EE.highlight.minted",
     "6. 使用PPO微调LLM.md",
     "8. 使用DPO微调LLM.md",
-    "未命名.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
     "附录H：torch.gather.md",
