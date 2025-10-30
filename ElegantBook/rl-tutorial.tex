@@ -3021,6 +3021,134 @@ PPO可以通过将原始的目标函数 $J(\theta)$ 替换为修改后的 PPO �
 
 在介绍完理论基础后，我们在第 7.2 节讨论 PPO 算法。接着在第 7.4 节展示如何在 SLM Lab 中将 PPO 作为 Actor-Critic 的扩展进行实现。
 
+\section{一些数学知识}
+
+\subsection{KL散度}
+
+KL散度（Kullback-Leibler Divergence, KLD）非常重要。
+
+假设有一个连续型随机变量 $x$ ，其概率密度表示为 $p(x)$ 。此时，函数 $f(x)$ 的期望值可以用下面的数学式表示。
+
+$$
+\mathbb{E}_{p(x)}[f(x)]=\int f(x)p(x)dx
+$$
+
+关于概率分布 $q(x)$ 的期望值可以用下面的数学式表示。
+
+$$
+\mathbb{E}_{q(x)}[f(x)]=\int f(x)q(x)dx
+$$
+
+\textbf{KL散度的定义}
+
+衡量两个概率分布之间差异的一种方法是KL散度。当给定两个概率分布 $p(x)$ 和 $q(x)$ 时，KL散度可以用下面的数学式表示。
+
+$$
+D_{KL}(p\Vert q)=\int p(x)\log\frac{p(x)}{q(x)}dx
+$$
+
+上面的式子是当 $x$ 为连续型随机变量时的KL散度。当 $x$ 为离散型随机变量时，数学式如下所示。
+
+$$
+D_{KL}(p\Vert q)=\sum_x p(x)\log\frac{p(x)}{q(x)}
+$$
+
+KL散度具有以下特性：
+
+\begin{itemize}
+\item 两个概率分布的差异越大，KL散度的值就越大
+\item KL散度的值大于或等于0，且仅当两个概率分布相同时，其值才为0
+\item KL散度是非对称的衡量指标，因此 $D_{KL}(p\Vert q)$ 和 $D_{KL}(q\Vert p)$ 的值不同
+\end{itemize}
+
+这些特性使得 KL 散度可以用来衡量两个概率分布的差异程度。下面我们通过具体的例子来了解这些特性。这里以抛硬币为例进行说明。假设一枚硬币正面朝上和反面朝上的概率是确定的，如下所示。
+
+\begin{tabular}{|l|l|}
+\hline
+正面朝上的概率 & 70\% \\ \hline
+反面朝上的概率 & 30\% \\ \hline
+\end{tabular}
+
+这就是硬币的``真实概率分布''，在这里我们用符号 $p$ 来表示。假设有人对这枚硬币的概率分布做了如下估计。
+
+\begin{tabular}{|l|l|}
+\hline
+正面朝上的概率 & 50\% \\ \hline
+反面朝上的概率 & 50\% \\ \hline
+\end{tabular}
+
+我们用 $q$ 来表示这个估计的概率分布。此时，``真实概率分布$p$''和``估计概率分布$q$''之间的KL散度可以做如下计算。
+
+$$
+\begin{aligned}
+D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.5}+0.3\log\frac{0.3}{0.5} \\
+&= 0.082\cdots
+\end{aligned}
+$$
+
+KL散度约为0.082。假设另一个人对这枚硬币的概率分布做了如下估计。
+
+\begin{tabular}{|l|l|}
+\hline
+正面朝上的概率 & 20\% \\ \hline
+反面朝上的概率 & 80\% \\ \hline
+\end{tabular}
+
+这与真实的概率分布值大相径庭。此时的KL散度的值如下所示。
+
+$$
+\begin{aligned}
+D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.2}+0.3\log\frac{0.3}{0.8} \\
+&= 0.58\cdots
+\end{aligned}
+$$
+
+这个值比第一个KL散度的值要大。最后，假设又有一个人对这枚硬币的概率分布做了如下估计。
+
+\begin{tabular}{|l|l|}
+\hline
+正面朝上的概率 & 70\% \\ \hline
+反面朝上的概率 & 30\% \\ \hline
+\end{tabular}
+
+这个分布与真实的概率分布相同。此时的KL散度的值如下所示。
+
+$$
+\begin{aligned}
+D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.7}+0.3\log\frac{0.3}{0.3} \\
+&= 0.7\log 1+0.3\log 1\quad(\log 1 = 0) \\
+&= 0
+\end{aligned}
+$$
+
+由于 $p$ 和 $q$ 是相同的概率分布，因此KL散度为0。
+
+从以上结果可以看出，KL散度可以用来衡量两个概率分布的差异程度。当两个概率分布相同时，KL散度取最小值0。两个概率分布的差异越大，KL散度的值就越大。
+
+\subsection{信息论}
+
+信息量（Self-Information）：
+
+\begin{itemize}
+\item 一个事件发生的信息量定义为：$I(x) = -\log P(x)$
+\item 概率越小的事件，包含的信息量越大
+\item 例如："太阳从东边升起"（高概率）vs "中彩票"（低概率）
+\end{itemize}
+
+熵（Entropy）：
+
+\begin{itemize}
+\item 衡量随机变量的不确定性：$H(P) = -\sum_{i} P(x_i) \log P(x_i)$
+\item 熵越大，不确定性越大
+\end{itemize}
+
+交叉熵（Cross-Entropy）：
+
+\begin{itemize}
+\item 衡量两个概率分布之间的差异：$H(P, Q) = -\sum_{i} P(x_i) \log Q(x_i)$
+\item 其中 $P$ 是真实分布，$Q$ 是预测分布
+\end{itemize}
+
 \section{替代目标}
 
 在本节中，我们将介绍用于 PPO 算法的代理（surrogate）目标。首先，我们通过讨论性能崩溃问题来引出这一动机。随后我们将看到如何修改原始的策略梯度目标以避免该问题。

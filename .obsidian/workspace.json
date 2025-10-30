@@ -253,12 +253,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "4. 使用 PPO 玩倒立摆游戏.md",
+                "file": "附录B：KL散度.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4. 使用 PPO 玩倒立摆游戏"
+              "title": "附录B：KL散度"
             }
           },
           {
@@ -492,17 +492,16 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "ElegantBook/_minted/759461699EF98B1908DB90DB08A0B905.highlight.minted",
-    "ElegantBook/_minted/E5C98B3171C7952CF3134815E290FBD2.highlight.minted",
-    "ElegantBook/_minted/267AEC90920E2F3B8B75E82365648C29.highlight.minted",
     "ElegantBook/rl-tutorial.toc",
     "ElegantBook/rl-tutorial.out",
     "ElegantBook/rl-tutorial.aux",
+    "4. 使用 PPO 玩倒立摆游戏.md",
+    "ElegantBook/_minted/759461699EF98B1908DB90DB08A0B905.highlight.minted",
+    "ElegantBook/_minted/E5C98B3171C7952CF3134815E290FBD2.highlight.minted",
+    "ElegantBook/_minted/267AEC90920E2F3B8B75E82365648C29.highlight.minted",
     "ElegantBook/_minted/80B3D7AC94AC5A5191AACB34B8FB7208.highlight.minted",
     "ElegantBook/_minted/A25E66949C9F88D0456F6A7232D5D873.highlight.minted",
     "2. 策略梯度法.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
-    "ElegantBook/_minted/50EFEAA4688840B8796C49CE6FC655CE.highlight.minted",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "未命名.md",
     "附录C：广义优势估计（GAE）.md",
