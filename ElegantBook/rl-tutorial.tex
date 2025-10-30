@@ -571,9 +571,9 @@ $$
 
 马尔可夫决策过程（MDP，Markov Decision Process）。决策过程是智能体通过与环境互动决定其行动的过程。
 
-智能体所处的环境根据其行动而发生改变。在强化学习中，这种情况被称为环境的“状态”（state）。在MDP中，状态的变化取决于智能体的行动，智能体在环境的状态迁移后执行新的行动。
+智能体所处的环境根据其行动而发生改变。在强化学习中，这种情况被称为环境的``状态''（state）。在MDP中，状态的变化取决于智能体的行动，智能体在环境的状态迁移后执行新的行动。
 
-在MDP中，我们需要“时间”的概念。在某一时刻，智能体会采取行动并因此迁移到一个新的状态。此时的时间单位叫作“时间步”。由于时间步是智能体做出决定的间隔时间，因此它的实际单位取决于问题。
+在MDP中，我们需要``时间''的概念。在某一时刻，智能体会采取行动并因此迁移到一个新的状态。此时的时间单位叫作``时间步''。由于时间步是智能体做出决定的间隔时间，因此它的实际单位取决于问题。
 
 智能体要考虑的是将来获得的奖励总和，而不是眼前的奖励。换句话说，智能体的目标是实现奖励总和最大化。
 
@@ -611,7 +611,7 @@ $$
 观察（observation）：只能观察到环境的部分状态（信息）
 }
 
-竖杠 $\vert$ 的右侧是表示“条件”的概率变量。对于当前问题，条件对应于在状态 $s$ 选择了行动 $a$ 。在给定这两个条件的情况下，转移到 $s'$ 的概率可以表示为 $p(s'|s,a)$ 。像 $p(s'|s,a)$ 这样的概率叫作状态迁移概率（state transition probability）。
+竖杠 $\vert$ 的右侧是表示``条件''的概率变量。对于当前问题，条件对应于在状态 $s$ 选择了行动 $a$ 。在给定这两个条件的情况下，转移到 $s'$ 的概率可以表示为 $p(s'|s,a)$ 。像 $p(s'|s,a)$ 这样的概率叫作状态迁移概率（state transition probability）。
 
 $p(s'|s,a)$ 决定了下一个状态 $s'$ 只取决于当前状态 $s$ 和行动 $a$ 。
 
@@ -636,7 +636,7 @@ MDP通过假设马尔可夫性质的存在来模拟状态转移和奖励。引�
 环境的状态迁移只以当前状态 $s$ 和行动 $a$ 为条件来决定下一个状态 $s'$ ，而不需要先前的信息。同样，奖励也是基于当前状态 $s$ 、行动 $a$ 和迁移后的状态 $s'$ 来决定的。这意味着关于环境的所有必要信息都在当前状态中。因此，智能体只需基于当前状态即可决定其行动。
 
 \mybox[blue]{NOTE}{
-MDP的马尔可夫性质可以被看作是对环境而不是对智能体的约束。这意味着为了满足马尔可夫性质，环境需要保持某个“状态”。从智能体的角度来看，在当前状态下有足够的信息来做出最佳选择，所以它可以在此基础上采取行动。
+MDP的马尔可夫性质可以被看作是对环境而不是对智能体的约束。这意味着为了满足马尔可夫性质，环境需要保持某个``状态''。从智能体的角度来看，在当前状态下有足够的信息来做出最佳选择，所以它可以在此基础上采取行动。
 }
 
 智能体的行动是由随机性策略决定的，数学式如下所示。
@@ -665,9 +665,9 @@ $\gamma$ 为折扣因子。
 
 \subsection{状态价值函数}
 
-我们已经重新定义了“收益”。智能体的目标是使这种收益最大化。这里有一点需要注意，那就是智能体和环境的行动可能是“随机性”的。智能体可能随机地决定行动，状态也可能随机迁移。在这种情况下，获得的收益将呈现随机的特点。即使从相同的状态开始，不同回合的收益也随机变化。例如，某个回合的收益为 $10.4$ ，另一个回合的收益为 $8.7$ 。
+我们已经重新定义了``收益''。智能体的目标是使这种收益最大化。这里有一点需要注意，那就是智能体和环境的行动可能是``随机性''的。智能体可能随机地决定行动，状态也可能随机迁移。在这种情况下，获得的收益将呈现随机的特点。即使从相同的状态开始，不同回合的收益也随机变化。例如，某个回合的收益为 $10.4$ ，另一个回合的收益为 $8.7$ 。
 
-为了处理这种随机行动，需要使用期望值或“收益的期望值”作为衡量标准。收益的期望值的数学式如下所示。
+为了处理这种随机行动，需要使用期望值或``收益的期望值''作为衡量标准。收益的期望值的数学式如下所示。
 
 $$
 v_\pi(s) = \mathbb{E}[G_t|S_t=s,\pi]
@@ -700,13 +700,13 @@ $$
 \end{aligned}
 $$
 
-如上所述，期望值是在所有情况下“出现的数字”和“概率”相乘并加在一起得到的和。顺带一提，如果使用 $\sum$ 符号，那么期望值的数学式如下所示。
+如上所述，期望值是在所有情况下``出现的数字''和``概率''相乘并加在一起得到的和。顺带一提，如果使用 $\sum$ 符号，那么期望值的数学式如下所示。
 
 $$
 \mathbb{E}[x]=\sum_xxp(x)
 $$
 
-另外， $x$ 和 $y$ 同时发生的概率（这叫作“联合概率”）如下所示。
+另外，$x$和$y$同时发生的概率（这叫作``联合概率''）如下所示。
 
 $$
 p(x,y)=p(x)p(y|x)=p(y)p(x|y)
@@ -860,9 +860,9 @@ $$
 
 \section{下一步}
 
-智能体的目标是使收益最大化。这里有一点需要注意，那就是智能体和环境的行动可能是“随机性”的。智能体可能随机地决定行动，状态也可能随机迁移。在这种情况下，获得的收益将呈现随机的特点。即使从相同的状态开始，不同回合的收益也随机变化。例如，某个回合的收益为 $10.4$ ，另一个回合的收益为 $8.7$ 。
+智能体的目标是使收益最大化。这里有一点需要注意，那就是智能体和环境的行动可能是``随机性''的。智能体可能随机地决定行动，状态也可能随机迁移。在这种情况下，获得的收益将呈现随机的特点。即使从相同的状态开始，不同回合的收益也随机变化。例如，某个回合的收益为 $10.4$ ，另一个回合的收益为 $8.7$ 。
 
-在倒立摆环境中，我们如何选择智能体的 “策略” 来让木杆多坚持一段时间呢？
+在倒立摆环境中，我们如何选择智能体的``策略''来让木杆多坚持一段时间呢？
 
 接下来我们来学习\textbf{策略梯度法}（policy gradient method）。
 
@@ -1035,7 +1035,7 @@ $$
 
 首先回顾一下第一章的知识。
 
-首先明确问题的设定。这里考虑的是回合制任务，并基于策略 $\pi_{\theta}$ 选择动作的情况。在这种情况下，假定得到了以下由“状态、动作、奖励”构成的时间序列数据。
+首先明确问题的设定。这里考虑的是回合制任务，并基于策略 $\pi_{\theta}$ 选择动作的情况。在这种情况下，假定得到了以下由``状态、动作、奖励''构成的时间序列数据。
 
 $$
 \tau = (S_0, A_0, R_0, S_1, A_1, R_1, \cdots, S_{T+1})
@@ -1429,7 +1429,7 @@ J(\theta) & \approx \sum_{t=0}^TG(\tau)\log\pi_{\theta}(A_t|S_t) \\
 $$
 我们的目标是让 $J(\theta)$ 越大越好，那么在经过梯度上升算法之后，$J(\theta)$会变大，那么肯定有的 $\log\pi_\theta(A_t|S_t)$ 变大了，也可能有的 $\log\pi_\theta(A_{t'}|S_{t'})$ 变小了，但总和肯定变大了。也就是说，
 \bigskip
-策略梯度法的本质是，我们使用\textbf{当前策略}$\pi_\theta$采样一条轨迹$\tau$，如果采样的轨迹的回报$G(\tau)$很高，那么说明我们在某个状态$S_t$采取的动作$A_t$比较好，导致了总的奖励也就是回报比较高。那么通过梯度上升法，更新$\theta$之后，新的策略$\pi_{\theta_\text{new}}$会提升\textbf{在 $S_t$ 时执行 $A_t$ 的概率}。例如 $A_t$ 是 “向左推车” ，那么在 $S_t$ 状态下策略采取 “向左推车” 的概率就会提升，而同时策略采取 “向右推车” 的概率就会下降。
+策略梯度法的本质是，我们使用\textbf{当前策略}$\pi_\theta$采样一条轨迹$\tau$，如果采样的轨迹的回报$G(\tau)$很高，那么说明我们在某个状态$S_t$采取的动作$A_t$比较好，导致了总的奖励也就是回报比较高。那么通过梯度上升法，更新$\theta$之后，新的策略$\pi_{\theta_\text{new}}$会提升\textbf{在 $S_t$ 时执行 $A_t$ 的概率}。例如 $A_t$ 是``向左推车''，那么在 $S_t$ 状态下策略采取``向左推车''的概率就会提升，而同时策略采取``向右推车''的概率就会下降。
 \bigskip
 举一个最简单的例子，我们采样的轨迹只执行了一步动作，就结束了。那么有如下公式
 $$
@@ -1788,7 +1788,7 @@ test_render(agent, env)
 REINFORCE是对上一节的策略梯度法的改进算法。本节首先会基于数学式推导REINFORCE算法，然后会通过修改之前的部分代码的做法来实现REINFORCE。
 
 \mybox[blue]{REINFORCE名字的由来}{
-REINFORCE这个名字是“REward Increment = Nonnegative Factor $\times$ Offset Reinforcement $\times$ Characteristic Eligibility“（奖励增量=非负因子x偏移强化x特征资格）的首字母缩写。
+REINFORCE这个名字是``REward Increment = Nonnegative Factor $\times$ Offset Reinforcement $\times$ Characteristic Eligibility''（奖励增量=非负因子x偏移强化x特征资格）的首字母缩写。
 }
 
 先来复习一下第一节。最简单的梯度策略法是基于下面的公式实现的。
@@ -1800,7 +1800,7 @@ $$
 \end{aligned}
 $$
 
-上面的式子中的 $G(\tau)$ 是目前为止获得的所有奖励的总和（准确地说是“带折扣因子”的奖励的总和）。这里要思考的问题是，无论在哪个时刻 $t$ ，式子中都是 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$ ，我们始终会使用固定不变的权重 $G(\tau)$ 来增加（或减少）采取行动 $A_t$ 的概率。
+上面的式子中的 $G(\tau)$ 是目前为止获得的所有奖励的总和（准确地说是``带折扣因子''的奖励的总和）。这里要思考的问题是，无论在哪个时刻 $t$ ，式子中都是 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$ ，我们始终会使用固定不变的权重 $G(\tau)$ 来增加（或减少）采取行动 $A_t$ 的概率。
 
 智能体行动的好坏是根据行动之后获得的奖励总和来评估的（回顾一下价值函数的定义）。反过来说，采取某个行动之前获得的奖励与该行动的好坏无关。如果要评估在某个时刻 $t$ 采取的行动 $A_t$ ，那么在此之前做了什么以及获得了多少奖励都无所谓。我们是根据采取行动 $A_t$ 之后的结果（在时刻 $t$ 以后获得的奖励的总和）来判断行动 $A_t$ 的好坏的。
 
@@ -2027,7 +2027,7 @@ $$
 基于上面的公式的算法就是 Actor-Critic 。策略 $\pi_{\theta}$ 和价值函数 $V_{\omega}$ 是神经网络，我们要同时训练这两个神经网络。具体来说，对于策略 $\pi_{\theta}$ 要基于上面的公式进行训练；而对于价值函数 $V_{\omega}$ ，则通过 TD 方法，以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 这个神经网络。
 
 \mybox[blue]{Actor}{
-Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，也就是采取动作的人，相当于策略 $\pi_{\theta}$ 。而 Critic 是\textbf{评论家}的意思，相当于价值函数 $V_{\omega}$ 。因此，Actor-Critic 的意思是“使用 $V_{\omega}$ ，来评论基于策略 $\pi_{\theta}$ 采取的动作的好坏”。
+Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，也就是采取动作的人，相当于策略 $\pi_{\theta}$ 。而 Critic 是\textbf{评论家}的意思，相当于价值函数 $V_{\omega}$ 。因此，Actor-Critic 的意思是``使用 $V_{\omega}$ ，来评论基于策略 $\pi_{\theta}$ 采取的动作的好坏''。
 }
 
 \subsection{Actic-Critic 的代码实现}
@@ -2339,7 +2339,7 @@ $$
 \end{aligned}
 $$
 
-这里对 “log梯度的技巧” 进行说明。这个技巧利用了以下等式。
+这里对``log梯度的技巧''进行说明。这个技巧利用了以下等式。
 
 $$
 \nabla_\theta\log\Pr(\tau|\theta)=\frac{\nabla_\theta\Pr(\tau|\theta)}{\Pr(\tau|\theta)}
@@ -2414,7 +2414,7 @@ $$
 \end{aligned}
 $$
 
-如上面的式子所示，我们可以使用 $G_t-b(S_t)$ 代替 $G_t$ 。$b(S_t)$ 是\textbf{任何函数}，我们称之为“基线”。下面进行上式的推导。
+如上面的式子所示，我们可以使用 $G_t-b(S_t)$ 代替 $G_t$ 。$b(S_t)$ 是\textbf{任何函数}，我们称之为``基线''。下面进行上式的推导。
 
 首先，证明以下式子成立。
 
@@ -2488,7 +2488,7 @@ $$
 \end{tabular}
 
 
-上面4种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入“基线”这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
+上面4种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入``基线''这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
 
 \mybox[blue]{优势函数}{
 $\Phi_t$也叫做优势函数（Advantage Function），优势函数经常在文献中表示为$A(s,a)$，也就是在状态 $s$ 采取动作 $a$ 时，策略的优势是多少。
@@ -3197,6 +3197,286 @@ $$
 \end{itemize}
 
 最小化KL散度 = 最小化交叉熵（因为真实分布的熵是常数）
+
+\subsection{重要性采样}
+
+重要性采样利用从其他概率分布中采样的数据来计算某个概率分布的期望值。为了说明重要性采样，下面来看一个计算期望值$\mathbb{E}_\pi[x]$的简单例子。设$x$是随机变量，$x$的概率用$\pi(x)$表示。期望值的式子如下所示。
+
+$$
+\mathbb{E}_\pi[x] = \sum x \pi(x)
+$$
+
+我们先复习一下学过的内容。为了用蒙特卡洛方法近似这个期望值，我们从概率分布$\pi$对$x$进行采样，并取其平均值。数学式如下所示：
+
+$$
+\begin{aligned}
+\text{采样}: x^{(i)}\sim\pi\quad (i=1,2,\cdots,n) \\
+\mathbb{E}_\pi[x]\simeq\frac{x^{(1)}+x^{(2)}+\cdots+x^{(n)}}{n}
+\end{aligned}
+$$
+
+式子中的符号$x^{(i)}\sim\pi$表示第$i$个数据$x(i)$是从概率分布$\pi$中采样的。
+
+接下来回到正题。我们现在探讨的是从别的概率分布中采样$x$的场景。假设$x$是从概率分布$b$（而不是$\pi$）中采样的。在这种情况下，期望值$\mathbb{E}_\pi[x]$如何被近似呢？解决这个问题的关键在于下面这个式子的变形。
+
+$$
+\begin{aligned}
+\mathbb{E}_\pi[x] &= \sum x\pi(x) \\
+&= \sum x \frac{b(x)}{b(x)}\pi(x) \\
+&= \sum x \frac{\pi(x)}{b(x)}b(x)
+\end{aligned}
+$$
+
+这里的要点是插入$\frac{b(x)}{b(x)}$。$\frac{b(x)}{b(x)}$总是为$1$，所以等式成立。然后，我们将式子变为$\sum\cdots b(x)$的形式，如上面的式子所示，这样它就可以被视为概率分布$b(x)$的期望值了。实际上对上面的式子变形，可以得到以下式子。
+
+$$
+\begin{aligned}
+\mathbb{E}_\pi[x] &= \sum x\frac{\pi(x)}{b(x)}b(x) \\
+&= \mathbb{E}_b\left[ x\frac{\pi(x)}{b(x)} \right] 
+\end{aligned}
+$$
+
+这里需要注意的是式子中的$\mathbb{E}_b$，它表示的是概率分布$b$的期望值。另外每个$x$都要乘以$\frac{\pi(x)}{b(x)}$这一点也很重要。如果$\rho(x)=\frac{\pi(x)}{b(x)}$，那么我们就可以把式子看作每个$x$都乘以权重$\rho(x)$。根据以上探讨，基于式的蒙特卡洛方法如下所示。
+
+$$
+\begin{aligned}
+\text{采样}: x^{(i)}\sim b\quad (i=1,2,\cdots,n) \\
+\mathbb{E}_\pi[x]\simeq\frac{\rho(x^{(1)})+\rho(x^{(2)})+\cdots+\rho(x^{(n)})}{n}
+\end{aligned}
+$$
+
+这样我们就使用从不同于$\pi$的概率分布$b$中采样的数据计算出了$\mathbb{E}_\pi[x]$。下面来实现重要性采样的代码 。这里我们对图\ref{fig:importance-sampling-1}所示的概率分布进行重要性采样。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (14.25,18.75) rectangle (14.75,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (16.5,18.75) rectangle (17,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (18.75,23.5) rectangle (19.25,18);
+\draw [->, >=Stealth] (13,18) -- (22,18);
+\draw [->, >=Stealth] (13,18) -- (13,26);
+\draw [dashed] (18.75,23.5) -- (13,23.5);
+\draw [dashed] (13,18.75) -- (16.5,18.75);
+\node [font=\LARGE] at (12.5,23.5) {$0.8$};
+\node [font=\LARGE] at (12.5,18.75) {$0.1$};
+\node [font=\LARGE] at (14.5,17.5) {$1$};
+\node [font=\LARGE] at (16.75,17.5) {$2$};
+\node [font=\LARGE] at (19,17.5) {$3$};
+\node [font=\LARGE] at (16.25,24.75) {$\pi$};
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (27.25,19.75) rectangle (27.75,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (29.5,19.75) rectangle (30,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (31.75,19.75) rectangle (32.25,18);
+\draw [->, >=Stealth] (26,18) -- (35,18);
+\draw [->, >=Stealth] (26,18) -- (26,26);
+\node [font=\LARGE] at (27.5,17.5) {$1$};
+\node [font=\LARGE] at (29.75,17.5) {$2$};
+\node [font=\LARGE] at (32,17.5) {$3$};
+\draw [dashed] (26,19.75) -- (31.75,19.75);
+\node [font=\LARGE] at (26.5,19.75) {$\frac{1}{3}$};
+\node [font=\LARGE] at (29,24.75) {$b$};
+\end{circuitikz}
+}%
+\caption{概率分布$\pi$和$b$}
+\label{fig:importance-sampling-1}
+\end{figure}
+
+这里的目标是求出期望值$\mathbb{E}_\pi[x]$。我们先尝试用普通的蒙特卡洛方法求概率分布$\pi$的期望值。代码如下所示。
+
+\begin{codebox}{python}{}
+import numpy as np
+
+x = np.array([1, 2, 3])
+pi = np.array([0.1, 0.1, 0.8])
+
+# 期望值β$\mathbb{E}_\pi[x]$β
+e = np.sum(x * pi)
+print("E_pi[x]", e)
+
+# 蒙特卡洛方法
+n = 100
+samples = []
+for _ in samples:
+    s = np.random.choice(x, p=pi) # 使用pi进行采样
+    samples.append(s)
+
+mean = np.mean(samples)
+var = np.var(samples)
+print("MC: {:.2f} (var: {:.2f})".format(mean, var))
+\end{codebox}
+
+\underline{输出结果}
+
+\begin{codebox}{bash}{}
+    E_pi[x] 2.7
+    MC: 2.78 (var: 0.27)
+\end{codebox}
+
+首先，套用定义式求期望值。求出的结果是$2.7$（这是真实的值）。然后，使用蒙特卡洛方法来求这个值。这里只基于概率分布 \py{pi} 采样 100 个数据，然后求平均值。为此，我们用NumPy的\py{np.mean}方法求出了平均值。结果是$2.78$，接近于真实值。作为参考，我们还使用NumPy的\py{np.var}方法求出了方差。方差的值是$0.27$。在与下一次重要性采样的结果进行比较时，这个值将被用作参考。方差用于表示数据的离散程度。期望值和方差之间的关系可以用以下式子表示。
+
+$$
+\text{Var}[X] = \mathbb{E}[(X-\mathbb{E}[X])^2]
+$$
+
+方差是数据$X$和$X$的平均值$\mathbb{E}[X]$之间的差的平方的期望值。直观地说，它代表了数据的离散程度，如图\ref{fig:var-def}所示。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ line width=2pt ] (15.5,23.25) circle (0.75cm);
+\draw [ line width=2pt ] (15.5,23.25) circle (1.25cm);
+\draw [ line width=2pt ] (15.5,23.25) circle (2.25cm);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (12.5,25.25) rectangle (12.75,25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (12,23.5) rectangle (12.25,23.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (13.25,22.25) rectangle (13.5,22);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (14.5,22.75) rectangle (14.75,22.5);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (15.5,23.5) rectangle (15.75,23.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (16,23) rectangle (16.25,22.75);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (15,25.5) rectangle (15.25,25.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (16.75,24.5) rectangle (17,24.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (18,24) rectangle (18.25,23.75);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (17,22.25) rectangle (17.25,22);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (17,20.75) rectangle (17.25,20.5);
+\draw [ line width=2pt ] (25.25,23.25) circle (0.75cm);
+\draw [ line width=2pt ] (25.25,23.25) circle (1.25cm);
+\draw [ line width=2pt ] (25.25,23.25) circle (2.25cm);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25.5,23.75) rectangle (25.75,23.5);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (24.5,23.5) rectangle (24.75,23.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (24.75,23.75) rectangle (25,23.5);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (24.5,23) rectangle (24.75,22.75);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25.25,23.5) rectangle (25.5,23.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25.75,23) rectangle (26,22.75);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (26,24.25) rectangle (26.25,24);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25,24.25) rectangle (25.25,24);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25.25,22.75) rectangle (25.5,22.5);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25.75,22.5) rectangle (26,22.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} , line width=0.2pt ] (25,22.75) rectangle (25.25,22.5);
+\node [font=\LARGE] at (15.5,19.5) {方差大};
+\node [font=\LARGE] at (25.25,19.5) {方差小};
+\end{circuitikz}
+}%
+\caption{将每个数据作为二维平面上的点时的方差的示意图（圆心是平均值）}
+\label{fig:var-def}
+\end{figure}
+
+下面尝试用重要性采样的方法来求期望值。代码如下所示。
+
+\begin{codebox}{python}{}
+b = np.array([1/3, 1/3, 1/3])
+n = 100
+samples = []
+
+for _ in range(n):
+    idx = np.arange(len(b)) # [0, 1, 2]
+    i = np.random.choice(idx, p=b) # 使用 b 进行采样
+    s = x[i]
+    rho = pi[i] / b[i] # β$\rho$β
+    samples.append(rho * s)
+
+mean = np.mean(samples)
+var = np.var(samples)
+print("IS: {:.2f} (var: {:.2f})".format(mean, var))
+\end{codebox}
+
+\underline{输出结果}
+
+\begin{codebox}{bash}{}
+    IS: 2.95 (var: 10.63)
+\end{codebox}
+
+这里使用概率分布\py{b}进行采样，不过进行采样的目标是\py{b}的索引\py{([0, 1, 2])}。这是因为在计算权重\py{rho}时，要用到的是采样得到的索引。
+
+接下来看看上面的结果。平均值是$2.95$，虽然与真实值$2.7$有一些差距，但也还算接近。此外，方差是$10.63$，这说明数据的离散程度大于蒙特卡洛方法的结果（使用蒙特卡洛方法时的方差是$0.27$）。
+
+\subsubsection{如何减小方差}
+
+方差越小，用较少的样本得到的近似值就越准确。反之，方差越大，越需要更多的样本才能得到准确的近似值。下面介绍如何用重要性采样来减小方差。首先，我们结合图\ref{fig:importance-sampling-2}来了解一下为什么重要性采样方法的方差会比较大。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (14.25,18.75) rectangle (14.75,18);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,254; green,221; blue,150}, line width=0.2pt , rounded corners = 22.5] (31.25,20.5) rectangle (32.75,17.25);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,254; green,221; blue,150}, line width=0.2pt , rounded corners = 22.5] (18.25,24) rectangle (19.75,17.25);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (16.5,18.75) rectangle (17,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (18.75,23.5) rectangle (19.25,18);
+\draw [->, >=Stealth] (13,18) -- (22,18);
+\draw [->, >=Stealth] (13,18) -- (13,26);
+\draw [dashed] (18.75,23.5) -- (13,23.5);
+\draw [dashed] (13,18.75) -- (16.5,18.75);
+\node [font=\LARGE] at (12.5,23.5) {$0.8$};
+\node [font=\LARGE] at (12.5,18.75) {$0.1$};
+\node [font=\LARGE] at (14.5,17.5) {$1$};
+\node [font=\LARGE] at (16.75,17.5) {$2$};
+\node [font=\LARGE] at (19,17.5) {$3$};
+\node [font=\LARGE] at (16.25,24.75) {$\pi$};
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (27.25,19.75) rectangle (27.75,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (29.5,19.75) rectangle (30,18);
+\draw [ fill={rgb,255:red,0; green,255; blue,255} ] (31.75,19.75) rectangle (32.25,18);
+\draw [->, >=Stealth] (26,18) -- (35,18);
+\draw [->, >=Stealth] (26,18) -- (26,26);
+\node [font=\LARGE] at (27.5,17.5) {$1$};
+\node [font=\LARGE] at (29.75,17.5) {$2$};
+\node [font=\LARGE] at (32,17.5) {$3$};
+\draw [dashed] (26,19.75) -- (31.75,19.75);
+\node [font=\LARGE] at (25.5,19.75) {$\frac{1}{3}$};
+\node [font=\LARGE] at (29,24.75) {$b$};
+\draw [line width=0.5pt, dashed] (19,17.25) .. controls (19.5,15) and (19,15.25) .. (21.25,15);
+\node [font=\LARGE] at (22.25,14.5) {$\rho=\frac{\pi(x)}{b(x)}=\frac{0.8}{\frac{1}{3}}=2.4$};
+\draw [line width=0.5pt, dashed] (32,17.25) -- (32,12.75);
+\draw [line width=0.5pt, dashed] (32,12.75) -- (21.25,12.75);
+\draw [line width=0.5pt, dashed] (21.25,12.75) -- (21.25,14);
+\end{circuitikz}
+}%
+\caption{基于概率分布$b$采样$3$的例子}
+\label{fig:importance-sampling-2}
+\end{figure}
+
+图\ref{fig:importance-sampling-2}展示了选择$3$作为样本数据的例子。此时的权重$\rho$为$2.4$。因此，$3$这个值要乘以$2.4$。这意味着尽管我们得到的值是$3$，但实际得到的值是$3\times{2.4}=7.2$。听起来可能有些奇怪，但这是有道理的。原因如下。
+
+\begin{itemize}
+    \item 由于$3$是概率分布$\pi$的代表值，因此本来它应该被更频繁地采样。
+    \item 但在概率分布$b$中，$3$这个值并不经常出现。
+    \item 为了填补这个落差，当$3$被采样时，它会被调整为乘以权重，从而使该值变得更大。
+\end{itemize}
+
+考虑到概率分布$\pi$和$b$之间的差异，我们将采样值乘以其权重来调整采样值，这么做是合理的。可是，明明采样的值是$3$，它却被当作了$7.2$，如果这是第一个采样数据，那么此时的估计值就是$7.2$。与真正的值$2.7$相比，$7.2$的偏离较大。因此，通过权重$\rho$对实际得到的值的填补越大，方差与真正的值的差异就越大。
+
+那么，怎样才能减小方差呢？一种方法是使两个概率分布（$b$和$\pi$）更加接近。这样可以使权重$\rho$的值更接近于$1$。下面来做个实验。与之前的代码相比，这次只有概率分布中的$b$的值被改变了。
+
+\begin{codebox}{python}{}
+b = np.array([0.2, 0.2, 0.6])
+n = 100
+samples = []
+
+for _ in range(n):
+    idx = np.arange(len(b)) # [0, 1, 2]
+    i = np.random.choice(idx, p=b) # 使用 b 进行采样
+    s = x[i]
+    rho = pi[i] / b[i] # β$\rho$β
+    samples.append(rho * s)
+
+mean = np.mean(samples)
+var = np.var(samples)
+print("IS: {:.2f} (var: {:.2f})".format(mean, var))
+\end{codebox}
+
+\underline{输出结果}
+
+\begin{codebox}{bash}{}
+    IS: 2.72 (var: 2.48)
+\end{codebox}
+
+上面的代码假设$b$的概率分布为\py{[0.2, 0.2, 0.6]}，其形状更接近于\py{pi}的概率分布。结果是，平均值为$2.72$，更接近于正确答案。另外，方差是$2.48$，比以前小。
+
+因此，在进行重要性采样时，可以通过使两个概率分布更加接近来减小方差。不过，强化学习的重点是让一个策略（概率分布）进行``探索''，另一个策略进行``利用''。在满足这个条件的基础上，就可以通过使两个概率分布尽可能地接近来减小方差了。
+
+以上就是对重要性采样的介绍。
 
 \section{替代目标}
 
