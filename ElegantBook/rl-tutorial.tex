@@ -3149,6 +3149,55 @@ $$
 \item 其中 $P$ 是真实分布，$Q$ 是预测分布
 \end{itemize}
 
+\textbf{极大似然估计和交叉熵}
+
+假设我们有训练数据 ${(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)}$，其中 $y_i$ 是真实标签。
+
+似然函数：
+
+$$
+L(\theta) = \prod_{i=1}^{n} P(y_i | x_i; \theta)
+$$
+
+对数似然：
+
+$$
+\log L(\theta) = \sum_{i=1}^{n} \log P(y_i | x_i; \theta)
+$$
+
+最大化对数似然 = 最小化负对数似然：
+
+$$
+\text{Loss} = -\frac{1}{n}\sum_{i=1}^{n} \log P(y_i | x_i; \theta)
+$$
+
+这就是\textbf{交叉熵损失}！
+
+\textbf{KL散度和交叉熵}
+
+KL散度衡量两个分布的差异：
+
+$$
+D_{KL}(P||Q) = \sum_{i} P(x_i) \log \frac{P(x_i)}{Q(x_i)} = \sum_{i} P(x_i) \log P(x_i) - \sum_{i} P(x_i) \log Q(x_i)
+$$
+
+$$
+D_{KL}(P||Q) = -H(P) + H(P,Q)
+$$
+
+$$
+\frac{\partial D_{KL}(P\Vert Q)}{\partial\theta} = \frac{\partial H(P, Q)}{\partial \theta}
+$$
+
+其中：
+
+\begin{itemize}
+\item $H(P) = -\sum_{i} P(x_i) \log P(x_i)$ 是真实分布的熵（常数）
+\item $H(P,Q) = -\sum_{i} P(x_i) \log Q(x_i)$ 是交叉熵
+\end{itemize}
+
+最小化KL散度 = 最小化交叉熵（因为真实分布的熵是常数）
+
 \section{替代目标}
 
 在本节中，我们将介绍用于 PPO 算法的代理（surrogate）目标。首先，我们通过讨论性能崩溃问题来引出这一动机。随后我们将看到如何修改原始的策略梯度目标以避免该问题。
