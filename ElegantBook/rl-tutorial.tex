@@ -3710,7 +3710,15 @@ J^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{cl
 
 本章关于对策略梯度施加约束的讨论到此结束。我们从 REINFORCE 与 Actor-Critic 使用的策略梯度目标 $J(\theta)=\mathbb{E}_t\left[ A_t\log\pi_\theta(a_t|s_t) \right]$ 出发，引入了具有单调改进承诺的代理目标 $J^\text{CPI}(\theta)$，该承诺在我们约束相邻策略差异时成立。PPO 提供了两种约束代理目标的方法——使用 KL 惩罚或裁剪启发式，分别得到 $J^\text{KLPEN}$ 和 $J^\text{CLIP}$。让我们把这些策略梯度目标汇总到一起进行比较。
 
+\begin{align}
+J(\theta) & = \mathbb{E}_t\left[ A_t^{\pi_\theta}\log\pi_\theta(a_t|s_t) \right] & \textit{原始目标} \\
+J^{\text{CPI}}(\theta) & = \mathbb{E}_t\left[ p_t(\theta)A_t^{\pi_\theta} \right] & \textit{替代目标} \\
+J^{\text{CPI}}(\theta) \quad & \text{需满足}\quad \mathbb{E}_t\left[ KL(\pi_\theta||\pi_{\theta_\text{old}}) \right]\leq\delta & \textit{约束替代目标} \\
+J^{\text{KLPEN}}(\theta) & = \mathbb{E}_t\left[ p_t(\theta)A^{\pi_{\theta_\text{old}}}_t - \beta KL(\pi_\theta||\pi_{\theta_\text{old}}) \right] & \textit{带自适应KL惩罚的PPO} \\
+J^{\text{CLIP}}(\theta) & = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{clip}\left( p_t(\theta), 1-\epsilon, 1+\epsilon \right)A_t \right) \right] & \textit{带裁剪的PPO}
+\end{align}
 
+为清晰起见，我们将方程完全用 $\theta$ 来表示，以明确哪些策略是变量、哪些策略用于计算优势。请注意，只有原始目标使用当前策略 $\pi_\theta$ 来计算优势 $A_t^{\pi_\theta}$，而其余目标都使用旧策略来计算优势 $A_t^{\pi_{\theta_\text{old}}}$。
 
 \part{基于人类反馈的强化学习（RLHF）}
 
