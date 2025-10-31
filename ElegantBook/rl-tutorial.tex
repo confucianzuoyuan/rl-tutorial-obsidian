@@ -1859,20 +1859,18 @@ class Agent:
 
 \subsection{带基线的策略梯度法}
 
-式(1)是REINFORCE的数学式。将基线应用于这个REINFORCE的数学式如式(2)所示。
+式\ref{eq:reinforce-baseline-1}是REINFORCE的数学式。将基线应用于这个REINFORCE的数学式如式\ref{eq:reinforce-baseline-2}所示。
 
-$$
-\begin{aligned}
-\nabla_{\theta}J(\theta) &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T G_t\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \quad\quad\quad\quad\quad\quad(1) \\
-&= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T (G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \quad\quad(2)
-\end{aligned}
-$$
+\begin{align}
+\nabla_{\theta}J(\theta) &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T G_t\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \label{eq:reinforce-baseline-1} \\
+&= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T (G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \label{eq:reinforce-baseline-2}
+\end{align}
 
-式(2)用 $G_t-b(S_t)$ 代替了 $G_t$ 。这里 $b(S_t)$ 可以是任何函数。也就是说，只要输入是 $S_t$ ， $b(S_t)$ 是什么函数都行。这个 $b(S_t)$ 就是基线（baseline）。
+式\ref{eq:reinforce-baseline-2}用 $G_t-b(S_t)$ 代替了 $G_t$ 。这里 $b(S_t)$ 可以是任何函数。也就是说，只要输入是 $S_t$ ， $b(S_t)$ 是什么函数都行。这个 $b(S_t)$ 就是基线（baseline）。
 
-式（2）中的 $b(S_t)$ 可以是任何函数。例如，在状态 $S_t$ 下，可以考虑使用之前获得的奖励的平均值作为 $b(S_t)$ 。实践中经常使用的是价值函数，数学式为 $b(S_t)=V_{\pi_{\theta}}(S_t)$ 。如果能够使用基线减小方差，那么就可以进行样本效率更高的训练。另外，将价值函数作为基线使用时，我们是不知道真正的价值函数 $v_{\pi_{\theta}}(S_t)$ 的。这种情况下还需要训练价值函数神经网络。
+式\ref{eq:reinforce-baseline-2}中的 $b(S_t)$ 可以是任何函数。例如，在状态 $S_t$ 下，可以考虑使用之前获得的奖励的平均值作为 $b(S_t)$ 。实践中经常使用的是价值函数，数学式为 $b(S_t)=V_{\pi_{\theta}}(S_t)$ 。如果能够使用基线减小方差，那么就可以进行样本效率更高的训练。另外，将价值函数作为基线使用时，我们是不知道真正的价值函数 $v_{\pi_{\theta}}(S_t)$ 的。这种情况下还需要训练价值函数神经网络。
 
-最后，我们再通过直观介绍补充说明一下为什么使用基线更好。这里以倒立摆为例，思考图示的状态。
+最后，我们再通过直观介绍补充说明一下为什么使用基线更好。这里以倒立摆为例，思考图\ref{fig:cartpole-failed}的状态。
 
 \begin{figure}[!ht]
 \centering
@@ -2087,7 +2085,7 @@ node[annotation, below right]
 {$Y_{{1}\times{1}}=X_{1\times{128}}W_{128\times{1}}+B_{{1}\times{1}}$};
 \draw[<-] (pic cs:actorcritic4)  ++(0.5,0.4) -| ++(2.5,1.1)
 node[annotation, below right]
-{$V_\omega(S_t)$输出的是一个标量值（当前状态的价值）};
+{{\tiny $V_\omega(S_t)$输出的是一个标量值（当前状态的价值）}};
 \end{tikzpicture}
 
 上面的代码将策略的网络实现为了 \py{PolicyNet} 类，将价值函数的网络实现为了 \py{ValueNet} 类。策略的最终输出是 \py{Softmax} 函数的输出，所以输出的是概率。接下来是 \py{Agent} 类的代码。
