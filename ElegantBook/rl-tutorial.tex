@@ -69,20 +69,12 @@
 
 
 \title{强化学习教程}
-\subtitle{Elegant\LaTeX{} 经典之作}
 
-\author{Ethan Deng \& Liam Huang \& syvshc \& sikouhjw \& Osbert Wang}
-\institute{Elegant\LaTeX{} Program}
-\date{2022/12/31}
-\version{4.5}
-\bioinfo{自定义}{信息}
-
-\extrainfo{注意：本模板自 2023 年 1 月 1 日开始，不再更新和维护！}
+\author{左元}
 
 \setcounter{tocdepth}{3}
 
-\logo{logo-blue.png}
-\cover{cover.jpg}
+\cover{cover.pdf}
 
 % 本文档命令
 \usepackage{array}
@@ -114,7 +106,7 @@
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \draw [ fill={rgb,255:red,214; green,141; blue,102} ] (23.75,21.5) rectangle  node {\LARGE 环境} (28,19.25);
@@ -147,11 +139,11 @@
 
 强化学习由两部分组成：\textbf{智能体}和\textbf{环境}。在强化学习过程中，智能体与环境一直在交互。智能体在环境中获取某个状态后，它会利用该状态输出一个动作（action）。然后这个动作会在环境中被执行，环境会根据智能体采取的动作，输出下一个状态以及当前这个动作带来的奖励。智能体的目的就是尽可能多地从环境中获取奖励。
 
-下面是一个倒立摆环境。
+图\ref{fig:fig-cartpole-env}是一个倒立摆环境。
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \draw [ fill={rgb,255:red,0; green,0; blue,0} , line width=1pt ] (21.75,18) rectangle (25.75,16.25);
@@ -202,7 +194,7 @@
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \node [font=\LARGE] at (19.5,21.5) {要采取的动作的概率分布   =   {\colorbox{red!30}{策略函数}}(环境的状态)};
@@ -229,9 +221,9 @@
 
 所以偶尔也需要采取一下概率小的动作。
 
-\mybox[blue]{NOTE}{
-    所谓\textbf{从概率分布中采样}的意思是，例如概率分布是向左推的概率是0.7，向右推的概率是0.3。那么从这个概率分布中采样一个动作出来，有70\%的概率采取的动作是向左推。但也有30\%的概率向右推。
-}
+\begin{marker}
+所谓\textbf{从概率分布中采样}的意思是，例如概率分布是向左推的概率是0.7，向右推的概率是0.3。那么从这个概率分布中采样一个动作出来，有70\%的概率采取的动作是向左推。但也有30\%的概率向右推。
+\end{marker}
 
 举个例子：如果我们每次都去最熟悉的餐馆吃饭，可能体验都还可以。而如果去不熟悉的餐厅吃饭，可能体验不好，也可能体验超过了之前的餐馆。在舒适区只利用不探索，就会固步自封。冒险可能会受到伤害，但长期来看，可能会得到提升。
 
@@ -239,6 +231,8 @@
 
 策略的数学符号是 $\pi$ ，所以策略也就是 $\pi$ 函数。即 $\pi(a | s)=p\left(a_{t}=a | s_{t}=s\right)$ 。输入一个状态 $s$ ，输出一个概率分布。用条件概率来看，就是在条件：状态为 $s$ 的情况下，策略采取动作 $a$ 的概率是多少。这个概率是智能体所有动作的概率，然后对这个概率分布进行采样，可得到智能体将采取的动作。比如可能是有 0.7 的概率往左，0.3 的概率往右，那么通过采样就可以得到智能体将采取的动作。
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -250,6 +244,8 @@
 \annotate[yshift=-1em]{below}{p2}{$t$时刻环境的状态为$s$}
 \bigskip
 \bigskip
+\caption{策略函数}\label{fig:policy-function-annotate}
+\end{figure}
 
 所以有如下：
 
@@ -272,7 +268,7 @@ $$
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (9.75,21.25) circle (0.5cm);
@@ -280,9 +276,9 @@ $$
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (16,21.25) circle (0.5cm);
 \draw [short] (16.5,21.25) -- (21.75,21.25)node[pos=0.5, fill=white]{向左推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (22.25,21.25) circle (0.5cm);
-\draw [short] (22.5,21.25) -- (27.75,21.25)node[pos=0.5, fill=white]{向左推};
+\draw [short] (22.8,21.25) -- (27.75,21.25)node[pos=0.5, fill=white]{向左推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (28.25,21.25) circle (0.5cm);
-\draw [short] (28.5,21.25) -- (33.75,21.25)node[pos=0.5, fill=white]{向左推};
+\draw [short] (28.8,21.25) -- (33.75,21.25)node[pos=0.5, fill=white]{向左推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (34.25,21.25) circle (0.5cm);
 \draw [->, >=Stealth] (34.75,21.25) -- (37.25,21.25);
 \node [font=\LARGE, color={rgb,255:red,186; green,18; blue,18}] at (39.25,21.25) {游戏失败};
@@ -291,9 +287,9 @@ $$
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (16,17.75) circle (0.5cm);
 \draw [short] (16.5,17.75) -- (21.75,17.75)node[pos=0.5, fill=white]{向右推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (22.25,17.75) circle (0.5cm);
-\draw [short] (22.5,17.75) -- (27.75,17.75)node[pos=0.5, fill=white]{向右推};
+\draw [short] (22.8,17.75) -- (27.75,17.75)node[pos=0.5, fill=white]{向右推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (28.25,17.75) circle (0.5cm);
-\draw [short] (28.5,17.75) -- (33.75,17.75)node[pos=0.5, fill=white]{向右推};
+\draw [short] (28.8,17.75) -- (33.75,17.75)node[pos=0.5, fill=white]{向右推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (34.25,17.75) circle (0.5cm);
 \draw [->, >=Stealth] (34.75,17.75) -- (37.25,17.75);
 \node [font=\LARGE, color={rgb,255:red,186; green,18; blue,18}] at (39.25,17.75) {游戏失败};
@@ -302,9 +298,9 @@ $$
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (16,14.25) circle (0.5cm);
 \draw [short] (16.5,14.25) -- (21.75,14.25)node[pos=0.5, fill=white]{向右推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (22.25,14.25) circle (0.5cm);
-\draw [short] (22.5,14.25) -- (27.75,14.25)node[pos=0.5, fill=white]{向左推};
+\draw [short] (22.8,14.25) -- (27.75,14.25)node[pos=0.5, fill=white]{向左推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (28.25,14.25) circle (0.5cm);
-\draw [short] (28.5,14.25) -- (33.75,14.25)node[pos=0.5, fill=white]{向右推};
+\draw [short] (28.8,14.25) -- (33.75,14.25)node[pos=0.5, fill=white]{向右推};
 \draw [ fill={rgb,255:red,219; green,20; blue,20} ] (34.25,14.25) circle (0.5cm);
 \draw [->, >=Stealth] (34.75,14.25) -- (37.25,14.25);
 \node [font=\LARGE, color={rgb,255:red,18; green,186; blue,91}] at (39.25,14.25) {游戏成功};
@@ -341,7 +337,7 @@ $$
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\normalsize]
 \draw  (7.25,18.5) circle (1cm) node {\LARGE 起点} ;
@@ -365,33 +361,26 @@ $$
 
 可以看到，一共有 4 条轨迹。每条轨迹都有一个总的回报。而每条轨迹也都有一个产生的概率。那么我们如何评估在环境处于状态 $S_t$ 时，一直采取策略 $\pi$ 未来会获得多少回报呢？也就是未来的预期回报（回报的期望值）是多少呢？那就是\textbf{状态价值函数}（State Value Function）。
 
-$$
+\begin{equation}\label{eq:state-value-function-definition}
 V_{\pi}(s) = \mathbb{E}_{\pi}\left[G_{t} \mid S_{t}=s\right]=\mathbb{E}_{\pi}\left[\sum_{k=0}^{\infty} \gamma^{k} R_{t+k} \mid S_{t}=s\right], \text{对于所有的} s \in S
-$$
+\end{equation}
 
-\mybox[blue]{NOTE}{
-    状态价值函数，衡量的是在环境处于状态 $s$ 时，一直按照策略 $\pi$ 来采取动作，最终的预期回报。
-}
+\begin{marker}
+状态价值函数，衡量的是在环境处于状态 $s$ 时，一直按照策略 $\pi$ 来采取动作，最终的预期回报。
+\end{marker}
 
 状态价值函数的另一种重要的表示形式。
 
-$$
+\begin{equation}\label{eq:bellman-expectation-equation}
 \begin{aligned}
 V_\pi(S_t=s)
 &= \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1}=s')|S_t=s] \\
 \end{aligned}
-$$
+\end{equation}
 
-哈哈。
-
-\mybox[blue]{NOTE：贝尔曼期望方程}{
-$$
-\begin{aligned}
-V_\pi(S_t)
-&= \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t] \\
-\end{aligned}
-$$
-}
+\begin{marker}
+贝尔曼期望方程：$V_\pi(S_t) = \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t]$
+\end{marker}
 
 直观解释：
 
@@ -635,9 +624,9 @@ MDP通过假设马尔可夫性质的存在来模拟状态转移和奖励。引�
 
 环境的状态迁移只以当前状态 $s$ 和行动 $a$ 为条件来决定下一个状态 $s'$ ，而不需要先前的信息。同样，奖励也是基于当前状态 $s$ 、行动 $a$ 和迁移后的状态 $s'$ 来决定的。这意味着关于环境的所有必要信息都在当前状态中。因此，智能体只需基于当前状态即可决定其行动。
 
-\mybox[blue]{NOTE}{
+\begin{marker}
 MDP的马尔可夫性质可以被看作是对环境而不是对智能体的约束。这意味着为了满足马尔可夫性质，环境需要保持某个``状态''。从智能体的角度来看，在当前状态下有足够的信息来做出最佳选择，所以它可以在此基础上采取行动。
-}
+\end{marker}
 
 智能体的行动是由随机性策略决定的，数学式如下所示。
 
@@ -761,11 +750,9 @@ v_\pi(s) &= \mathbb{E}_\pi[G_t|S_t=s] \\
 \end{aligned}
 $$
 
-\mybox[blue]{期望的线性性质}{
-$$
-\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]
-$$
-}
+\begin{marker}
+期望的线性性质：$\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]$
+\end{marker}
 
 先来推导上面公式中的第一项 $\mathbb{E}_\pi[R_t|S_t=s]$ 。
 
@@ -779,6 +766,8 @@ $$
 
 第一项推导完毕，接下来推导第二项。
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -789,12 +778,14 @@ $$
 \annotate[yshift=-1em]{below}{bellman2}{接下来推导这一项}
 \bigskip
 \bigskip
+\caption{推导第二项}\label{fig:derive-second-item}
+\end{figure}
 
 剩下的项是 $\gamma\mathbb{E}_\pi[G_{t+1}|S_t=s]$ 。由于 $\gamma$ 是常数，因此我们要看的是 $\mathbb{E}_\pi[G_{t+1}|S_t=s]$ 。这个式子虽然与状态价值函数的定义式相似，但在 $G_{t+1}$ 的部分有所不同。状态价值函数的式子如下所示，式子中是 $G_t$ ，而不是 $G_{t+1}$ 。
 
-$$
+\begin{equation}
 v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]
-$$
+\end{equation}
 
 因此，我们首先要将 $t+1$ 代入上面的式子的 $t$ 中。式子变化如下。
 
@@ -947,17 +938,17 @@ $$
 
 图\ref{fig:action-prob-distribution}就是一个例子。玩倒立摆游戏。策略函数是一个神经网络；输入是倒立摆环境的状态，一个浮点数数组；输出是我们可以执行的动作，有几个动作，输出层就有几个神经元。假设我们现在可以执行的动作有 2 个，输出层就有 2 个神经元，每个神经元对应一个可以采取的动作。输入一个东西后，策略神经网络会给每一个可以采取的动作一个分数。我们可以把这个分数当作概率，智能体根据概率的分布来决定它要采取的动作，比如 0.7 的概率向左推、0.3 的概率向右推。概率分布不同，推车采取的动作就会不一样。
 
-如下图所示，首先，环境是一个函数，我们可以把倒立摆环境看成一个函数，虽然它不一定是神经网络，可能是基于规则的（rule-based）模型，但我们可以把它看作一个函数。
+如式\ref{eq:environment-function}所示，首先，环境是一个函数，我们可以把倒立摆环境看成一个函数，虽然它不一定是神经网络，可能是基于规则的（rule-based）模型，但我们可以把它看作一个函数。
 
-$$
+\begin{equation}\label{eq:environment-function}
 \text{倒立摆环境}(S_t, A_t) \rightarrow (S_{t+1}, \text{奖励})
-$$
+\end{equation}
 
 倒立摆环境就是一个基于规则的函数，只要推车不倒下，就返回奖励 1 。
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \draw [ fill={rgb,255:red,255; green,255; blue,127} , line width=0.2pt ] (7.75,28.75) rectangle  node {\LARGE 环境} (11,27);
@@ -1000,8 +991,10 @@ $$
 
 研究者们提出了各种基于策略梯度法的算法。本章首先介绍最简单的策略梯度法。然后，在改进这个简单的策略梯度法的过程中，我们推导出了被称为\textbf{REINFORCE}的算法。接下来，在进一步改进 REINFORCE 的过程中， 我们又推导出了\textbf{带基线}的 REINFORCE 方法和 Actor-Critic（演员-评论家） 方法。
 
-随机性策略用数学式可以表示为 $\pi(a|s)$ 。$\pi(a|s)$ 是在状态 $s$ 下采取动作 $a$ 的概率。这里采用神经网络对策略进行建模。此时用符号 $\theta$ 来汇总表示神经网络的所有权重参数（ $\theta$ 是将所有参数的元素排成一列的向量）。另外，可以将基于神经网络的策略表示为 $\pi_{\theta}(a|s)$ 。
+随机性策略用数学式可以表示为 $\pi(a|s)$ 。$\pi(a|s)$ 是在状态 $s$ 下采取动作 $a$ 的概率。这里采用神经网络对策略进行建模。此时用符号 $\theta$ 来汇总表示神经网络的所有权重参数（ $\theta$ 是将所有参数的元素排成一列的向量）。另外，可以将基于神经网络的策略表示为 $\pi_{\theta}(a|s)$ ，如图\ref{fig:policy-nn-function}所示。
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -1014,16 +1007,18 @@ $$
 \annotate[yshift=1em]{above,right}{pi4}{神经网络的参数}
 \bigskip
 \bigskip
+\caption{策略神经网络}\label{fig:policy-nn-function}
+\end{figure}
 
 还是倒立摆环境，每当倒立摆环境处于某个状态 $s$ 时，我们就会使用神经网络 $\pi_\theta$ 来决定要采取什么动作。
 
 那么，问题是：这个神经网络怎么训练？
 
-\mybox[blue]{NOTE}{
+\begin{marker}
 想要训练一个神经网络，需要有\textbf{输入-输出}对。例如，mnist手写数字数据集，要训练一个可以识别手写数字的卷积神经网络，需要构建一个网络结构，然后提供输入（图片）以及输出（分类标签）。
-\\
+
 当然，还得有\textbf{损失函数}，例如交叉熵损失函数或者均方误差损失函数，等等。
-}
+\end{marker}
 
 \begin{figure}[!ht]
 \centering
@@ -1061,7 +1056,7 @@ $$
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.5\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \draw [ fill={rgb,255:red,255; green,255; blue,127} , line width=0.2pt ] (7.75,28.75) rectangle  node {\LARGE 环境} (11,27);
@@ -1110,15 +1105,15 @@ $$
 \node [font=\LARGE] at (34.5,8) {$G(\tau) = R_0 + \gamma R_1 + \gamma^2 R_2 + \cdots + \gamma^T R_T$};
 \end{circuitikz}
 }%
-
-\label{fig:my_label}
+\caption{回报计算示意图}
+\label{fig:return-calculate}
 \end{figure}
 
 为了表明回报可以由 $\tau$ 计算出来，上面的式子将其表示为了 $G(\tau)$ 。此时，目标函数 $J(\theta)$ 可以表示为以下式子。
 
-$$
+\begin{equation}
 J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
-$$
+\end{equation}
 
 回报 $G(\tau)$ 是随机变动的，所以它的期望值是目标函数。上式中期望值 $E$ 的下标为 $\tau\sim\pi_{\theta}$ ，这个下标表示 $\tau$ 是基于 $\pi_{\theta}$ 生成的。
 
@@ -1149,14 +1144,14 @@ $$
 
 确定了目标函数后，下一步是计算它的梯度。这里将参数 $\theta$ 的梯度表示为 $\nabla_{\theta}$ 。我们的目标是求 $\nabla_{\theta}J(\theta)$ 。$\nabla$ 是梯度符号。
 
-$$
+\begin{equation}\label{eq:policy-gradient-formula}
 \begin{aligned}
 \nabla_{\theta}J(\theta) &= \nabla_{\theta}\mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)] \\
 &= \mathbb{E}_{\tau\sim\pi_{\theta}}[\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
 \end{aligned}
-$$
+\end{equation}
 
-上面的公式非常的重要。需要仔细研究。
+公式\ref{eq:policy-gradient-formula}非常的重要。需要仔细研究。
 
 \begin{figure}[!ht]
 \centering
@@ -1373,7 +1368,7 @@ $\begin{aligned}
 \label{fig:one-trajectory-update-policy}
 \end{figure}
 
-为了简单起见，本章将使用以上面的式子为对象的策略梯度法。上面的式子的计算就是对所有时刻（$t=0\sim T$）求 $\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$ ，然后将各梯度乘以作为权重的回报 $G(\tau)$ ，最后求它们的和。这个计算过程如下图所示。
+为了简单起见，本章将使用以上面的式子为对象的策略梯度法。上面的式子的计算就是对所有时刻（$t=0\sim T$）求 $\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$ ，然后将各梯度乘以作为权重的回报 $G(\tau)$ ，最后求它们的和。这个计算过程如图\ref{fig:use-one-sample-cal-pg}所示。
 
 \begin{figure}[!ht]
 \centering
@@ -1412,67 +1407,9 @@ $\begin{aligned}
 \node [font=\Huge] at (65.5,5) {$+$};
 \end{circuitikz}
 }%
-
-\label{fig:my_label123}
+\caption{使用一条轨迹计算策略梯度}
+\label{fig:use-one-sample-cal-pg}
 \end{figure}
-
-\mybox[blue]{深入讨论}{
-采样一条轨迹的梯度是 $\nabla_{\theta}J(\theta) \approx \sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$
-\\
-如果将梯度符号去掉，可以得到如下：
-$$
-\begin{aligned}
-J(\theta) & \approx \sum_{t=0}^TG(\tau)\log\pi_{\theta}(A_t|S_t) \\
-& = G(\tau)\sum_{t=0}^T\log\pi_{\theta}(A_t|S_t) \\
-& = G(\tau)\left( \log\pi_\theta(A_0|S_0) + \log\pi_\theta(A_1|S_1) + \dots\right)
-\end{aligned}
-$$
-我们的目标是让 $J(\theta)$ 越大越好，那么在经过梯度上升算法之后，$J(\theta)$会变大，那么肯定有的 $\log\pi_\theta(A_t|S_t)$ 变大了，也可能有的 $\log\pi_\theta(A_{t'}|S_{t'})$ 变小了，但总和肯定变大了。也就是说，
-\bigskip
-策略梯度法的本质是，我们使用\textbf{当前策略}$\pi_\theta$采样一条轨迹$\tau$，如果采样的轨迹的回报$G(\tau)$很高，那么说明我们在某个状态$S_t$采取的动作$A_t$比较好，导致了总的奖励也就是回报比较高。那么通过梯度上升法，更新$\theta$之后，新的策略$\pi_{\theta_\text{new}}$会提升\textbf{在 $S_t$ 时执行 $A_t$ 的概率}。例如 $A_t$ 是``向左推车''，那么在 $S_t$ 状态下策略采取``向左推车''的概率就会提升，而同时策略采取``向右推车''的概率就会下降。
-\bigskip
-举一个最简单的例子，我们采样的轨迹只执行了一步动作，就结束了。那么有如下公式
-$$
-J(\theta) = G(\tau)\log\pi_\theta(A_0|S_0)
-$$
-\begin{itemize}
-\item 如果$G>0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变大。
-\item 如果$G<0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变小。
-\end{itemize}
-如果$G$特别大，例如$G=10000$，或者$G$特别小，例如$G=-10000$，那么梯度上升算法的步长$\alpha G\nabla_\theta\log_{\pi_{\theta}}(A_0|S_0)$的绝对值一定会很大，进而导致策略的参数$\theta$更新幅度巨大，进而导致策略$\pi_\theta$爆炸式的更新。
-\bigskip
-换句话说，我们只是提高了在状态$S_0=s$是采取动作$A_0$的概率，但是在玩倒立摆游戏时，并不能保证状态$s$经常出现。碰到其它的状态，更新后的策略表现可能非常的差。好比一个人，突然间中了1000万，那么如此大的奖励会直接彻底改变这个人的策略，他的策略彻底变成了靠运气生活。或者一个人犯了一点点小错误，却得到了巨大的惩罚，如此大的惩罚也会让一个人信心崩溃。这就是策略崩溃的例子。
-\begin{figure}[H]
-\centering
-\resizebox{0.5\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\LARGE]
-\draw (8.75,20) to[short] (16.25,20);
-\draw [short] (16.25,20) .. controls (17,24.75) and (18.25,24.75) .. (21.5,25.5);
-\draw [short] (21.5,25.5) -- (25.75,20);
-\draw [short] (25.75,20) -- (32,20);
-\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (18,24.25) circle (0.25cm);
-\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24) circle (0cm);
-\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24.25) circle (0cm);
-\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18.25,24) circle (0cm);
-\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (19.75,25) circle (0.25cm);
-\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (25,21) circle (0.25cm);
-\draw [dashed] (18,27.5) -- (18,19);
-\draw [dashed] (19.75,27.5) -- (19.75,23.75);
-\draw [dashed] (25,22.25) -- (25,19);
-\draw [<->, >=Stealth] (18,27) -- (19.75,27);
-\draw [<->, >=Stealth] (18,19.5) -- (25,19.5);
-\draw [->, >=Stealth, dashed] (19,27) -- (17.75,30);
-\draw [->, >=Stealth, dashed] (21.5,19.5) -- (20.5,16.5);
-\node [font=\LARGE] at (17.75,30.5) {理想的步长};
-\node [font=\LARGE] at (21,15.75) {步子太大，梯度爆炸式更新};
-\end{circuitikz}
-}%
-\caption{梯度爆炸式更新}
-\label{fig:gradient-explode}
-\end{figure}
-\bigskip
-}
 
 接下来，我们用代码来实现一下策略梯度法。
 
@@ -1579,7 +1516,7 @@ node[annotation, below right]
 {学习率$\alpha$};
 \draw[<-] (pic cs:agent3)  ++(0.5,0.4) -| ++(2,1.1)
 node[annotation, below right]
-{两个动作：向左推和向右推};
+{{\small 两个动作：向左推和向右推}};
 \draw[<-] (pic cs:agent4)  ++(0.5,0.4) -| ++(2,1.1)
 node[annotation, below right]
 {策略神经网络$\pi_\theta$};
@@ -1620,7 +1557,7 @@ node[annotation, below right]
 {虚拟权重};
 \draw[<-] (pic cs:pgtest2)  ++(0.5,0.4) -| ++(7.6,1.1)
 node[annotation, below right]
-{动作的对数概率$G\log{\pi_\theta(A_0|S_0)}$};
+{{\tiny 动作的对数概率$G\log{\pi_\theta(A_0|S_0)}$}};
 \draw[<-] (pic cs:pgtest3)  ++(0.5,0.4) -| ++(1.6,0.7)
 node[annotation, below right]
 {求梯度$\nabla_\theta G\log{\pi_\theta(A_0|S_0)}$};
@@ -1680,15 +1617,15 @@ node[annotation, below right]
 {逆序计算$G_t=R_t+\gamma{G_{t+1}}$};
 \draw[<-] (pic cs:agentother2)  ++(0.6,0.4) -| ++(4.6,1.1)
 node[annotation, below right]
-{$\text{loss}=-\displaystyle\sum_{t=0}^{T}{G(\tau)\log\pi_\theta(A_t|S_t)}$};
+{{\tiny $\text{loss}=-\displaystyle\sum_{t=0}^{T}{G(\tau)\log\pi_\theta(A_t|S_t)}$}};
 \draw[<-] (pic cs:agentother3)  ++(0.6,0.4) -| ++(1.2,4.1)
 node[annotation, below right]
-{$\begin{aligned}
+{{\tiny $\begin{aligned}
 G(\tau) &= G_0 \\
 &= R_0 + \gamma{G_1} \\
 &= R_0 + \gamma{R_1 + \gamma{G_2}} \\
 &= \ldots
-\end{aligned}$};
+\end{aligned}$}};
 \end{tikzpicture}
 
 \py{add}方法是智能体每次采取行动并获得奖励时被调用的方法。该方法将奖励（\py{reward}）和智能体采取的行动的概率（\py{prob}）存储在内存（\py{self.memory}）中。\py{update}方法是智能体到达目标时被调用的方法。该方法首先会求回报\py{G}。回报可以通过反向计算获得的奖励的做法来高效的计算。然后该方法会计算损失函数。具体做法是对每个时刻求 \py{-prob.log()}，再将其乘以作为权重的\py{G}，之后求它们的和。剩下的就是一直以来的神经网络的训练代码。
@@ -1781,15 +1718,76 @@ test_render(agent, env)
 
 我们大概可以知道，随着回合的推进，奖励的总和会逐渐增加。但即使经历了 3000 个回合，依然没有达到这次任务的上限值 200，所以似乎还有改进的余地。下面让我们来改进一下这里推导的最简单的策略梯度法。这个改进算法就是著名的\textbf{REINFORCE}算法。
 
+\subsection{深入讨论}
+
+采样一条轨迹的梯度是 $\nabla_{\theta}J(\theta) \approx \sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$。
+
+如果将梯度符号去掉，可以得到如下：
+
+$$
+\begin{aligned}
+J(\theta) & \approx \sum_{t=0}^TG(\tau)\log\pi_{\theta}(A_t|S_t) \\
+& = G(\tau)\sum_{t=0}^T\log\pi_{\theta}(A_t|S_t) \\
+& = G(\tau)\left( \log\pi_\theta(A_0|S_0) + \log\pi_\theta(A_1|S_1) + \dots\right)
+\end{aligned}
+$$
+
+我们的目标是让 $J(\theta)$ 越大越好，那么在经过梯度上升算法之后，$J(\theta)$会变大，那么肯定有的 $\log\pi_\theta(A_t|S_t)$ 变大了，也可能有的 $\log\pi_\theta(A_{t'}|S_{t'})$ 变小了，但总和肯定变大了。也就是说，策略梯度法的本质是，我们使用\textbf{当前策略}$\pi_\theta$采样一条轨迹$\tau$，如果采样的轨迹的回报$G(\tau)$很高，那么说明我们在某个状态$S_t$采取的动作$A_t$比较好，导致了总的奖励也就是回报比较高。那么通过梯度上升法，更新$\theta$之后，新的策略$\pi_{\theta_\text{new}}$会提升\textbf{在 $S_t$ 时执行 $A_t$ 的概率}。例如 $A_t$ 是``向左推车''，那么在 $S_t$ 状态下策略采取``向左推车''的概率就会提升，而同时策略采取``向右推车''的概率就会下降。
+
+举一个最简单的例子，我们采样的轨迹只执行了一步动作，就结束了。那么有如下公式
+
+$$
+J(\theta) = G(\tau)\log\pi_\theta(A_0|S_0)
+$$
+
+\begin{itemize}
+\item 如果$G>0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变大。
+\item 如果$G<0$，那么对 $J(\theta)$ 优化之后，策略 $\pi_\theta$ 在状态 $S_0$ 时采取动作 $A_0$ 的概率一定会变小。
+\end{itemize}
+
+如果$G$特别大，例如$G=10000$，或者$G$特别小，例如$G=-10000$，那么梯度上升算法的步长$\alpha G\nabla_\theta\log_{\pi_{\theta}}(A_0|S_0)$的绝对值一定会很大，进而导致策略的参数$\theta$更新幅度巨大，进而导致策略$\pi_\theta$爆炸式的更新。
+
+换句话说，我们只是提高了在状态$S_0=s$是采取动作$A_0$的概率，但是在玩倒立摆游戏时，并不能保证状态$s$经常出现。碰到其它的状态，更新后的策略表现可能非常的差。好比一个人，突然间中了1000万，那么如此大的奖励会直接彻底改变这个人的策略，他的策略彻底变成了靠运气生活。或者一个人犯了一点点小错误，却得到了巨大的惩罚，如此大的惩罚也会让一个人信心崩溃。这就是策略崩溃的例子。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{0.5\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw (8.75,20) to[short] (16.25,20);
+\draw [short] (16.25,20) .. controls (17,24.75) and (18.25,24.75) .. (21.5,25.5);
+\draw [short] (21.5,25.5) -- (25.75,20);
+\draw [short] (25.75,20) -- (32,20);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (18,24.25) circle (0.25cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24) circle (0cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18,24.25) circle (0cm);
+\draw [ fill={rgb,255:red,219; green,20; blue,20} ] (18.25,24) circle (0cm);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (19.75,25) circle (0.25cm);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (25,21) circle (0.25cm);
+\draw [dashed] (18,27.5) -- (18,19);
+\draw [dashed] (19.75,27.5) -- (19.75,23.75);
+\draw [dashed] (25,22.25) -- (25,19);
+\draw [<->, >=Stealth] (18,27) -- (19.75,27);
+\draw [<->, >=Stealth] (18,19.5) -- (25,19.5);
+\draw [->, >=Stealth, dashed] (19,27) -- (17.75,30);
+\draw [->, >=Stealth, dashed] (21.5,19.5) -- (20.5,16.5);
+\node [font=\LARGE] at (17.75,30.5) {理想的步长};
+\node [font=\LARGE] at (21,15.75) {步子太大，梯度爆炸式更新};
+\end{circuitikz}
+}%
+\caption{梯度爆炸式更新}
+\label{fig:gradient-explode}
+\end{figure}
+
 \section{REINFORCE}
 
 \subsection{REINFORCE算法}
 
 REINFORCE是对上一节的策略梯度法的改进算法。本节首先会基于数学式推导REINFORCE算法，然后会通过修改之前的部分代码的做法来实现REINFORCE。
 
-\mybox[blue]{REINFORCE名字的由来}{
-REINFORCE这个名字是``REward Increment = Nonnegative Factor $\times$ Offset Reinforcement $\times$ Characteristic Eligibility''（奖励增量=非负因子x偏移强化x特征资格）的首字母缩写。
-}
+\begin{marker}
+REINFORCE这个名字是``REward Increment = Nonnegative Factor $\times$ Offset Reinforcement $\times$ Characteristic Eligibility''（奖励增量=非负因子$\times$偏移强化$\times$特征资格）的首字母缩写。
+\end{marker}
 
 先来复习一下第一节。最简单的梯度策略法是基于下面的公式实现的。
 
@@ -1815,9 +1813,9 @@ $$
 
 如式所示，权重变成了 $G_t$ 。权重 $G_t$ 是在时刻 $t\sim T$ 获得的奖励的总和。因此，选择行动 $A_t$ 的概率将由不包含时刻 $t$ 之前的奖励的权重 $G_t$ 增强。 这就是改进第一节的策略梯度法的思路。基于上式的算法叫作\textbf{REINFORCE}。
 
-\mybox[blue]{NOTE}{
+\begin{marker}
 基于上式的REINFORCE算法优于最简单的策略梯度法（基于第一节的公式的算法）。通过无限增加的样本数，两个公式都会收敛到正确的 $\nabla_{\theta}J(\theta)$ （可以说是无偏差的）。但第一个公式的方差更大，因为公式中的权重包含了无关的数据（噪声）。
-}
+\end{marker}
 
 \subsection{REINFORCE的代码实现}
 
@@ -1921,30 +1919,30 @@ pin={价值很低}] at (7cm,0)
 
 \subsection{Actor-Critic的数学推导}
 
-首先从复习带基线的REINFORCE开始。带基线的REINFORCE的目标函数的梯度的数学式如下所示。
+首先从复习带基线的REINFORCE开始。带基线的REINFORCE的目标函数的梯度的数学式如\ref{eq:pg-with-baseline}所示。
 
-$$
+\begin{equation}\label{eq:pg-with-baseline}
 \nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
-$$
+\end{equation}
 
-式中的 $G_t$ 表示回报，$b(S_t)$ 表示基线。可以使用任何函数作为基线。这里我们使用基于神经网络建模的价值函数作为基线。因此，我们要用到以下这些新的记号。
+式\ref{eq:pg-with-baseline}中的 $G_t$ 表示回报，$b(S_t)$ 表示基线。可以使用任何函数作为基线。这里我们使用基于神经网络建模的价值函数作为基线。因此，我们要用到以下这些新的记号。
 
 \begin{itemize}
 \item $\omega$ ：表示价值函数的神经网络的所有权重参数。
 \item $V_{\omega}(S_t)$ ：将价值函数模型化的神经网络。
 \end{itemize}
 
-此时目标函数的梯度的数学式如下所示
+此时目标函数的梯度的数学式如式\ref{eq:actor-critic-objective}所示
 
-$$
-\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(G_t-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
-$$
+\begin{equation}\label{eq:actor-critic-objective}
+\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}\left[\sum_{t=0}^T(G_t-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)\right]
+\end{equation}
 
-式中存在一个问题，即只要没抵达目标，就无法确定回报 $G_t$ 的值。也就是说，在抵达目标之前，无法更新策略和价值函数。如果这是基于蒙特卡洛方法的算法，那么二者无法更新就是它的缺点。
+式\ref{eq:actor-critic-objective}中存在一个问题，即只要没抵达目标，就无法确定回报 $G_t$ 的值。也就是说，在抵达目标之前，无法更新策略和价值函数。如果这是基于蒙特卡洛方法的算法，那么二者无法更新就是它的缺点。
 
-\mybox[blue]{蒙特卡洛采样}{
-  我们之前使用的是蒙特卡洛采样，也就是采样出一条完整的轨迹。然后更新策略神经网络$\pi_\theta$。
-}
+\begin{marker}
+我们之前使用的是\textbf{蒙特卡洛采样}，也就是采样出一条完整的轨迹。然后更新策略神经网络$\pi_\theta$。
+\end{marker}
 
 消除这个缺点的方法是\textbf{时序-差分方法}（TD方法，Time Difference Method）。使用TD方法训练价值函数时，使用1个时间步（或 $n$ 个时间步）后的结果就能进行更新，如图所示。
 
@@ -2026,13 +2024,11 @@ $$
 
 基于上面的公式的算法就是 Actor-Critic 。策略 $\pi_{\theta}$ 和价值函数 $V_{\omega}$ 是神经网络，我们要同时训练这两个神经网络。具体来说，对于策略 $\pi_{\theta}$ 要基于上面的公式进行训练；而对于价值函数 $V_{\omega}$ ，则通过 TD 方法，以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 这个神经网络。
 
-\mybox[blue]{Actor}{
+\begin{marker}
 Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，也就是采取动作的人，相当于策略 $\pi_{\theta}$ 。而 Critic 是\textbf{评论家}的意思，相当于价值函数 $V_{\omega}$ 。因此，Actor-Critic 的意思是``使用 $V_{\omega}$ ，来评论基于策略 $\pi_{\theta}$ 采取的动作的好坏''。
-}
+\end{marker}
 
-\subsection{Actic-Critic 的代码实现}
-
-下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如下所示。
+\subsection{Actic-Critic的代码实现}
 
 下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如下所示。
 
@@ -2490,20 +2486,22 @@ $$
 
 上面4种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入``基线''这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
 
-\mybox[blue]{优势函数}{
+\begin{marker}
 $\Phi_t$也叫做优势函数（Advantage Function），优势函数经常在文献中表示为$A(s,a)$，也就是在状态 $s$ 采取动作 $a$ 时，策略的优势是多少。
-}
+\end{marker}
 
 \chapter{近端策略优化}
 
-\mybox[blue]{PPO}{
+\begin{marker}
 PPO: Proximal Policy Optimization，近端策略优化
-}
+\end{marker}
 
 \section{策略梯度法存在的问题}
 
 回顾一下策略梯度法的公式。
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -2518,7 +2516,11 @@ PPO: Proximal Policy Optimization，近端策略优化
 \annotate[yshift=-1em]{below}{pgg3}{轨迹的回报}
 \bigskip
 \bigskip
+\caption{回顾策略梯度公式}\label{fig:recall-pg-formula}
+\end{figure}
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -2531,6 +2533,8 @@ PPO: Proximal Policy Optimization，近端策略优化
 \annotate[yshift=-1em]{below,right}{pggg4}{梯度}
 \bigskip
 \bigskip
+\caption{回顾梯度上升算法}\label{fig:recall-gradient-ascent-method}
+\end{figure}
 
 \textbf{步子迈得太大会导致灾难}。但如果步子太小，模型学习速度就会太慢。把奖励函数想象成高耸的山峰。如果新策略走得太远，它采取的行动可能会差之毫厘，最终从悬崖上掉下来。当我们重新开始探索时，我们从一个表现不佳的状态开始，采用局部糟糕的策略。性能会崩溃，而且需要很长时间才能恢复。
 
@@ -2617,16 +2621,18 @@ $$
 为了不和前面的公式混淆，我们将动作的数学符号由$A_t$改为$a_t$，将状态的数学符号由$S_t$改为$s_t$。这样$A$就代表优势了。
 \end{marker}
 
-而PPO的目标函数变成了：
+而PPO的目标函数变成了式\ref{eq:ppo-clip-objective-function}：
 
-$$
+\begin{equation}\label{eq:ppo-clip-objective-function}
 J(\theta)^{\text{ppo-clip}}=\mathbb{E}_{\tau\sim\pi_{{_\theta}_{\text{old}}}}\left[{\sum_{t=0}^T\left[\min\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}A_t^{\pi_{\text{old}}},\text{clip}\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)},1-\epsilon,1+\epsilon\right)A_t^{\pi_{\text{old}}}\right)\right]}\right]
-$$
+\end{equation}
 
 只要计算出这个目标函数，然后进行反向传播（求$\nabla_\theta{J(\theta)^{\text{ppo-clip}}}$）就可以更新策略神经网络了。
 
 下面我们仔细研究一下PPO的目标函数
 
+\begin{figure}[!ht]
+\centering
 \bigskip
 \bigskip
 \bigskip
@@ -2641,10 +2647,18 @@ J(\theta)^{\eqnmarkbox[NavyBlue]{ppo1}{\text{ppo-clip}}}=\mathbb{E}_{\eqnmarkbox
 \bigskip
 \bigskip
 \bigskip
+\caption{带裁剪函数的PPO目标函数}\label{fig:ppo-clip-annotate}
+\end{figure}
 
 当我们运行旧策略$\pi_{\theta_\text{old}}$玩一局倒立摆游戏时，会产生一条轨迹$\tau=(s_0,a_0,R_0,s_1,a_1,R_1,\dots)$。将这条轨迹保存下来，我们可以使用新策略$\pi_\theta$来计算在每个状态$s_t$，新策略采取动作$a_t$的概率$\pi_\theta(a_t|s_t)$是多少。
 
-例如：当我们使用旧策略玩了一把倒立摆游戏之后，保存的轨迹中$\pi_{\theta_\text{old}}(a_1|s_1)=\left[ \text{向左推的概率}=0.3, \text{向右推的概率}=0.7 \right]$。那么新策略也可以针对$s_1$计算一下采取动作的概率分布。
+例如：当我们使用旧策略玩了一把倒立摆游戏之后，保存的轨迹中
+
+$$
+\pi_{\theta_\text{old}}(a_1|s_1)=\left[ \text{向左推的概率}=0.3, \text{向右推的概率}=0.7 \right]
+$$
+
+那么新策略也可以针对$s_1$计算一下采取动作的概率分布。
 
 \begin{marker}
 在训练最开始时，新策略和旧策略相同，所以比值为$\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}=1$。
@@ -2687,12 +2701,13 @@ J(\theta)^{\eqnmarkbox[NavyBlue]{ppo1}{\text{ppo-clip}}}=\mathbb{E}_{\eqnmarkbox
 
 我们假设比率
 
-$$
+\begin{equation}
 p_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}
-$$
+\end{equation}
 
 
-\begin{table}[]
+\begin{table}[!ht]
+\centering
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
 \rowcolor[HTML]{96FFFB}
@@ -2704,9 +2719,10 @@ $$
 5 & $p_t(\theta)>1+\epsilon$                & $+$   & $(1+\epsilon)A_t$ & 是                   & $+$            & $0$       \\ \hline
 6 & $p_t(\theta)>1+\epsilon$                & $-$   & $p_t(\theta)A_t$  & 否                   & $-$            & $\surd$   \\ \hline
 \end{tabular}
+\caption{对PPO目标函数根据比值的不同进行分情况讨论}\label{tbl:ppo-ratio}
 \end{table}
 
-我们有6种不同的情况。首先记住，我们取裁剪目标和非裁剪目标中的最小值。
+我们有6种不同的情况，见表\ref{tbl:ppo-ratio}。首先记住，我们取裁剪目标和非裁剪目标中的最小值。
 
 \begin{itemize}
 \item \textbf{情况 1 和 2：比率介于裁剪范围之内}
@@ -2760,6 +2776,10 @@ $A_t$不是$\theta$的函数。所以对$\theta$求导为0。
 
 总而言之，得益于这个裁剪的替代目标函数（替换了原来的简单优美的目标函数（$J(\theta)=\mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]$），我们限制了当前策略与旧策略之间的差异范围。因为我们消除了比率超出区间的诱因，因为裁剪会对梯度产生影响。如果比率为$>1+\epsilon$或$<1-\epsilon$，则梯度将等于$0$。
 
+PPO增加了一个软约束（裁剪机制），可以通过一阶优化器（求一阶导数）进行优化。我们偶尔可能会做出一些错误的决策，但它在优化速度上取得了良好的平衡。实验结果证明，这种平衡能够以最简单的方式实现最佳性能。
+
+\section{带裁剪的PPO算法的伪代码}
+
 \begin{algorithm}
 \caption{带裁剪目标的PPO}\label{algo:ppo-clip}
 \begin{algorithmic}[1]
@@ -2776,8 +2796,6 @@ $$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
-
-PPO增加了一个软约束（裁剪机制），可以通过一阶优化器（求一阶导数）进行优化。我们偶尔可能会做出一些错误的决策，但它在优化速度上取得了良好的平衡。实验结果证明，这种平衡能够以最简单的方式实现最佳性能。
 
 \chapter{使用PPO玩倒立摆游戏}
 
@@ -2826,7 +2844,7 @@ class ValueNet(nn.Module):
 \section{PPO算法的实现}
 
 我们来实现Agent。
-
+\newpage
 \begin{codebox}{python}{PPO-Agent-1}
 class Agent:
     def __init__(self, device):
@@ -2875,7 +2893,7 @@ $$
 $$
 
 有了旧策略采样的轨迹的所有详细信息，我们就可以来实现PPO算法了。
-
+\newpage
 \begin{codebox}{python}{PPO-Agent-2}
 class Agent:
     ...
@@ -3017,9 +3035,9 @@ Schulman等人提出的近端策略优化（Proximal Policy Optimization, PPO）
 
 PPO可以通过将原始的目标函数 $J(\theta)$ 替换为修改后的 PPO 目标，来扩展 REINFORCE 或者 Actor-Critic。此修改带来了更稳定、且样本效率更高的训练过程。
 
-在本章中，我们首先在第 7.1.1 节讨论性能崩溃问题。随后在第 7.1.2 节中，通过单调改进理论来应对该问题。我们将该理论应用于策略梯度目标，将其改造为一个代理目标。
+在本章中，我们首先讨论性能崩溃问题。随后通过单调改进理论来应对该问题。我们将该理论应用于策略梯度目标，将其改造为一个代理目标。
 
-在介绍完理论基础后，我们在第 7.2 节讨论 PPO 算法。接着在第 7.4 节展示如何在 SLM Lab 中将 PPO 作为 Actor-Critic 的扩展进行实现。
+在介绍完理论基础后，我们讨论 PPO 算法。
 
 \section{一些数学知识}
 
@@ -3061,21 +3079,29 @@ KL散度具有以下特性：
 \item KL散度是非对称的衡量指标，因此 $D_{KL}(p\Vert q)$ 和 $D_{KL}(q\Vert p)$ 的值不同
 \end{itemize}
 
-这些特性使得 KL 散度可以用来衡量两个概率分布的差异程度。下面我们通过具体的例子来了解这些特性。这里以抛硬币为例进行说明。假设一枚硬币正面朝上和反面朝上的概率是确定的，如下所示。
+这些特性使得 KL 散度可以用来衡量两个概率分布的差异程度。下面我们通过具体的例子来了解这些特性。这里以抛硬币为例进行说明。假设一枚硬币正面朝上和反面朝上的概率是确定的，如表\ref{tbl:real-coin-distribution}所示。
 
+\begin{table}[!ht]
+\centering
 \begin{tabular}{|l|l|}
 \hline
 正面朝上的概率 & 70\% \\ \hline
 反面朝上的概率 & 30\% \\ \hline
 \end{tabular}
+\caption{硬币的真实概率分布}\label{tbl:real-coin-distribution}
+\end{table}
 
-这就是硬币的``真实概率分布''，在这里我们用符号 $p$ 来表示。假设有人对这枚硬币的概率分布做了如下估计。
+表\ref{tbl:real-coin-distribution}是硬币的``真实概率分布''，在这里我们用符号 $p$ 来表示。假设有人对这枚硬币的概率分布做了如下估计。
 
+\begin{table}[!ht]
+\centering
 \begin{tabular}{|l|l|}
 \hline
 正面朝上的概率 & 50\% \\ \hline
 反面朝上的概率 & 50\% \\ \hline
 \end{tabular}
+\caption{第一个人对硬币的概率分布做出的估计}\label{tbl:estimate-coin-1}
+\end{table}
 
 我们用 $q$ 来表示这个估计的概率分布。此时，``真实概率分布$p$''和``估计概率分布$q$''之间的KL散度可以做如下计算。
 
@@ -3088,11 +3114,15 @@ $$
 
 KL散度约为0.082。假设另一个人对这枚硬币的概率分布做了如下估计。
 
+\begin{table}[!ht]
+\centering
 \begin{tabular}{|l|l|}
 \hline
 正面朝上的概率 & 20\% \\ \hline
 反面朝上的概率 & 80\% \\ \hline
 \end{tabular}
+\caption{第二个人对硬币的概率分布做出的估计}\label{tbl:estimate-coin-2}
+\end{table}
 
 这与真实的概率分布值大相径庭。此时的KL散度的值如下所示。
 
@@ -3105,11 +3135,15 @@ $$
 
 这个值比第一个KL散度的值要大。最后，假设又有一个人对这枚硬币的概率分布做了如下估计。
 
+\begin{table}[!ht]
+\centering
 \begin{tabular}{|l|l|}
 \hline
 正面朝上的概率 & 70\% \\ \hline
 反面朝上的概率 & 30\% \\ \hline
 \end{tabular}
+\caption{第三个人对硬币的概率分布做出的估计}\label{tbl:estimate-coin-3}
+\end{table}
 
 这个分布与真实的概率分布相同。此时的KL散度的值如下所示。
 
@@ -3488,27 +3522,27 @@ print("IS: {:.2f} (var: {:.2f})".format(mean, var))
 
 在优化过程中，我们在所有策略的集合中搜索一系列策略 $\pi_{1}, \pi_{2}, \pi_{3},\dots,\pi_{n}$。这个集合被称为策略空间 $\Pi$。
 
-$$
+\begin{equation}\label{eq:policy-space}
 \Pi = \left\{ \pi_{i} \right\} 
-$$
+\end{equation}
 
 当策略被参数化为 $\pi_{\theta}$ 时，我们也可以方便地表示参数 $\theta$ 的参数空间。每一个唯一的 $\theta$ 都对应着一个策略实例。参数空间记为 $\Theta$。
 
-$$
+\begin{equation}\label{eq:parameters-space}
 \Theta=\left\{ \theta\in \mathbb{R}^m, \text{其中}\; m \;\text{是策略模型的参数数量} \right\} 
-$$
+\end{equation}
 
-尽管目标函数 $J(\pi_{\theta})$ 是用策略空间中的策略 $\pi_{\theta}\in\Pi$ 所生成的轨迹来计算的，但对最优策略的搜索实际上是在参数空间中通过寻找合适的参数 $\theta\in\Theta$ 来进行的。也就是说，我们的可控量在 $\Theta$，而结果体现在 $\Pi$。在实践中，我们用学习率 $\alpha$ 来控制参数更新的步长，如等式 7.3 所示。
+尽管目标函数 $J(\pi_{\theta})$ 是用策略空间中的策略 $\pi_{\theta}\in\Pi$ 所生成的轨迹来计算的，但对最优策略的搜索实际上是在参数空间中通过寻找合适的参数 $\theta\in\Theta$ 来进行的。也就是说，我们的可控量在 $\Theta$，而结果体现在 $\Pi$。在实践中，我们用学习率 $\alpha$ 来控制参数更新的步长，如等式 \ref{eq:parameters-update-step} 所示。
 
-$$
+\begin{equation}\label{eq:parameters-update-step}
 \Delta\theta=\alpha \nabla _{\theta}J(\pi_{\theta})
-$$
+\end{equation}
 
 不幸的是，策略空间与参数空间并不总是同构映射，两者的距离也不一定对应。以两对参数 $(\theta_{1},\theta_{2})$ 和 $(\theta_{2},\theta_{3})$ 为例，假设它们在参数空间中的距离相同，即 $d_{\theta}(\theta_{1},\theta_{2})=d_{\theta}(\theta_{2},\theta_{3})$。然而，它们映射得到的策略对 $(\pi_{\theta_{1}},\pi_{\theta_{2}})$ 与 $(\pi_{\theta_{2}}, \pi_{\theta_{3}})$ 的距离未必相同。也就是说，
 
-$$
+\begin{equation}
 d_{\theta}(\theta_{1},\theta_{2})=d_{\theta}(\theta_{2},\theta_{3})\nLeftrightarrow d_{\pi}(\pi_{\theta_{1}},\pi_{\theta_{2}})=d_{\pi}(\pi_{\theta_{2}},\pi_{\theta_{3}})
-$$
+\end{equation}
 
 这带来了潜在问题：参数更新的理想步长 $\alpha$ 难以确定。事先并不清楚它在策略空间 $\Pi$ 中会对应多小或多大的步幅。若 $\alpha$ 过小，就需要很多次迭代，训练会很慢，且策略可能陷入某个局部最优。若 $\alpha$ 过大，策略空间中的对应步长可能越过优良策略的邻域，导致性能崩溃。一旦发生这种情况，新策略会更差，用它生成的轨迹数据也会很差，从而用于下一次更新，进而破坏后续的策略迭代。因此，性能崩溃往往很难恢复。
 
@@ -3520,11 +3554,11 @@ $$
 
 \subsection{修改目标函数}
 
-本节我们引入相对策略性能恒等式，用于度量两个策略之间的性能差异。随后展示如何利用该恒等式改造策略梯度目标，从而在优化过程中保证性能的单调提升。
+本节我们引入\textbf{相对策略性能恒等式}（relative policy performance identity），用于度量两个策略之间的性能差异。随后展示如何利用该恒等式改造策略梯度目标，从而在优化过程中保证性能的单调提升。
 
-直观上，问题出在步长上，因此可以通过加入一个约束，将步长限制在安全范围以防止性能崩塌。施加恰当的约束后，我们可以推导出所谓的单调改进理论。
+直观上，问题出在步长上，因此可以通过加入一个约束，将步长限制在安全范围以防止性能崩塌。施加恰当的约束后，我们可以推导出所谓的\textbf{单调改进理论}（Monotonic Improvement Theory）。
 
-首先，给定一个策略$\pi$，其参数更新后的下一次迭代为$\pi'$。我们将相对策略性能恒等式定义为二者目标函数的差值，如式（7.5）所示。需要注意，优势函数 $A^{\pi}(s_t,a_t)$ 始终使用旧策略 $\pi$ 来计算。
+首先，给定一个策略$\pi$，其参数更新后的下一次迭代为$\pi'$。我们将相对策略性能恒等式定义为二者目标函数的差值，如式\ref{eq:two-policy-diff}所示。需要注意，优势函数 $A^{\pi}(s_t,a_t)$ 始终使用旧策略 $\pi$ 来计算。
 
 \begin{equation}
 J(\pi')-J(\pi)=\mathbb{E}_{\tau\sim\pi'}\left[ \sum^T_{t=0}\gamma^tA^\pi(s_t,a_t) \right]\label{eq:two-policy-diff}
@@ -3561,8 +3595,8 @@ J(\pi')-J(\pi)=\mathbb{E}_{\tau\sim\pi'}\left[ \sum^T_{t=0}\gamma^tA^\pi(s_t,a_t
 
 \begin{equation}\label{eq:cpi}
 \begin{aligned}
-J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t) \right] \\
-& \approx \mathbb{E}_{\tau\sim\pi}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t)\frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)} \right] \\
+J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim{\color{red}\pi'}}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t) \right] \\
+& \approx \mathbb{E}_{\tau\sim{\color{red}\pi}}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t){\color{red}\frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)}} \right] \\
 &= J^{\text{CPI}}_\pi(\pi')
 \end{aligned}
 \end{equation}
@@ -3579,54 +3613,54 @@ J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t) \
 
 如果相邻的策略 $\pi$ 与 $\pi'$ 在 KL 散度意义下足够接近，那么可以写出一个相对策略性能的界。为此，可将绝对误差表示为新目标 $J(\pi')$ 与其估计的改进 $J(\pi)+J_\pi^\text{CPI}(\pi')$ 之间的差值。随后，可以将该误差用 $\pi$ 与 $\pi'$ 的 KL 散度来加以界定。
 
-\begin{equation}
+\begin{equation}\label{eq:ppo-kl-divergence}
 |\left( J(\pi')-J(\pi) \right)-J_\pi^\text{CPI}(\pi')|\leq{C\sqrt{\mathbb{E}_t[KL(\pi'(a_t|s_t)||\pi(a_t|s_t))]}}
 \end{equation}
 
-常数 $C$ 需要被选择，KL 表示 KL 散度。式（7.25）表明，如果相邻策略 $\pi,\pi'$ 的分布彼此接近，使得右侧的 KL 散度较低，那么左侧的误差项也会较小。误差较小时，$J_\pi^\text{CPI}(\pi')$ 就是对 $J(\pi')-J(\pi)$ 的良好近似。
+常数 $C$ 需要被选择，KL 表示 KL 散度。式\ref{eq:ppo-kl-divergence}表明，如果相邻策略 $\pi,\pi'$ 的分布彼此接近，使得右侧的 KL 散度较低，那么左侧的误差项也会较小。误差较小时，$J_\pi^\text{CPI}(\pi')$ 就是对 $J(\pi')-J(\pi)$ 的良好近似。
 
-基于此，要推导我们想要的结果 $J(\pi')-J(\pi)\geq 0$ 相当直接。这被称为单调改进理论，因为它保证每次策略迭代至少是正的或零的改进，而不会出现退化。为得到该结论，首先展开式（7.25），并考虑其在式（7.26）中的下界。
+基于此，要推导我们想要的结果 $J(\pi')-J(\pi)\geq 0$ 相当直接。这被称为单调改进理论，因为它保证每次策略迭代至少是正的或零的改进，而不会出现退化。为得到该结论，首先展开式\ref{eq:ppo-kl-divergence}，并考虑其在式\ref{eq:lower-bound}中的下界。
 
-\begin{equation}
+\begin{equation}\label{eq:lower-bound}
 J(\pi')-J(\pi)\geq J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}
 \end{equation}
 
-现在，让我们看看策略迭代某一步中的最坏情况。考虑对新策略 $\pi'$ 的所有选择，其中也包含旧策略 $\pi$（参数更新幅度为 0）。如果没有候选策略表现更好，就直接设定 $\pi'=\pi$，并在该次迭代中不进行更新。在这种情况下，式（7.17）告诉我们$J_\pi^\text{CPI}(\pi)=\mathbb{E}_{\tau\sim\pi}\left[\sum_{t\geq 0}A^\pi(a_t|s_t)\frac{\pi(a_t|s_t)}{\pi(a_t|s_t)}\right]=0$，因为一个策略相对于自身没有期望优势。根据恒等式，KL 散度满足 $KL(\pi||\pi)=0$。
+现在，让我们看看策略迭代某一步中的最坏情况。考虑对新策略 $\pi'$ 的所有选择，其中也包含旧策略 $\pi$（参数更新幅度为 0）。如果没有候选策略表现更好，就直接设定 $\pi'=\pi$，并在该次迭代中不进行更新。在这种情况下，式\ref{eq:cpi}告诉我们$J_\pi^\text{CPI}(\pi)=\mathbb{E}_{\tau\sim\pi}\left[\sum_{t\geq 0}A^\pi(a_t|s_t)\frac{\pi(a_t|s_t)}{\pi(a_t|s_t)}\right]=0$，因为一个策略相对于自身没有期望优势。根据恒等式，KL 散度满足 $KL(\pi||\pi)=0$。
 
-为了接受策略的变更，式（7.26）表明，估计的策略改进 $J_\pi^\text{CPI}(\pi')$ 必须大于最大误差 $C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}$。
+为了接受策略的变更，式\ref{eq:lower-bound}表明，估计的策略改进 $J_\pi^\text{CPI}(\pi')$ 必须大于最大误差 $C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}$。
 
 如果将误差上界作为惩罚项加入到优化问题中，我们就能保证策略的单调改进。此时，我们的优化问题变为如下形式：
 
-\begin{equation}
+\begin{equation}\label{eq:optim-reform}
 \begin{aligned}
 \underset{\pi'}{\text{argmax}} & \left( J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]} \right) \\
 & \Rightarrow J(\pi')-J(\pi)\geq 0
 \end{aligned}
 \end{equation}
 
-这一结果满足了我们的最终要求。它使我们能够避免在使用原始目标 $J(\pi)$ 时可能出现的性能崩溃。需要注意的一个关键区别是，单调改进并不保证收敛到最优策略 $\pi^*$。例如，策略优化仍可能停留在一个局部极大值处，在该处每次策略迭代都不产生改进——即$J(\pi')-J(\pi)=0$。保证收敛仍是一个困难的开放问题。
+这一结果满足了我们的最终要求。它使我们能够避免在使用原始目标 $J(\pi)$ 时可能出现的性能崩溃。需要注意的一个关键区别是，单调改进并不保证收敛到最优策略 $\pi^*$。例如，策略优化仍可能停留在一个局部极大值处，在该处每次策略迭代都不产生改进——即$J(\pi')-J(\pi)=0$。保证收敛仍是一个困难的没有解决的问题。
 
-最后一步是考虑如何在实践中实现式（7.27）提出的优化问题。一个思路是直接约束 KL 的期望，如式（7.28）所示。
+最后一步是考虑如何在实践中实现式\ref{eq:optim-reform}提出的优化问题。一个思路是直接约束 KL 的期望，如式\ref{eq:kl-expectation}所示。
 
-\begin{equation}
+\begin{equation}\label{eq:kl-expectation}
 \mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]\leq\delta
 \end{equation}
 
-$\delta$限制了 KL 散度的大小，因此实际上约束了新策略 $\pi'$ 相对旧策略 $\pi$ 能偏离的程度。只有策略空间中位于 $\pi$ 附近的小邻域内的候选策略才会被考虑。这个邻域称为置信域（trust region），而式（7.28）称为置信域约束。需要注意的是，$\delta$是一个需要调参的超参数。
+$\delta$限制了 KL 散度的大小，因此实际上约束了新策略 $\pi'$ 相对旧策略 $\pi$ 能偏离的程度。只有策略空间中位于 $\pi$ 附近的小邻域内的候选策略才会被考虑。这个邻域称为置信域（trust region），而式\ref{eq:kl-expectation}称为置信域约束。需要注意的是，$\delta$是一个需要调参的超参数。
 
-约束项 $\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]$ 被写成对单个时间步 $t$ 的期望，因此将目标 $J_\pi^\text{CPI}(\pi')$ 也以这种形式书写是有帮助的，如式（7.29）所示。除此之外，由于我们将对 $\theta$ 最大化该目标，让我们也按照式（7.30）将策略用 $\theta$ 表达。新策略写作 $\pi'=\pi_\theta$，而带有固定参数的旧策略写作 $\pi=\pi_{\theta_\text{old}}$。由旧策略计算的优势也可简记为 $A^\pi(s_t,a_t)=A^{\pi_{\theta_\text{old}}}_t$。
+约束项 $\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]$ 被写成对单个时间步 $t$ 的期望，因此将目标 $J_\pi^\text{CPI}(\pi')$ 也以这种形式书写是有帮助的，如式\ref{eq:cpi-single-step}所示。除此之外，由于我们将对 $\theta$ 最大化该目标，让我们也按照式\ref{eq:cpi-objective-simplify}将策略用 $\theta$ 表达。新策略写作 $\pi'=\pi_\theta$，而带有固定参数的旧策略写作 $\pi=\pi_{\theta_\text{old}}$。由旧策略计算的优势也可简记为 $A^\pi(s_t,a_t)=A^{\pi_{\theta_\text{old}}}_t$。
 
-\begin{equation}
+\begin{equation}\label{eq:cpi-single-step}
 J_\pi^\text{CPI}(\pi') = \mathbb{E}_t\left[ \frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)}A^\pi(s_t,a_t) \right]
 \end{equation}
 
-\begin{equation}
+\begin{equation}\label{eq:cpi-objective-simplify}
 J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right]
 \end{equation}
 
-将约束与代理目标合并后，置信域策略优化问题如式（7.31）所示。
+将约束与代理目标合并后，置信域策略优化问题如式\ref{eq:trust-region-optim}所示。
 
-\begin{equation}
+\begin{equation}\label{eq:trust-region-optim}
 \begin{aligned}
 & \max_\theta\mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right] \\
 & \text{需满足}\quad\mathbb{E}_t[KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right)]\leq\delta
