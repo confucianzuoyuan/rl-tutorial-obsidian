@@ -251,14 +251,12 @@
             "id": "20ca4d8f0616e145",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "附录F：重要性采样.md",
-                "mode": "source",
-                "source": false
+                "file": "papers/ppo-self-contained-tutorial.pdf"
               },
-              "icon": "lucide-file",
-              "title": "附录F：重要性采样"
+              "icon": "lucide-file-text",
+              "title": "ppo-self-contained-tutorial"
             }
           },
           {
@@ -492,18 +490,22 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "10. GRPO：组相对策略优化.md",
+    "8. 使用DPO微调LLM.md",
+    "2. 策略梯度法.md",
+    "附录E：策略梯度法的证明.md",
+    "附录D：PPO数学推导.md",
+    "附录F：重要性采样.md",
+    "ElegantBook/rl-tutorial.toc",
+    "ElegantBook/rl-tutorial.out",
+    "ElegantBook/rl-tutorial.aux",
     "ElegantBook/_minted/AD81800B83532400FD3EEF9C46D4ED67.highlight.minted",
     "ElegantBook/_minted/4A3E327DDB7E618DECE528D0B87BADBF.highlight.minted",
     "ElegantBook/_minted/E1C7D0E682FEE6574430B2157EE75912.highlight.minted",
     "ElegantBook/_minted/51B3550A4FAAF4CC551DECB116BE2A9A.highlight.minted",
     "ElegantBook/_minted/00367D7D710BD54A602DF38CB823129E.highlight.minted",
-    "ElegantBook/_minted/05846C4F7ED332E623144F80FB8B0708.highlight.minted",
-    "ElegantBook/_minted/EE95C8FB257EB1F0C0E83CDDDFE0909B.highlight.minted",
-    "ElegantBook/_minted/CCD6B4BBD065FEE335AE0C3DA48E0133.highlight.minted",
-    "ElegantBook/_minted/63CA7D5D5DB3EC024E7D3B7D1C27F225.highlight.minted",
     "附录B：KL散度.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "2. 策略梯度法.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "未命名.md",
     "附录C：广义优势估计（GAE）.md",
@@ -523,19 +525,14 @@
     "ElegantBook/image/策略梯度法步子太大.png",
     "Excalidraw/2.13.excalidraw.md",
     "Excalidraw/2.12.excalidraw.md",
-    "附录E：策略梯度法的证明.md",
     "1. 强化学习基础.md",
-    "附录D：PPO数学推导.md",
     "6. 使用PPO微调LLM.md",
-    "8. 使用DPO微调LLM.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
     "附录H：torch.gather.md",
-    "附录F：重要性采样.md",
     "Excalidraw/2.15.excalidraw.md",
     "Excalidraw/2.2.excalidraw.md",
     "Excalidraw/2.14.excalidraw.md",
-    "Excalidraw/2.1.excalidraw.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]

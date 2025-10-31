@@ -3518,6 +3518,151 @@ $$
 
 为了基于参数空间中的一次具体更新将如何影响策略空间来推导自适应步长，我们首先需要一种度量，用于衡量两个策略之间性能差异。
 
+\subsection{修改目标函数}
+
+本节我们引入相对策略性能恒等式，用于度量两个策略之间的性能差异。随后展示如何利用该恒等式改造策略梯度目标，从而在优化过程中保证性能的单调提升。
+
+直观上，问题出在步长上，因此可以通过加入一个约束，将步长限制在安全范围以防止性能崩塌。施加恰当的约束后，我们可以推导出所谓的单调改进理论。
+
+首先，给定一个策略$\pi$，其参数更新后的下一次迭代为$\pi'$。我们将相对策略性能恒等式定义为二者目标函数的差值，如式（7.5）所示。需要注意，优势函数 $A^{\pi}(s_t,a_t)$ 始终使用旧策略 $\pi$ 来计算。
+
+\begin{equation}
+J(\pi')-J(\pi)=\mathbb{E}_{\tau\sim\pi'}\left[ \sum^T_{t=0}\gamma^tA^\pi(s_t,a_t) \right]\label{eq:two-policy-diff}
+\end{equation}
+
+\mybox[blue]{公式\ref{eq:two-policy-diff}的证明}{
+从反方向证明
+\begin{align}
+& \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tA^\pi(s_t,a_t) \right]\label{eq:two-policy-proof-1} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^t(R_t+\gamma V^{\pi}(s_{t+1})-V^{\pi}(s_t)) \right]\label{eq:two-policy-proof-2} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tR_t+\sum_{t\geq 0}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-3} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tR_t\right] + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{t\geq 0}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-4} \\
+&= J(\pi') + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{t\geq 1}\gamma^{t}V^{\pi}(s_{t})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-5} \\
+&= J(\pi') - \mathbb{E}_{\tau\sim\pi'}\left[ V^\pi(s_0) \right]\label{eq:two-policy-proof-6} \\
+&= J(\pi') - \mathbb{E}_{\tau\sim\pi'}\left[ J(\pi) \right]\label{eq:two-policy-proof-7} \\
+&= J(\pi') - J(\pi)\label{eq:two-policy-proof-8}
+\end{align}
+公式\ref{eq:two-policy-proof-6}到公式\ref{eq:two-policy-proof-7}的推导依赖了状态价值函数的定义：$V^\pi(s_0)=\mathbb{E}_{\tau\sim\pi}[\sum_{t\geq 0}\gamma^tR_t]=\mathbb{E}_{\tau\sim\pi}[G(\tau)]=J(\pi)$。公式\ref{eq:two-policy-proof-7}到公式\ref{eq:two-policy-proof-8}的推导依赖了期望的性质，也就是由于策略$\pi$和$\pi'$相互独立，所以$\mathbb{E}_{\tau\sim\pi'}[J(\pi)]=J(\pi)$。
+}
+
+相对策略性能恒等式 $J(\pi')-J(\pi)$ 可作为度量策略改进的指标。若该差值为正，则新策略 $\pi'$ 比旧策略 $\pi$ 更优。在一次策略迭代过程中，理想情况下应选择使这一差值最大化的新策略$\pi$。因此，最大化目标 $J(\pi')$ 等价于最大化该恒等式，两者均可通过梯度上升实现。
+
+\begin{equation}
+\max_{\pi'}{J(\pi')}\Longleftrightarrow\max_{\pi'}{\left(J(\pi')-J(\pi)\right)}
+\end{equation}
+
+以这种方式刻画目标也意味着，每次策略迭代都应保证非负（单调）的改进——即 $\left(J(\pi')-J(\pi)\right)\geq 0$——因为在最坏情况下我们可以简单地令$\pi'=\pi$，也就是不改进策略。在此条件下，整个训练过程中将不会发生性能崩塌，这正是我们所期望的性质。
+
+然而，这一恒等式作为目标函数有一个限制使其无法直接使用。注意，在表达式 $\mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t) \right]$ 中，期望要求使用新策略$\pi'$采样轨迹以进行更新，但在完成更新之前，新策略$\pi'$并不可用。为了解决这一悖论，我们需要设法将其改写为使用已可用的旧策略$\pi$。
+
+为此，我们可以假设相邻的策略$\pi$与$\pi'$彼此较为接近（可通过较低的 KL 散度来度量），从而它们产生的状态分布也相似。
+
+这样，公式\ref{eq:two-policy-diff}就可以用旧策略采样的轨迹$\tau\sim\pi$来近似了。具体近似的手段就是使用\textbf{重要性采样}，我们使用的重要性采样权重为$\frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)}$。也就是我们使用新旧策略采取动作的概率的比值来改进旧策略$\pi$产生的轨迹的回报值。在新策略 $\pi'$ 下更可能发生的动作所对应的回报会被上调权重，而在 $\pi'$ 下相对不太可能的动作所对应的回报会被下调权重。该近似在式\ref{eq:cpi}中给出。
+
+\begin{equation}\label{eq:cpi}
+\begin{aligned}
+J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t) \right] \\
+& \approx \mathbb{E}_{\tau\sim\pi}\left[ \sum_{t\geq 0}A^\pi(s_t,a_t)\frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)} \right] \\
+&= J^{\text{CPI}}_\pi(\pi')
+\end{aligned}
+\end{equation}
+
+式\ref{eq:cpi}也就是新目标右手边的$J^{\text{CPI}}_\pi(\pi')$叫做\textbf{替代目标}（surrogate objective）。因为新目标中包含了新旧策略的比值，所以叫做``替代目标''。上标CPI的意思是``保守策略迭代''（conservative policy iteration）。
+
+现在我们有了一个新的目标函数。要将其用于策略梯度算法，需要检查在该目标下进行优化是否仍然是在执行策略梯度上升。幸运的是，我们可以证明替代目标的梯度等于策略梯度，如式\ref{eq:cpi-gradient}所述。
+
+\begin{equation}\label{eq:cpi-gradient}
+\nabla_\theta J^{\text{CPI}}_{\theta_\text{old}}(\theta)|_{\theta_{\text{old}}} = \nabla_\theta J_{\theta}(\pi_\theta)|_{\theta_{\text{old}}}
+\end{equation}
+
+在将 $J_\pi^\text{CPI}(\pi')$ 用作策略梯度算法的新目标之前，还有最后一个要求需要满足。$J_\pi^\text{CPI}(\pi')$ 只是对 $J(\pi')-J(\pi)$ 的近似，因此它会包含一定的误差。然而，当我们使用 $J_\pi^\text{CPI}(\pi')\approx J(\pi')-J(\pi)$ 时，希望能够保证 $J(\pi')-J(\pi)\geq 0$。因此，我们需要理解该近似所引入的误差。
+
+如果相邻的策略 $\pi$ 与 $\pi'$ 在 KL 散度意义下足够接近，那么可以写出一个相对策略性能的界。为此，可将绝对误差表示为新目标 $J(\pi')$ 与其估计的改进 $J(\pi)+J_\pi^\text{CPI}(\pi')$ 之间的差值。随后，可以将该误差用 $\pi$ 与 $\pi'$ 的 KL 散度来加以界定。
+
+\begin{equation}
+|\left( J(\pi')-J(\pi) \right)-J_\pi^\text{CPI}(\pi')|\leq{C\sqrt{\mathbb{E}_t[KL(\pi'(a_t|s_t)||\pi(a_t|s_t))]}}
+\end{equation}
+
+常数 $C$ 需要被选择，KL 表示 KL 散度。式（7.25）表明，如果相邻策略 $\pi,\pi'$ 的分布彼此接近，使得右侧的 KL 散度较低，那么左侧的误差项也会较小。误差较小时，$J_\pi^\text{CPI}(\pi')$ 就是对 $J(\pi')-J(\pi)$ 的良好近似。
+
+基于此，要推导我们想要的结果 $J(\pi')-J(\pi)\geq 0$ 相当直接。这被称为单调改进理论，因为它保证每次策略迭代至少是正的或零的改进，而不会出现退化。为得到该结论，首先展开式（7.25），并考虑其在式（7.26）中的下界。
+
+\begin{equation}
+J(\pi')-J(\pi)\geq J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}
+\end{equation}
+
+现在，让我们看看策略迭代某一步中的最坏情况。考虑对新策略 $\pi'$ 的所有选择，其中也包含旧策略 $\pi$（参数更新幅度为 0）。如果没有候选策略表现更好，就直接设定 $\pi'=\pi$，并在该次迭代中不进行更新。在这种情况下，式（7.17）告诉我们$J_\pi^\text{CPI}(\pi)=\mathbb{E}_{\tau\sim\pi}\left[\sum_{t\geq 0}A^\pi(a_t|s_t)\frac{\pi(a_t|s_t)}{\pi(a_t|s_t)}\right]=0$，因为一个策略相对于自身没有期望优势。根据恒等式，KL 散度满足 $KL(\pi||\pi)=0$。
+
+为了接受策略的变更，式（7.26）表明，估计的策略改进 $J_\pi^\text{CPI}(\pi')$ 必须大于最大误差 $C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}$。
+
+如果将误差上界作为惩罚项加入到优化问题中，我们就能保证策略的单调改进。此时，我们的优化问题变为如下形式：
+
+\begin{equation}
+\begin{aligned}
+\underset{\pi'}{\text{argmax}} & \left( J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]} \right) \\
+& \Rightarrow J(\pi')-J(\pi)\geq 0
+\end{aligned}
+\end{equation}
+
+这一结果满足了我们的最终要求。它使我们能够避免在使用原始目标 $J(\pi)$ 时可能出现的性能崩溃。需要注意的一个关键区别是，单调改进并不保证收敛到最优策略 $\pi^*$。例如，策略优化仍可能停留在一个局部极大值处，在该处每次策略迭代都不产生改进——即$J(\pi')-J(\pi)=0$。保证收敛仍是一个困难的开放问题。
+
+最后一步是考虑如何在实践中实现式（7.27）提出的优化问题。一个思路是直接约束 KL 的期望，如式（7.28）所示。
+
+\begin{equation}
+\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]\leq\delta
+\end{equation}
+
+$\delta$限制了 KL 散度的大小，因此实际上约束了新策略 $\pi'$ 相对旧策略 $\pi$ 能偏离的程度。只有策略空间中位于 $\pi$ 附近的小邻域内的候选策略才会被考虑。这个邻域称为置信域（trust region），而式（7.28）称为置信域约束。需要注意的是，$\delta$是一个需要调参的超参数。
+
+约束项 $\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]$ 被写成对单个时间步 $t$ 的期望，因此将目标 $J_\pi^\text{CPI}(\pi')$ 也以这种形式书写是有帮助的，如式（7.29）所示。除此之外，由于我们将对 $\theta$ 最大化该目标，让我们也按照式（7.30）将策略用 $\theta$ 表达。新策略写作 $\pi'=\pi_\theta$，而带有固定参数的旧策略写作 $\pi=\pi_{\theta_\text{old}}$。由旧策略计算的优势也可简记为 $A^\pi(s_t,a_t)=A^{\pi_{\theta_\text{old}}}_t$。
+
+\begin{equation}
+J_\pi^\text{CPI}(\pi') = \mathbb{E}_t\left[ \frac{\pi'(a_t|s_t)}{\pi(a_t|s_t)}A^\pi(s_t,a_t) \right]
+\end{equation}
+
+\begin{equation}
+J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right]
+\end{equation}
+
+将约束与代理目标合并后，置信域策略优化问题如式（7.31）所示。
+
+\begin{equation}
+\begin{aligned}
+& \max_\theta\mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right] \\
+& \text{需满足}\quad\mathbb{E}_t[KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right)]\leq\delta
+\end{aligned}
+\end{equation}
+
+总而言之，$J_\pi^\text{CPI}(\pi')$ 是对 $J(\pi')-J(\pi)$ 的线性近似，因为它的梯度等于策略梯度。它还在误差上界内保证单调改进。为在考虑潜在误差的同时确保改进，我们施加置信域约束以限制新旧策略之间的差异。只要策略变化保持在置信域内，我们就能避免性能崩溃。
+
+已经提出了许多算法来解决置信域优化问题，其中包括自然策略梯度（NPG）、置信域策略优化（TRPO）和约束策略优化（CPO）。它们背后的理论相当复杂，算法实现也较为困难；其梯度计算成本较高，而且 $\delta$ 的取值难以确定。这些算法超出了本书的讨论范围，但它们的缺点正好激励我们引入下一种算法：近端策略优化（PPO）。
+
+\section{近端策略优化（PPO）}
+
+``近端策略优化算法''（PPO）由 Schulman 等人于 2017 年发表。PPO 易于实现、计算开销低，并且我们不需要选择 $\delta$。基于这些原因，它已成为最流行的策略梯度算法之一。
+
+PPO 是一类通过简单而有效的启发式方法来解决带有信任域约束的策略优化问题的算法家族。它有两个变体：其一基于自适应 KL 惩罚，其二基于裁剪（clipped）目标。本节将介绍这两个变体。
+
+在此之前，让我们先简化代理目标 $J^\text{CPI}(\theta)$，如式（7.32）所示，将其写为 $p_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$。为简洁起见，将优势 $A_t^{\pi_{\theta_\text{old}}}$ 记作 $A_t$，因为我们知道优势始终是用旧策略 $\pi_{\theta_\text{old}}$ 计算的。
+
+\begin{equation}
+J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right] = \mathbb{E}_t\left[ p_t(\theta)A_t \right]
+\end{equation}
+
+PPO 的第一个变体称为带自适应 KL 惩罚的 PPO，其目标如式（7.33）所示。它将 KL 约束 $\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]\leq\delta$ 转换为一个自适应的 KL 惩罚，并从重要性加权的优势中减去该惩罚。其结果的期望就是需要最大化的新目标。
+
+\begin{equation}
+J^{\text{KLPEN}}(\theta) = \max_\theta\left[ p_t(\theta)A_t - \beta KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right) \right]
+\end{equation}
+
+式（7.33）被称为带 KL 惩罚的代理目标。$\beta$ 是一个自适应系数，用于控制 KL 惩罚的大小。它在控制优化的置信域方面与式（7.31）起到相同的作用。$\beta$ 越大，$\pi_\theta$ 与 $\pi_{\theta_\text{old}}$ 的差异越小。$\beta$ 越小，两种策略之间的容忍度越高。
+
+使用常数系数的一个挑战在于，不同问题具有不同特性，因此很难找到一个在所有场景都适用的数值。即使在单一问题上，随着策略迭代，损失景观也会变化，因此先前有效的 $\beta$ 可能在后续不再有效——它需要随这些变化进行自适应。
+
+为解决该问题，PPO 论文提出了一个基于启发式的 $\beta$ 更新规则，使其能够随时间自适应。$\beta$ 在每次策略更新后都会被更新，其新值在下一次迭代中使用。$\beta$ 的更新规则见算法 7.1。它可以作为本节稍后将介绍的 PPO 算法中的一个子程序来使用。
+
+
+
 \part{基于人类反馈的强化学习（RLHF）}
 
 \chapter{大语言模型的预训练}
