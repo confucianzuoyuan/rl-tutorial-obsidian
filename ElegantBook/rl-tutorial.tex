@@ -3677,9 +3677,9 @@ J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta
 
 PPO 是一类通过简单而有效的启发式方法来解决带有信任域约束的策略优化问题的算法家族。它有两个变体：其一基于自适应 KL 惩罚，其二基于裁剪（clipped）目标。本节将介绍这两个变体。
 
-在此之前，让我们先简化代理目标 $J^\text{CPI}(\theta)$，如式（7.32）所示，将其写为 $p_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$。为简洁起见，将优势 $A_t^{\pi_{\theta_\text{old}}}$ 记作 $A_t$，因为我们知道优势始终是用旧策略 $\pi_{\theta_\text{old}}$ 计算的。
+在此之前，让我们先简化代理目标 $J^\text{CPI}(\theta)$，如式\ref{eq:cpi-rewrite-with-ratio}所示，将其写为 $p_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$。为简洁起见，将优势 $A_t^{\pi_{\theta_\text{old}}}$ 记作 $A_t$，因为我们知道优势始终是用旧策略 $\pi_{\theta_\text{old}}$ 计算的。
 
-\begin{equation}
+\begin{equation}\label{eq:cpi-rewrite-with-ratio}
 J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right] = \mathbb{E}_t\left[ p_t(\theta)A_t \right]
 \end{equation}
 
