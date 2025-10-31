@@ -3661,6 +3661,55 @@ J^{\text{KLPEN}}(\theta) = \max_\theta\left[ p_t(\theta)A_t - \beta KL\left(\pi'
 
 为解决该问题，PPO 论文提出了一个基于启发式的 $\beta$ 更新规则，使其能够随时间自适应。$\beta$ 在每次策略更新后都会被更新，其新值在下一次迭代中使用。$\beta$ 的更新规则见算法 7.1。它可以作为本节稍后将介绍的 PPO 算法中的一个子程序来使用。
 
+\begin{algorithm}
+\caption{带自适应KL惩罚的PPO}\label{algo:ppo-klpen}
+\begin{algorithmic}[1]
+\State 设置KL散度的期望的目标值$\delta_\text{tar}$
+\State 将$\beta$初始化为一个随机值
+\State 使用多轮小批次SGD来优化（最大化）KL惩罚替代目标$J^{\text{KLPEN}}(\theta) = \mathbb{E}_t\left[ p_t(\theta)A_t - \beta KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]$
+\State 计算 $\delta=\mathbb{E}_t\left[ KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]$
+\If{$\delta<\delta_\text{tar}/1.5$}
+\State $\beta\leftarrow\beta/2$
+\ElsIf{$\delta>\delta_\text{tar}\times 1.5$}
+\State $\beta\leftarrow\beta\times 2$
+\Else
+\State pass
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+在每次迭代结束时，我们会估计$\delta$，并将其与目标值 $\delta_\text{tar}$ 比较。如果 $\delta$ 比 $\delta_\text{tar}$ 低出一定幅度，就通过减小 $\beta$ 来降低 KL 惩罚；相反，如果 $\delta$ 比 $\delta_\text{tar}$ 高出一定幅度，则通过增大 $\beta$ 来提高 KL 惩罚。用于确定幅度阈值和 $\beta$ 的更新规则的具体数值是通过经验选择的。作者分别选择了 1.5 和 2，但也发现算法对这些取值并不敏感。
+
+还观察到，KL 散度有时会显著偏离其目标值 $\delta_\text{tar}$，但 $\beta$ 会快速调整。$\delta_\text{tar}$ 的良好取值也需要通过经验确定。
+
+这种方法的优点是实现简单。然而，它并没有解决如何选择目标 $\delta$ 的问题。此外，由于需要计算 KL，它在计算上可能开销较大。
+
+基于裁剪代理目标的 PPO 通过去除 KL 约束，并对式（7.30）中的代理目标作更简单的修改来弥补这一点，如式（7.34）所示。
+
+\begin{equation}
+J^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{clip}\left( p_t(\theta), 1-\epsilon, 1+\epsilon \right)A_t \right) \right]
+\end{equation}
+
+式（7.34）被称为裁剪代理目标。$\epsilon$是定义裁剪邻域$|p_t(\theta)-1|\leq\epsilon$的数值。它是一个需要调参的超参数，且可在训练过程中衰减。$\min(\cdot)$内的第一项就是代理目标$J^\text{CPI}$。第二项 $\text{clip}\left( p_t(\theta)A_t, 1-\epsilon, 1+\epsilon \right)$ 将 $J^\text{CPI}$ 的取值限制在 $(1-\epsilon)A_t$ 与 $(1+\epsilon)A_t$ 之间。当 $p_t(\theta)$ 位于区间 $[1-\epsilon,1+\epsilon]$ 内时，$\min(\cdot)$ 中的两项相等。
+
+该目标能够防止那些可能导致策略 $\pi_\theta$ 发生大幅且高风险变化的参数更新。为了量化策略变化的幅度，我们使用概率比率 $p_t(\theta)$。当新策略等于旧策略时，$p_t(\theta)=p_t(\theta_\text{old})=\frac{\pi_{\theta_\text{old}}(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}=1$。如果新策略偏离旧策略，$p_t(\theta)$ 就会偏离$1$。
+
+核心思想是将 $p_t(\theta)$ 限制在 $\epsilon$ 邻域 $[1-\epsilon,1+\epsilon]$ 内。通常，在没有约束的情况下最大化代理目标 $J^\text{CPI}$ 可能会鼓励较大的策略更新。这是因为提升目标函数性能的一个机制是通过对 $p_t(\theta)$ 进行较大的改变。通过对目标进行裁剪，我们去除了那些会使 $p_t(\theta)$ 偏离该邻域的``大步更新''的激励。为说明原因，考虑 $p_t(\theta)A_t$ 取较大正值的情形，即要么 $A_t>0$ 且 $p_t(\theta)>0$，要么 $A_t<0$ 且 $p_t(\theta)<0$。
+
+当 $A_t>0$ 且 $p_t(\theta)>0$ 时，如果 $p_t(\theta)$ 变得远大于 $1$，上限裁剪项 $1+\epsilon$ 会起作用，将 $p_t(\theta)$ 进行上界限制为 $p_t(\theta)\leq 1+\epsilon$，因此有 $J^{\text{CLIP}}\leq(1+\epsilon)A_t$。另一方面，当 $A_t<0$ 且 $p_t(\theta)<0$ 时，如果 $p_t(\theta)$ 变得远小于 $1$，下限裁剪项 $1-\epsilon$ 会起作用，同样给出上界 $J^{\text{CLIP}}\leq(1-\epsilon)A_t$。在式（7.34）取最小值时，$J^\text{CLIP}$ 总是以上述两种方式之一被上界限制。此外，取最小值还意味着 $J^\text{CLIP}$ 是原始代理目标 $J^\text{CPI}$ 的保守下界。这样，当 $p_t(\theta)$ 试图通过超过 $\epsilon A_t$ 的幅度来提升目标时，其影响会被忽略；但当它使目标变差时，其影响总会被计入。
+
+由于目标函数 $J^\text{CLIP}$ 受到上界限制，$p_t(\theta)$ 没有动力偏离邻域 $[1-\epsilon,1+\epsilon]$ 去进行大幅度的策略更新。因此，策略更新是安全的。
+
+此外，由于该目标假设样本是由 $\pi_{\theta_\text{old}}$ 生成的——也就是说，目标除了通过重要性权重外不依赖当前策略$\pi_\theta$——我们也可以合理地重复使用一条采样轨迹来进行多次参数更新。这提高了算法的样本效率。需要注意的是，目标依赖的 $\pi_{\theta_\text{old}}$ 会在每次训练步骤后更新。这意味着 PPO 是一种 on-policy 算法，因此旧的轨迹必须在一次训练步骤后被丢弃。
+
+裁剪后的目标 $J^\text{CLIP}$ 计算成本低、易于理解，实现时只需对原始代理目标 $J^\text{CPI}$ 做少量、简单的修改。
+
+计算开销最大的是概率比率 $p_t(\theta)$ 和优势函数 $A_t$。然而，这些是任何优化代理目标的算法所需的最小计算。其他操作是裁剪和取最小值，它们基本是常数时间的。
+
+在 PPO 论文中，裁剪代理目标的变体优于带 KL 惩罚的变体。由于它更简单且表现更好，PPO 的裁剪变体更受青睐。
+
+本章关于对策略梯度施加约束的讨论到此结束。我们从 REINFORCE 与 Actor-Critic 使用的策略梯度目标 $J(\theta)=\mathbb{E}_t\left[ A_t\log\pi_\theta(a_t|s_t) \right]$ 出发，引入了具有单调改进承诺的代理目标 $J^\text{CPI}(\theta)$，该承诺在我们约束相邻策略差异时成立。PPO 提供了两种约束代理目标的方法——使用 KL 惩罚或裁剪启发式，分别得到 $J^\text{KLPEN}$ 和 $J^\text{CLIP}$。让我们把这些策略梯度目标汇总到一起进行比较。
+
 
 
 \part{基于人类反馈的强化学习（RLHF）}
