@@ -3606,8 +3606,26 @@ J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim{\color{red}\pi'}}\left[ \sum_{t\geq 0}A^\
 现在我们有了一个新的目标函数。要将其用于策略梯度算法，需要检查在该目标下进行优化是否仍然是在执行策略梯度上升。幸运的是，我们可以证明替代目标的梯度等于策略梯度，如式\ref{eq:cpi-gradient}所述。
 
 \begin{equation}\label{eq:cpi-gradient}
-\nabla_\theta J^{\text{CPI}}_{\theta_\text{old}}(\theta)|_{\theta_{\text{old}}} = \nabla_\theta J_{\theta}(\pi_\theta)|_{\theta_{\text{old}}}
+\nabla_\theta J^{\text{CPI}}_{\theta_\text{old}}(\theta)|_{\theta_{\text{old}}} = \nabla_\theta J(\pi_\theta)|_{\theta_{\text{old}}}
 \end{equation}
+
+\mybox[blue]{公式\ref{eq:cpi-gradient}的证明}{
+在这里，我们将证明代理目标的梯度等于策略梯度，即式\ref{eq:cpi-gradient}所述。
+\newline
+我们从对 $J^\text{CPI}_\pi(\pi')$ 求梯度开始。为此，需要将变量 $\theta$ 显式写出。具体来说，把新策略 $\pi'$ 写作变量 $\pi_\theta$，而把旧策略$\pi$写作常量$\pi_{\theta_\text{old}}$，并在$\pi_{\theta_\text{old}}$处计算梯度，记作$|_{\theta_\text{old}}$（这是必要的，因为$J^\text{CPI}_\pi(\pi')$对$\pi$的显式依赖不能被忽略）。
+\begin{align}
+\nabla_\theta J^\text{CPI}_{\theta_\text{old}}(\theta)|_{\theta_\text{old}} &= \nabla_\theta\mathbb{E}_{\tau\sim\pi_{\theta_\text{old}}}\left[ \sum_{t\geq 0}A^{\pi_{\theta_\text{old}}}(s_t,a_t)\frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)} \right]|_{\theta_\text{old}} \label{eq:cpi-gradient-proof-1} \\
+& = \mathbb{E}_{\tau\sim\pi_{\theta_\text{old}}}\left[ \sum_{t\geq 0}A^{\pi_{\theta_\text{old}}}(s_t,a_t)\frac{\nabla_\theta\pi_{\theta}(a_t|s_t)|_{\theta_\text{old}}}{\pi_{\theta_\text{old}}(a_t|s_t)} \right] \label{eq:cpi-gradient-proof-2} \\
+& = \mathbb{E}_{\tau\sim\pi_{\theta_\text{old}}}\left[ \sum_{t\geq 0}A^{\pi_{\theta_\text{old}}}(s_t,a_t)\frac{\nabla_\theta\pi_{\theta}(a_t|s_t)|_{\theta_\text{old}}}{\pi_{\theta}(a_t|s_t)|_{\theta_\text{old}}} \right] \label{eq:cpi-gradient-proof-3} \\
+& = \mathbb{E}_{\tau\sim\pi_{\theta_\text{old}}}\left[ \sum_{t\geq 0}A^{\pi_{\theta_\text{old}}}(s_t,a_t)\nabla_\theta\log\pi_{\theta}(a_t|s_t)|_{\theta_\text{old}} \right] \label{eq:cpi-gradient-proof-4} \\
+& = \nabla_\theta J(\pi_\theta)|_{\theta_\text{old}} \label{eq:cpi-gradient-proof-5}
+\end{align}
+首先，在式\ref{eq:cpi}给出的代理目标上，使用旧策略的参数求导（梯度）。由于只有分数的分子包含变量$\theta$，我们可以将梯度和求值项移入，得到式\ref{eq:cpi-gradient-proof-2}。接着注意到，分母项 ${\pi_{\theta_\text{old}}}(a_t|s_t)$ 等价于在 $\theta=\theta_\text{old}$ 处对 $\pi_\theta$ 的取值，因此可按此重写，得到式\ref{eq:cpi-gradient-proof-3}。最后，回忆我们在推导策略梯度时使用的对数导数技巧：$\nabla_\theta\log p(x|\theta)=\frac{\nabla_\theta p(x|\theta)}{p(x|\theta)}$。借此我们可以重写该分式，得到式\ref{eq:cpi-gradient-proof-4}。这正是策略梯度$\nabla_\theta J(\pi_\theta)$。因此，我们得到式\ref{eq:cpi-gradient-1}。
+\begin{equation}\label{eq:cpi-gradient-1}
+\nabla_\theta J^{\text{CPI}}_{\theta_\text{old}}(\theta)|_{\theta_{\text{old}}} = \nabla_\theta J(\pi_\theta)|_{\theta_{\text{old}}}
+\end{equation}
+式\ref{eq:cpi-gradient-1}表明，代理目标的梯度等于策略梯度。这保证了在代理目标下进行的优化仍然是在执行策略梯度上升。这也很有用，因为现在可以直接度量策略改进，最大化该度量就意味着最大化策略改进。此外，我们还知道，在式\ref{eq:cpi}中，$J^\text{CPI}_\pi(\pi')$是对 $J(\pi')-J(\pi)$ 的线性近似，因为它们的一阶导数（梯度）相等。
+}
 
 在将 $J_\pi^\text{CPI}(\pi')$ 用作策略梯度算法的新目标之前，还有最后一个要求需要满足。$J_\pi^\text{CPI}(\pi')$ 只是对 $J(\pi')-J(\pi)$ 的近似，因此它会包含一定的误差。然而，当我们使用 $J_\pi^\text{CPI}(\pi')\approx J(\pi')-J(\pi)$ 时，希望能够保证 $J(\pi')-J(\pi)\geq 0$。因此，我们需要理解该近似所引入的误差。
 
@@ -3683,24 +3701,29 @@ PPO 是一类通过简单而有效的启发式方法来解决带有信任域约�
 J^\text{CPI}(\theta) = \mathbb{E}_t\left[ \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{\pi_{\theta_\text{old}}} \right] = \mathbb{E}_t\left[ p_t(\theta)A_t \right]
 \end{equation}
 
-PPO 的第一个变体称为带自适应 KL 惩罚的 PPO，其目标如式（7.33）所示。它将 KL 约束 $\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]\leq\delta$ 转换为一个自适应的 KL 惩罚，并从重要性加权的优势中减去该惩罚。其结果的期望就是需要最大化的新目标。
+PPO 的第一个变体称为带自适应 KL 惩罚的 PPO，其目标如式\ref{eq:ppo-klpen}所示。
 
-\begin{equation}
-J^{\text{KLPEN}}(\theta) = \max_\theta\left[ p_t(\theta)A_t - \beta KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right) \right]
+它将 KL 约束 $\mathbb{E}_t[KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right)]\leq\delta$ 转换为一个自适应的 KL 惩罚，并从重要性加权的优势中减去该惩罚。其结果的期望就是需要最大化的新目标。
+
+\begin{equation}\label{eq:ppo-klpen}
+J^{\text{KLPEN}}(\theta) = \max_\theta\mathbb{E}_t\left[ p_t(\theta)A_t - \beta KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]
 \end{equation}
 
-式（7.33）被称为带 KL 惩罚的代理目标。$\beta$ 是一个自适应系数，用于控制 KL 惩罚的大小。它在控制优化的置信域方面与式（7.31）起到相同的作用。$\beta$ 越大，$\pi_\theta$ 与 $\pi_{\theta_\text{old}}$ 的差异越小。$\beta$ 越小，两种策略之间的容忍度越高。
+式\ref{eq:ppo-klpen}被称为带KL惩罚的代理目标。$\beta$ 是一个自适应系数，用于控制 KL 惩罚的大小。它在控制优化的置信域方面与式\ref{eq:trust-region-optim}起到相同的作用。$\beta$ 越大，$\pi_\theta$ 与 $\pi_{\theta_\text{old}}$ 的差异越小。$\beta$ 越小，两种策略之间的容忍度越高。
 
 使用常数系数的一个挑战在于，不同问题具有不同特性，因此很难找到一个在所有场景都适用的数值。即使在单一问题上，随着策略迭代，损失景观也会变化，因此先前有效的 $\beta$ 可能在后续不再有效——它需要随这些变化进行自适应。
 
-为解决该问题，PPO 论文提出了一个基于启发式的 $\beta$ 更新规则，使其能够随时间自适应。$\beta$ 在每次策略更新后都会被更新，其新值在下一次迭代中使用。$\beta$ 的更新规则见算法 7.1。它可以作为本节稍后将介绍的 PPO 算法中的一个子程序来使用。
+为解决该问题，PPO 论文提出了一个基于启发式的 $\beta$ 更新规则，使其能够随时间自适应。$\beta$ 在每次策略更新后都会被更新，其新值在下一次迭代中使用。$\beta$ 的更新规则见算法\ref{algo:ppo-klpen}。它可以作为本节稍后将介绍的 PPO 算法中的一个子程序来使用。
 
 \begin{algorithm}
 \caption{带自适应KL惩罚的PPO}\label{algo:ppo-klpen}
 \begin{algorithmic}[1]
 \State 设置KL散度的期望的目标值$\delta_\text{tar}$
 \State 将$\beta$初始化为一个随机值
-\State 使用多轮小批次SGD来优化（最大化）KL惩罚替代目标$J^{\text{KLPEN}}(\theta) = \mathbb{E}_t\left[ p_t(\theta)A_t - \beta KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]$
+\State 使用多轮小批次SGD来优化（最大化）KL惩罚替代目标
+$$
+J^{\text{KLPEN}}(\theta) = \mathbb{E}_t\left[ p_t(\theta)A_t - \beta KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]
+$$
 \State 计算 $\delta=\mathbb{E}_t\left[ KL\left(\pi_\theta(a_t|s_t)||\pi_{\theta_\text{old}}(a_t|s_t)\right) \right]$
 \If{$\delta<\delta_\text{tar}/1.5$}
 \State $\beta\leftarrow\beta/2$
@@ -3718,19 +3741,19 @@ J^{\text{KLPEN}}(\theta) = \max_\theta\left[ p_t(\theta)A_t - \beta KL\left(\pi'
 
 这种方法的优点是实现简单。然而，它并没有解决如何选择目标 $\delta$ 的问题。此外，由于需要计算 KL，它在计算上可能开销较大。
 
-基于裁剪代理目标的 PPO 通过去除 KL 约束，并对式（7.30）中的代理目标作更简单的修改来弥补这一点，如式（7.34）所示。
+基于裁剪代理目标的 PPO 通过去除 KL 约束，并对式\ref{eq:cpi-objective-simplify}中的代理目标作更简单的修改来弥补这一点，如式\ref{eq:ppo-clip-objective}所示。
 
-\begin{equation}
+\begin{equation}\label{eq:ppo-clip-objective}
 J^{\text{CLIP}}(\theta) = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{clip}\left( p_t(\theta), 1-\epsilon, 1+\epsilon \right)A_t \right) \right]
 \end{equation}
 
-式（7.34）被称为裁剪代理目标。$\epsilon$是定义裁剪邻域$|p_t(\theta)-1|\leq\epsilon$的数值。它是一个需要调参的超参数，且可在训练过程中衰减。$\min(\cdot)$内的第一项就是代理目标$J^\text{CPI}$。第二项 $\text{clip}\left( p_t(\theta)A_t, 1-\epsilon, 1+\epsilon \right)$ 将 $J^\text{CPI}$ 的取值限制在 $(1-\epsilon)A_t$ 与 $(1+\epsilon)A_t$ 之间。当 $p_t(\theta)$ 位于区间 $[1-\epsilon,1+\epsilon]$ 内时，$\min(\cdot)$ 中的两项相等。
+式\ref{eq:ppo-clip-objective}被称为裁剪代理目标。$\epsilon$是定义裁剪邻域$|p_t(\theta)-1|\leq\epsilon$的数值。它是一个需要调参的超参数，且可在训练过程中衰减。$\min(\cdot)$内的第一项就是代理目标$J^\text{CPI}$。第二项 $\text{clip}\left( p_t(\theta)A_t, 1-\epsilon, 1+\epsilon \right)$ 将 $J^\text{CPI}$ 的取值限制在 $(1-\epsilon)A_t$ 与 $(1+\epsilon)A_t$ 之间。当 $p_t(\theta)$ 位于区间 $[1-\epsilon,1+\epsilon]$ 内时，$\min(\cdot)$ 中的两项相等。
 
 该目标能够防止那些可能导致策略 $\pi_\theta$ 发生大幅且高风险变化的参数更新。为了量化策略变化的幅度，我们使用概率比率 $p_t(\theta)$。当新策略等于旧策略时，$p_t(\theta)=p_t(\theta_\text{old})=\frac{\pi_{\theta_\text{old}}(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}=1$。如果新策略偏离旧策略，$p_t(\theta)$ 就会偏离$1$。
 
 核心思想是将 $p_t(\theta)$ 限制在 $\epsilon$ 邻域 $[1-\epsilon,1+\epsilon]$ 内。通常，在没有约束的情况下最大化代理目标 $J^\text{CPI}$ 可能会鼓励较大的策略更新。这是因为提升目标函数性能的一个机制是通过对 $p_t(\theta)$ 进行较大的改变。通过对目标进行裁剪，我们去除了那些会使 $p_t(\theta)$ 偏离该邻域的``大步更新''的激励。为说明原因，考虑 $p_t(\theta)A_t$ 取较大正值的情形，即要么 $A_t>0$ 且 $p_t(\theta)>0$，要么 $A_t<0$ 且 $p_t(\theta)<0$。
 
-当 $A_t>0$ 且 $p_t(\theta)>0$ 时，如果 $p_t(\theta)$ 变得远大于 $1$，上限裁剪项 $1+\epsilon$ 会起作用，将 $p_t(\theta)$ 进行上界限制为 $p_t(\theta)\leq 1+\epsilon$，因此有 $J^{\text{CLIP}}\leq(1+\epsilon)A_t$。另一方面，当 $A_t<0$ 且 $p_t(\theta)<0$ 时，如果 $p_t(\theta)$ 变得远小于 $1$，下限裁剪项 $1-\epsilon$ 会起作用，同样给出上界 $J^{\text{CLIP}}\leq(1-\epsilon)A_t$。在式（7.34）取最小值时，$J^\text{CLIP}$ 总是以上述两种方式之一被上界限制。此外，取最小值还意味着 $J^\text{CLIP}$ 是原始代理目标 $J^\text{CPI}$ 的保守下界。这样，当 $p_t(\theta)$ 试图通过超过 $\epsilon A_t$ 的幅度来提升目标时，其影响会被忽略；但当它使目标变差时，其影响总会被计入。
+当 $A_t>0$ 且 $p_t(\theta)>0$ 时，如果 $p_t(\theta)$ 变得远大于 $1$，上限裁剪项 $1+\epsilon$ 会起作用，将 $p_t(\theta)$ 进行上界限制为 $p_t(\theta)\leq 1+\epsilon$，因此有 $J^{\text{CLIP}}\leq(1+\epsilon)A_t$。另一方面，当 $A_t<0$ 且 $p_t(\theta)<0$ 时，如果 $p_t(\theta)$ 变得远小于 $1$，下限裁剪项 $1-\epsilon$ 会起作用，同样给出上界 $J^{\text{CLIP}}\leq(1-\epsilon)A_t$。在式\ref{eq:ppo-clip-objective}取最小值时，$J^\text{CLIP}$ 总是以上述两种方式之一被上界限制。此外，取最小值还意味着 $J^\text{CLIP}$ 是原始代理目标 $J^\text{CPI}$ 的保守下界。这样，当 $p_t(\theta)$ 试图通过超过 $\epsilon A_t$ 的幅度来提升目标时，其影响会被忽略；但当它使目标变差时，其影响总会被计入。
 
 由于目标函数 $J^\text{CLIP}$ 受到上界限制，$p_t(\theta)$ 没有动力偏离邻域 $[1-\epsilon,1+\epsilon]$ 去进行大幅度的策略更新。因此，策略更新是安全的。
 
