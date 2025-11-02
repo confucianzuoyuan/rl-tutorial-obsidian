@@ -399,15 +399,19 @@ V_\pi(S_t=s)
 \section{倒立摆环境编程实践}
 
 \begin{codebox}{bash}{安装倒立摆环境}
-$ pip install gym==0.25.2
-$ pip install numpy==1.26
-$ pip install pygame
+pip install gym==0.25.2
+pip install numpy==1.26
+pip install pygame
 \end{codebox}
 
 然后我们来创建一个倒立摆环境
 
 \begin{codebox}{python}{创建倒立摆环境}
 import gym
+
+# version确认
+print(gym.__version__)  # 0.25.2版本
+
 # 创建倒立摆环境
 env = gym.make('CartPole-v0')
 \end{codebox}
@@ -456,69 +460,33 @@ print(next_state)
 我们先来实现一个随机智能体。也就是这个智能体的策略非常简单，无论环境处于什么状态，我们都是从两个动作中随机采样一个动作。
 
 \begin{codebox}{python}{随机策略}
-import numpy as np
-import gym
-import time
+import random
 
-env = gym.make('CartPole-v0')
-state = env.reset()
-done = False
-action_desc = {0: "向左推", 1: "向右推"}
-total_reward = 0.0
-reward_list = []
-gamma = 0.99
+state = env.reset() # 重置环境的状态
+done = False # 游戏是否结束，初始值为False，也就是未结束
+episode_rewards = []  # 每回合奖励
+total_reward = 0 # 带折扣因子的回报（总奖励）
+frames = []         # 保存每一帧
 
+# done=True时结束
 while not done:
-    env.render()β\tikzmark{randompolicy1}β
-    action = np.random.choice([0, 1])β\tikzmark{randompolicy2}β
-    next_state, reward, done, info = env.step(action)β\tikzmark{randompolicy3}β
-    print(f"采取动作： \
-           {action_desc.get(action, '未知动作')}，\
-           获得奖励：{reward}，\
-           转移到下一个状态：{next_state}")
-    reward_list.append(reward)
-    time.sleep(0.1)
+    # 渲染画面，并保存帧
+    frames.append(env.render(mode="rgb_array"))  # ndarray (400, 600, 3)
 
-for r in reward_list[::-1]:β\tikzmark{randompolicy4}β
+    # 随机选择一个动作，0：向左推，1：向右推
+    action = random.choice([0, 1])
+
+    # 下一个状态，即时奖励，是否结束，_
+    next_state, reward, done, _ = env.step(action)
+    episode_rewards.append(reward)
+
+# β逆序计算$G_t = R_t + \gamma G_{t+1}$β
+for r in episode_rewards[::-1]:
     total_reward = r + gamma * total_reward
 
-print('回报（收益）：', total_reward)
+print("total_reward:", total_reward)
 env.close()
 \end{codebox}
-
-\begin{tikzpicture}[
-  remember picture,
-  overlay,
-  annotation/.style={
-    inner sep=0pt,
-    outer sep=0pt,
-    outer xsep=1mm,
-    fill=yellow!80!black,
-    text width=4cm
-  },
-  >={Stealth[inset=0pt, angle=45:7pt]}
-]
-\draw[<-] (pic cs:randompolicy1)  ++(0.5,0.4) -| ++(2,1.5)
-node[annotation, below right]
-{渲染倒立摆环境};
-\draw[<-] (pic cs:randompolicy2)  ++(0.5,0.4) -| ++(2,1.5)
-node[annotation, below right]
-{随机选择一个动作};
-\draw[<-] (pic cs:randompolicy3)  ++(0.5,0.4) -| ++(2,1.5)
-node[annotation, below right]
-{采取动作，返回
-\begin{itemize}
-    \item 环境的下一个状态next\_state
-    \item 即时奖励reward
-    \item 是否结束done
-    \item 调试信息info
-\end{itemize}
-};
-\draw[<-] (pic cs:randompolicy4)  ++(0.5,0.4) -| ++(2,1.5)
-node[annotation, below right]
-{逆序计算$G_t = R_t + \gamma G_{t+1}$};
-\end{tikzpicture}
-
 
 \mybox[blue]{回报（总奖励的逆序计算）}{
 从时间 0 开始的回报为
@@ -551,6 +519,41 @@ $$
 反向过程：逆序计算回报。
 }
 }
+
+\begin{codebox}{python}{可视化随机策略}
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import rc
+
+def show_animation(imgs):
+    rc("animation", html="jshtml")
+    fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+    frames = []
+
+    text = ax.text(10, 20, "", fontsize=12, color="black")
+
+    for i, img in enumerate(imgs):
+        frame = [ax.imshow(img, animated=True)]
+        frame.append(ax.text(10, 20, f"Step: {i+1}", animated=True))  # Step数表示
+        frames.append(frame)
+
+    ax.axis("off")
+
+    ani = animation.ArtistAnimation(fig, frames, interval=100, blit=True)
+
+    # 保存动画
+    ani.save("cartpole_grpo.mp4", writer="ffmpeg")
+    ani.save("cartpole_grpo.gif", writer="pillow")
+
+    plt.close(fig)
+    return ani
+\end{codebox}
+
+然后我们播放动画
+
+\begin{codebox}{python}{播放动画}
+show_animation(frames)
+\end{codebox}
 
 由于我们使用的是\textbf{随机策略}，所以倒立摆游戏很快就结束了。
 
@@ -594,29 +597,42 @@ $$
 p(s'|s,a)
 $$
 
-\mybox[blue]{状态和观察}{
-状态（state）：如果能观察到整个环境完整的信息，就叫做状态
-\\
-观察（observation）：只能观察到环境的部分状态（信息）
-}
+\begin{marker}
+\begin{itemize}
+\item 状态（state）：如果能观察到整个环境完整的信息，就叫做状态
+\item 观察（observation）：只能观察到环境的部分状态（信息）
+\end{itemize}
+\end{marker}
 
-竖杠 $\vert$ 的右侧是表示``条件''的概率变量。对于当前问题，条件对应于在状态 $s$ 选择了行动 $a$ 。在给定这两个条件的情况下，转移到 $s'$ 的概率可以表示为 $p(s'|s,a)$ 。像 $p(s'|s,a)$ 这样的概率叫作状态迁移概率（state transition probability）。
+竖杠 $\vert$ 的右侧是表示``条件''的概率变量。对于当前问题，条件对应于在状态 $s$ 选择了行动 $a$ 。在给定这两个条件的情况下，转移到 $s'$ 的概率可以表示为 $p(s'|s,a)$ 。像 $p(s'|s,a)$ 这样的概率叫作状态转移概率（state transition probability）。
+
+给定当前状态$s$和采取的动作$a$的情况下，\textbf{不一定}会确定性的跳转到某个状态$s'$，所以是状态转移概率。
+
+对于倒立摆环境而言，给定当前状态，采取向左推的动作，一定会确定性的跳转到某个状态。
+
+但对于下棋环境来说，棋盘是状态，当Agent下了一个子儿后，棋盘的状态取决于Agent的对手将棋下在哪里，所以状态转移是不确定的。
 
 $p(s'|s,a)$ 决定了下一个状态 $s'$ 只取决于当前状态 $s$ 和行动 $a$ 。
 
+\begin{equation}
+p(s_t|s_{t-1},a_{t-1}) = p(s_t|s_{t-1},a_{t-1},s_{t-2},a_{t-2},\dots,s_0,a_0)
+\end{equation}
+
 换句话说，状态转移不需要过去的信息——此前处于什么状态以及执行了哪些行动。这个特性被称为\textbf{马尔可夫性质}（Markov property）。
 
+\begin{marker}
 MDP通过假设马尔可夫性质的存在来模拟状态转移和奖励。引入马尔可夫性质主要是为了使问题更容易解决。如果不假定马尔可夫性质，那么就必须考虑之前的所有状态和行动，而且组合的数量会呈指数级增长。
+\end{marker}
 
 \subsection{奖励函数}
 
 当智能体处于状态 $s$ ，执行行动 $a$，下一个状态是 $s'$ 时，得到的奖励由函数 $r(s,a,s')$ 定义。$r(s,a,s')$ 叫做\textbf{奖励函数}。
 
-\mybox[blue]{倒立摆环境中的奖励}{
-倒立摆环境中的奖励是确定性的，只要木杆不倒下，就给奖励 1 。
-\\
-奖励函数也可能是一个神经网络。
-}
+\begin{marker}
+倒立摆环境中的奖励是确定性的，只要木杆不倒下，就给奖励1。
+\end{marker}
+
+奖励函数的建模是一个非常困难的问题，例如：我们的机器人Agent，它的任务是将插头正确的插入插座，如果只有正确的插入插头才会给奖励1，其它情况都给奖励0，那么机器人可能一辈子也拿不到奖励了。这叫做\textbf{奖励稀疏性问题}。
 
 \subsection{策略}
 
@@ -1472,12 +1488,12 @@ $$y_i = \frac{\mathrm{e}^{x_i}}{\sum_{k=1}^n\mathrm{e}^{x_k}}$$
 \begin{codebox}{python}{智能体代码}
 class Agent:
     def __init__(self):
-        self.gamma = 0.98β\tikzmark{agent1}β
-        self.lr = 0.0002β\tikzmark{agent2}β
-        self.action_size = 2β\tikzmark{agent3}β
+        self.gamma = 0.98 # β折扣因子$\gamma$β
+        self.lr = 0.0002 # β学习率$\alpha$β
+        self.action_size = 2 # 两个动作
 
         self.memory = []
-        self.pi = Policy(self.action_size)β\tikzmark{agent4}β
+        self.pi = Policy(self.action_size) # β策略神经网络$\pi_\theta$β
         self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
 
     def get_action(self, state):
@@ -1487,40 +1503,14 @@ class Agent:
         probs = self.pi(state)
         # 取出概率分布
         probs = probs[0]
-        # 下面两行根据动作的分布采样出一个动作
+        # 根据动作的概率分布创建一个二项分布
         m = Categorical(probs)
-        # 执行采样
+        # 使用创建的二项分布进行采样
         action = m.sample().item()
 
         # 返回动作和动作的概率
         return action, probs[action]
 \end{codebox}
-
-\begin{tikzpicture}[
-  remember picture,
-  overlay,
-  annotation/.style={
-    inner sep=0pt,
-    outer sep=0pt,
-    outer xsep=1mm,
-    fill=yellow!80!black,
-    text width=4cm
-  },
-  >={Stealth[inset=0pt, angle=45:7pt]}
-]
-\draw[<-] (pic cs:agent1)  ++(0.5,0.4) -| ++(1.6,1.1)
-node[annotation, below right]
-{折扣因子$\gamma$};
-\draw[<-] (pic cs:agent2)  ++(0.5,0.4) -| ++(2,1.1)
-node[annotation, below right]
-{学习率$\alpha$};
-\draw[<-] (pic cs:agent3)  ++(0.5,0.4) -| ++(2,1.1)
-node[annotation, below right]
-{{\small 两个动作：向左推和向右推}};
-\draw[<-] (pic cs:agent4)  ++(0.5,0.4) -| ++(2,1.1)
-node[annotation, below right]
-{策略神经网络$\pi_\theta$};
-\end{tikzpicture}
 
 \py{get_action} 方法决定了在 \py{state} 状态下采取的动作。为此，可以通过 \py{self.pi(state)} 进行神经网络的前向传播，得到概率分布 \py{probs} 。然后，基于该概率分布，进行一次动作的采样。该方法还返回了所选动作的概率（上面代码中的\py{probs[action]}）。
 
@@ -1533,41 +1523,27 @@ state = env.reset()
 agent = Agent()
 
 action, prob = agent.get_action(state)
+print('action: ', action)
+print('prob: ', prob)
 
-G = 100.0β\tikzmark{pgtest1}β
-J = G * prob.log()β\tikzmark{pgtest2}β
+G = 100.0 # β$G(\tau)$β
+J = -G * prob.log() # β$-G(\tau)\log{\pi_\theta(A_0|S_0)}$β
+print('J: ', J)
 
-J.backward()β\tikzmark{pgtest3}β
+J.backward() # 求导（梯度）β$-\nabla_\theta G(\tau)\log{\pi_\theta(A_0|S_0)}$β
+agent.optimizer.step() # 梯度下降：β$\theta=\theta+\alpha\nabla_\theta G(\tau)\log{\pi_\theta(A_0|S_0)}$β
+# 在相同的状态state下，采取动作的概率变大了
+# （测试一下）将G变为负值，也就是负的奖励，会发现采取动作的概率下降了
+action, prob = agent.get_action(state)
+print('action: ', action)
+print('prob: ', prob)
 \end{codebox}
 
-\begin{tikzpicture}[
-  remember picture,
-  overlay,
-  annotation/.style={
-    inner sep=0pt,
-    outer sep=0pt,
-    outer xsep=1mm,
-    fill=yellow!80!black,
-    text width=4cm
-  },
-  >={Stealth[inset=0pt, angle=45:7pt]}
-]
-\draw[<-] (pic cs:pgtest1)  ++(0.5,0.4) -| ++(6.6,1.1)
-node[annotation, below right]
-{虚拟权重};
-\draw[<-] (pic cs:pgtest2)  ++(0.5,0.4) -| ++(7.6,1.1)
-node[annotation, below right]
-{{\tiny 动作的对数概率$G\log{\pi_\theta(A_0|S_0)}$}};
-\draw[<-] (pic cs:pgtest3)  ++(0.5,0.4) -| ++(1.6,0.7)
-node[annotation, below right]
-{求梯度$\nabla_\theta G\log{\pi_\theta(A_0|S_0)}$};
-\end{tikzpicture}
+上面的代码取出了初始状态下的动作及其概率。另外，它还显示了使用虚拟的权重来计算由式\ref{eq:first-step-backward}表示的梯度的代码（这是从式子\ref{eq:first-step-backward}取出的 $t = 0$ 的相关项的式子）。
 
-上面的代码取出了初始状态下的动作及其概率。另外，它还显示了使用虚拟的权重来计算由下式表示的梯度的代码（这是从式子取出的 $t = 0$ 的相关项的式子）。
-
-$$
+\begin{equation}\label{eq:first-step-backward}
 G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)
-$$
+\end{equation}
 
 作为参考，下面对照列出了上面的代码中出现的变量与相应的数学式。
 
@@ -1578,7 +1554,7 @@ $$
 \end{itemize}
 
 求出\py{J}之后，通过\py{J.backward()}求 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)$ 。下面是\py{Agent}类剩下的代码。
-
+\newpage
 \begin{codebox}{python}{}
 class Agent:
     ...
@@ -2898,38 +2874,47 @@ class Agent:
     ...
 
     def update(self, transition_dict):
-        # β$s_t$β
+        # β$[s_0,s_1,\dots,s_{T-1}]$β
         states = torch.tensor(transition_dict["states"], dtype=torch.float).to(self.device)
-        # β$a_t$β
+        # β$[a_0,a_1,\dots,a_{T-1}]$β
         actions = torch.tensor(transition_dict["actions"]).view(-1, 1).to(self.device)
-        # β$R_t$β
+        # β$[R_0,R_1,\dots,R_{T-1}]$β
         rewards = torch.tensor(transition_dict["rewards"], dtype=torch.float).view(-1, 1).to(self.device)
-        # β$s_{t+1}$β
+        # β$[s_1,s_2,\dots,s_T]$β
         next_states = torch.tensor(transition_dict["next_states"], dtype=torch.float).to(self.device)
-        # 是否结束的标志位组成的数组
+        # β$[\text{False}_1, \text{False}_2, \dots, \text{True}_T]$β
         dones = torch.tensor(transition_dict["dones"], dtype=torch.float).view(-1, 1).to(self.device)
-        # β$V(s_t)$β
+        # β$[V(s_0),V(s_1),\dots,V(s_{T-1})]$β
         V = self.v(states).detach()
-        # β$\text{TD目标}=R_t+\gamma V(s_{t+1})$β
+        # β$\text{TD-target}_t=R_t+\gamma V(s_{t+1})$β
+        # β$[\text{TD-target}_0, \text{TD-target}_1, \dots, \text{TD-target}_{T-1}]$β
         td_target = rewards + self.gamma * self.v(next_states) * (1 - dones)
         # 一步TD误差：β$\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$β
+        # β$[\delta_0, \delta_1, \dots, \delta_{T-1}]$β
         td_delta = td_target - V
         # 计算每个时刻t的广义优势估计（GAE）
+        # β$[A^{\text{GAE}}_0,A^{\text{GAE}}_1,\dots,A^{\text{GAE}}_{T-1}]$β
         gae = compute_gae(self.gamma, td_delta.cpu()).to(self.device)
         # 冻结一份旧策略采取动作的对数概率β$\log{\pi_{\theta_\text{old}}(a_t|s_t)}$β
+        # β$[\log{\pi_{\theta_\text{old}}(a_0|s_0)},\log{\pi_{\theta_\text{old}}(a_1|s_1)}],\dots,\log{\pi_{\theta_\text{old}}(a_{T-1}|s_{T-1})}$β
         old_probs = torch.tensor(transition_dict["action_probs"], dtype=torch.float).view(-1, 1)
         old_log_probs = torch.log(old_probs).to(self.device).detach()
         # 每条轨迹使用10次，也就是更新10次策略网络
         for _ in range(10):
             # 新策略采取动作的对数概率：β$\log{\pi_\theta(a_t|s_t)}$β
+            # β$[\log{\pi_\theta(a_0|s_0)},\log{\pi_\theta(a_1|s_1)},\dots,\log{\pi_\theta(a_{T-1}|s_{T-1})}]$β
             log_probs = torch.log(self.pi(states).gather(1, actions))
             # 计算比率：β$p_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$β
             ratio = torch.exp(log_probs - old_log_probs)
             # β$p_t(\theta)A^{\pi_{\theta_\text{old}}}_t$β
+            # β$[p_0A^{\pi_{\theta_\text{old}}}_0,p_1A^{\pi_{\theta_\text{old}}}_1,\dots,p_{T-1}A^{\pi_{\theta_\text{old}}}_{T-1}]$β
             surr1 = ratio * gae
             # β$\text{clip}(p_t(\theta),1-\epsilon,1+\epsilon)A^{\pi_{\theta_\text{old}}}_t|_{\epsilon=0.2}$β
+            # β$[\text{clip}(p_0)A^{\text{GAE}}_0,\text{clip}(p_1)A^{\text{GAE}}_1,\dots,\text{clip}(p_{T-1})A^{\text{GAE}}_{T-1}]$β
             surr2 = torch.clamp(ratio, 1 - 0.2, 1 + 0.2) * gae
+            # β$\pi_\text{loss}=-\frac{1}{T}\displaystyle\sum_{t=0}^{T-1}\min(\text{surr1}_t,\text{surr2}_t)$β
             pi_loss = torch.mean(-torch.min(surr1, surr2))
+            # β$V_{\text{loss}}=\frac{1}{T}\displaystyle\sum_{t=0}^{T-1}\left(V(s_t)-\left(A_t^{\text{GAE}}+V(s_t)\right)\right)$β
             v_loss = torch.mean(F.mse_loss(self.v(states), gae + V))
             self.optimizer_pi.zero_grad()
             self.optimizer_v.zero_grad()
@@ -2939,12 +2924,9 @@ class Agent:
             self.optimizer_v.step()
 \end{codebox}
 
-\mybox[blue]{比值的计算方法}{
-因为$A=e^{\log{A}}$，所以有如下成立
-$$
-\frac{A}{B}=e^{\log{A}-\log{B}}=\frac{e^{\log{A}}}{e^{\log{B}}}
-$$
-}
+\begin{marker}
+比值的计算方法：因为$A=e^{\log{A}}$，所以有，$\frac{A}{B}=e^{\log{A}-\log{B}}=\frac{e^{\log{A}}}{e^{\log{B}}}$
+\end{marker}
 
 \section{广义优势估计的计算}
 
@@ -3775,6 +3757,239 @@ J^{\text{CLIP}}(\theta) & = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{
 \end{align}
 
 为清晰起见，我们将方程完全用 $\theta$ 来表示，以明确哪些策略是变量、哪些策略用于计算优势。请注意，只有原始目标使用当前策略 $\pi_\theta$ 来计算优势 $A_t^{\pi_\theta}$，而其余目标都使用旧策略来计算优势 $A_t^{\pi_{\theta_\text{old}}}$。
+
+\chapter{GRPO}
+
+\begin{marker}
+GRPO：Group Relative Policy Optimization，组相对策略优化
+\end{marker}
+
+\begin{equation}
+J^{\text{GRPO}}(\theta)=\frac{1}{G}\displaystyle\sum_{i=1}^G \frac{1}{|o_{i}|}\displaystyle\sum_{t=1}^{|o_{i}|}\min\left[ \frac{\pi_{\theta}(a_{o_{i}}|s_{o_{i}})}{\pi_{\theta_{\text{old}}}(a_{o_{i}}|s_{o_{i}})}A_{i,t},\text{clip}\left( \frac{\pi_{\theta}(a_{o_{i}}|s_{o_{i}})}{\pi_{\theta_{\text{old}}}(a_{o_{i}}|s_{o_{i}})},1-\epsilon,1+\epsilon \right)A_{i,t}  \right]-\beta D_{\text{KL}}\left[ \pi_{\theta}||\pi_{\text{ref}} \right]
+\end{equation}
+
+\begin{codebox}{python}{网络结构}
+import numpy as np
+import gym
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.distributions import Categorical
+import matplotlib.pyplot as plt
+
+class PolicyNet(nn.Module):
+    def __init__(self, action_size):
+        super().__init__()
+        self.l1 = nn.Linear(4, 128)
+        self.l2 = nn.Linear(128, action_size)
+
+    def forward(self, x):
+        x = F.relu(self.l1(x))
+        x = F.softmax(self.l2(x), dim=1)
+        return x
+\end{codebox}
+
+智能体的代码
+
+\begin{codebox}{python}{智能体}
+class Agent:
+    def __init__(self):
+        self.gamma = 0.98 # 折扣因子
+        self.lr = 0.0002 # 学习率
+        self.action_size = 2 # 动作空间大小，共两个动作：向左推和向右推
+
+        self.memory = []
+        self.pi = Policy(self.action_size) # 初始化策略神经网络π_θ
+        # 使用 Adam 优化器
+        self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
+
+    def get_action(self, state):
+        # 将状态转换成torch.tensor类型
+        state = torch.tensor(state[np.newaxis, :])
+        # 将状态输入策略神经网络，输出为两个动作的概率分布
+        probs = self.pi(state)
+        # 取出概率分布
+        probs = probs[0]
+        # 下面两行根据动作的分布采样出一个动作
+        m = Categorical(probs)
+        # 执行采样
+        action = m.sample().item()
+
+        # 返回动作和动作的概率
+        return action, probs[action]
+\end{codebox}
+
+将采样一条轨迹封装为一个函数
+
+\begin{codebox}{python}{采样轨迹}
+class Agent:
+    ...
+
+    def collect_trajectory(env):
+        state = env.reset()
+        states, log_probs, chosen_actions = [], [], []
+        episode_reward = 0
+        done = False
+
+        while not done:
+            states.append(state)
+            action, prob = self.get_action(state)
+            log_prob = torch.log(prob)
+            log_probs.append(log_prob.item())
+            chosen_actions.append(action)
+
+            next_state, reward, done, _ = env.step(action)
+            state = next_state
+            episode_reward += reward
+
+        normalized_reward = episode_reward / 200.0
+
+        return states, log_probs, chosen_actions, normalized_reward
+\end{codebox}
+
+计算优势
+
+\begin{codebox}{python}{计算优势}
+import numpy as np
+
+
+def calc_advantages_with_grpo(trajectories):
+    rewards = [r for o, l, a, r in trajectories]
+    mean_reward = sum(rewards) / len(rewards)
+    std_reward = np.std(rewards)  + 1e-8
+    advantages = [(r - mean_reward) / std_reward for r in rewards]  
+    
+    return advantages
+\end{codebox}
+
+更新网络的代码
+
+\begin{codebox}{python}{GRPO更新}
+def grpo_update(trajectories, net, optimizer, n_iterations=20, eps=0.2):
+    # [1] [2-3]のGRPOの関数で、各エピソードの標準化されたAdvantageを求めます
+    advantages = calc_advantages_with_grpo(trajectories)
+
+    # [2] Policy NN を更新します。n_iterations回、更新をかけます
+    for i_iter in range(n_iterations):
+        loss = 0
+        for traj, advantage in zip(trajectories, advantages):
+            # 1エピソードの蓄えられた内容を取り出します
+            (states, log_probs, chosen_actions, _) = traj  
+            # 1エピソードの損失を0に初期化
+            trajectory_loss = 0                            
+
+            # [3] エピソード内の各ステップについて損失（loss）を計算
+            for t in range(len(states)):
+                # 以下はPPOと同じ手続きです
+                # ====================================
+                # [3-1] 更新されたPolicyNNで、実際に step t で
+                # 選択された行動がどれくらい尤もらしいかを求めます
+                new_policy_probs = torch.nn.functional.softmax(net(torch.from_numpy(states[t]).float()), dim=0)
+                new_log_probs = torch.log(new_policy_probs)[chosen_actions[t]]
+
+                # [3-2] 更新前のPolicyNNで選択されたactionを選ぶ確率と、
+                # 更新後のNNの場合の比を求める（対数確率なので引き算してexpする）
+                ratio = torch.exp(new_log_probs - log_probs[t])
+
+                # [3-3] 更新後の選ばれる確率が非常に大きくなってしまうと、
+                # 更新しすぎなので、epsの範囲にとどめる
+                clipped_ratio = torch.clamp(ratio, min=1 - eps, max=1 + eps)
+
+                # [3-4] 報酬を最大化したいので、マイナスを掛け算して最小化問題に置き換える
+                # そして平均より良かった施行を増やし、悪かったケースを減らすように更新
+                trajectory_loss += -clipped_ratio * advantage
+
+            # [4] エピソードのsteps数で正規化
+            trajectory_loss /= len(states)
+            loss += trajectory_loss
+
+        # [5] エピソード数で正規化
+        loss /= len(trajectories)
+
+        # [6] Policy NN の重みを更新
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    return None  # 特に何も返さない
+\end{codebox}
+
+\begin{codebox}{python}{初始化环境}
+# [1] 初期化と初期設定
+env = gym.make('CartPole-v0')
+net = PolicyNet()
+optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+
+# [2] GRPO で PocicyNetを更新する際のTrajectoryを溜める回数の設定
+trajectories_per_update = 5  # group size
+\end{codebox}
+
+\begin{codebox}{python}{训练循环}
+# [3] エピソードのループ100回を、平均報酬が195を超えるまで実施
+trial_num = 0  # 100回を何回tryしたかを示す
+
+while(True):
+    # [4] エピソードのループ100回を開始
+    # trajectories_per_updateが5なので、20で100回になります
+    for i_episode in range(20):  
+        trajectories, episode_rewards = [], []  
+        # episode_rewardsには実際の総報酬を格納
+
+        # [5] GRPO で PocicyNetを更新する際のTrajectoryを溜める（エピソード5回分）
+        for _ in range(trajectories_per_update):
+            states, log_probs, chosen_actions, normalized_reward = collect_trajectory(env, net)
+            trajectories.append((states, log_probs, chosen_actions, normalized_reward))
+            episode_rewards.append(normalized_reward * 200)  # 実際の総報酬を格納
+
+        # [6] GRPO で PociyNetの重みを更新
+        grpo_update(trajectories, net, optimizer)
+
+    # [7] 100回の平均報酬を求める
+    avg_reward = sum(episode_rewards) / len(episode_rewards)
+    trial_num+=1
+
+    # [8] 終了判定
+    if avg_reward > 195:
+        print('訓練完了です。トライアル回数: ', trial_num)
+        break
+    else:
+        print(f'トライアル {trial_num}回目, avg reward: {avg_reward:.2f}')
+
+env.close()
+\end{codebox}
+
+\begin{codebox}{python}{可视化}
+# [0] 環境をリセット+初期変数の設定
+state = env.reset()
+done = False        # episodeの終わりを判定するフラグ
+episode_reward = 0  # episodeの総報酬を格納する
+frames = []         # 画像保存用リスト
+
+# 倒れてdone=Trueになるまで続ける
+while not done:
+    # [1] 画面キャプチャ
+    frames.append(env.render(mode="rgb_array"))  # ndarray (400, 600, 3)
+
+    # [2] ActionをPolicyNetから選ぶ（左か右に押す）
+    logits = net(torch.from_numpy(state).float())
+    # logitsにsoftmaxで、行動確率を求める
+    probs = torch.nn.functional.softmax(logits, dim=0)  
+    action = torch.multinomial(probs, 1).item()  # 実行するactionを確率的に選択
+
+    # [3] CartPoleの台車にActionを適用してstateを更新する
+    state, reward, done, _ = env.step(action)
+    episode_reward += reward
+
+# 実行結果
+print("episode_reward:", episode_reward)
+env.close()
+
+# 可視化
+show_animation(frames)
+\end{codebox}
+
+
 
 \part{基于人类反馈的强化学习（RLHF）}
 

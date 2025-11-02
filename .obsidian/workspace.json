@@ -251,12 +251,14 @@
             "id": "20ca4d8f0616e145",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "papers/ppo-self-contained-tutorial.pdf"
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "ppo-self-contained-tutorial"
+              "icon": "lucide-file",
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
             }
           },
           {
@@ -490,27 +492,28 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "ElegantBook/rl-tutorial.toc",
-    "ElegantBook/rl-tutorial.out",
-    "ElegantBook/rl-tutorial.aux",
-    "ElegantBook/cover.pdf",
-    "ElegantBook/cover.aux",
-    "ElegantBook/cover.log",
-    "ElegantBook/cover.tex",
+    "ElegantBook/_minted/D8158519B678E2F82705E7473FBA4274.highlight.minted",
+    "ElegantBook/_minted/C0C017C74A6114140A61090FABEF4B8F.highlight.minted",
+    "ElegantBook/_minted/0B9E0807A2858871620250BE3D66F015.highlight.minted",
+    "ElegantBook/_minted/2689F162E87BE985874282BC47126F73.highlight.minted",
+    "ElegantBook/_minted/B84A1CF005793949E444955880986394.highlight.minted",
+    "ElegantBook/_minted/B7D5A74D7404B52A9A1F31460E3CE64F.highlight.minted",
+    "ElegantBook/_minted/761A85EA509B04AFB69B3E2C4E907F33.highlight.minted",
+    "ElegantBook/_minted/3D56A6F895DFEEC145FEEE1A92FF9D35.highlight.minted",
+    "ElegantBook/_minted/62730881011DC652120109425A425C81.highlight.minted",
+    "Excalidraw/5.8.excalidraw.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "2. 策略梯度法.md",
     "10. GRPO：组相对策略优化.md",
     "8. 使用DPO微调LLM.md",
-    "2. 策略梯度法.md",
     "附录E：策略梯度法的证明.md",
     "附录D：PPO数学推导.md",
     "附录F：重要性采样.md",
-    "ElegantBook/_minted/AD81800B83532400FD3EEF9C46D4ED67.highlight.minted",
-    "ElegantBook/_minted/4A3E327DDB7E618DECE528D0B87BADBF.highlight.minted",
     "附录B：KL散度.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "未命名.md",
     "附录C：广义优势估计（GAE）.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "img/置信域.png",
     "ElegantBook/image/置信域.png",
     "Excalidraw/3.9.excalidraw.md",
@@ -533,7 +536,6 @@
     "附录H：torch.gather.md",
     "Excalidraw/2.15.excalidraw.md",
     "Excalidraw/2.2.excalidraw.md",
-    "Excalidraw/2.14.excalidraw.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]
