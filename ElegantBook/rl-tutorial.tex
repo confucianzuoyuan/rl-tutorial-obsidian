@@ -3995,6 +3995,246 @@ show_animation(frames)
 
 \chapter{大语言模型的预训练}
 
+\chapter{监督微调（SFT）}
 
+\begin{codebox}{python}{SFT}
+import torch
+from transformers import BertTokenizer, GPT2LMHeadModel, DataCollatorForLanguageModeling, pipeline, set_seed
+from torch.utils.data import DataLoader
+from datasets import load_dataset
+from pprint import pprint
+
+dataset = load_dataset("csv", data_files="online_shopping_10_cats.csv")
+
+ds_train = dataset['train']
+ds_train = ds_train.filter(lambda x : x['review'] != None and len(x['review']) > 20 and len(x['review']) < 1024)
+
+tokenizer = BertTokenizer.from_pretrained("./gpt2-chinese-cluecorpussmall")
+model = GPT2LMHeadModel.from_pretrained("./gpt2-chinese-cluecorpussmall")
+
+def tokenize(batch):
+    return tokenizer(batch['review'])
+
+map_kwargs = {
+    'batched': True,
+    'batch_size': 512,
+    'remove_columns': ['cat', 'label', 'review']
+}
+
+tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
+
+tokenized_dataset_train.set_format(type='torch')
+
+tokenizer.eos_token = tokenizer.pad_token
+
+data_collator = DataCollatorForLanguageModeling(
+    tokenizer,
+    mlm=False
+)
+
+dataloader_params = {
+    'batch_size': 2, # 6G显存正好够用
+    'collate_fn': data_collator
+}
+
+train_dataloader = DataLoader(
+    tokenized_dataset_train,
+    **dataloader_params
+)
+
+# 要更新的是model的参数
+optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
+# 一般sft会训练1个epoch，也就是把训练数据看一遍就可以了
+# 否则容易过拟合，造成灾难性遗忘
+num_epochs = 1
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model.to(device)
+for epoch in range(num_epochs):
+    model.train()
+    for i, batch in enumerate(train_dataloader):
+        batch = batch.to(device)
+        outputs = model(**batch)
+        loss = outputs.loss
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        if i % 100 == 0:
+            print(f'Loss: {loss.item()}')
+
+model.save_pretrained('./gpt2-sft')
+tokenizer.save_pretrained('./gpt2-sft')
+
+
+g = pipeline('text-generation', model='./gpt2-sft')
+set_seed(42)
+pprint(g("这个房间真是", max_length=30, num_return_sequences=1))
+\end{codebox}
+
+\chapter{基于分类的微调}
+
+\begin{codebox}{python}{Reward Model}
+from datasets import load_dataset
+from transformers import AutoTokenizer
+model_name = 'gpt2-chinese-cluecorpussmall'
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+tokenizer.eos_token = tokenizer.pad_token
+REWARD_TOKEN_ID = tokenizer.eos_token_id
+
+ds = load_dataset("csv", data_files="online_shopping_10_cats.csv")
+ds_train = ds['train']
+
+ds_train = ds_train.filter(lambda x : x['review'] != None and len(x['review']) > 20 and len(x['review']) < 1024)
+
+def tokenize(batch):
+    # 提取出文本内容
+    outputs = tokenizer(batch['review'])
+    # 每条数据一个评分，初始化为 0 。
+    outputs['score'] = [0] * len(outputs['input_ids'])
+    # 对每条数据的最后的reward token进行评分
+    outputs['score_index'] = [0] * len(outputs['input_ids'])
+    for i in range(len(outputs['input_ids'])):
+        # 第 i 条数据的末尾添加一个 eos token，作为reward token
+        outputs['input_ids'][i].append(REWARD_TOKEN_ID)
+        # reward token的掩码设置为 1 。
+        outputs['attention_mask'][i].append(1)
+        # 正向情感的文本评分为 1 。负向情感的评分为 0 。
+        outputs['score'][i] = float(batch['label'][i])
+        # 对 reward token 进行评分，也就是评分的索引为 reward token 的索引。
+        outputs['score_index'][i] = len(outputs['input_ids'][i]) - 1
+    return outputs
+
+map_kwargs = {
+    "batched": True,
+    "batch_size": 512,
+    "remove_columns": ['cat', 'label', 'review']
+}
+
+tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
+
+tokenized_dataset_train.set_format(type='torch')
+
+import torch
+from torch import nn
+import numpy as np
+from transformers import AutoModelForCausalLM
+
+class RewardHead(nn.Module):
+    """奖励头，是一个线性层"""
+    def __init__(self, config):
+        super().__init__()
+        # gpt2最后输出的隐藏层的维度
+        self.hidden_size = config.hidden_size
+        # 线性层用来对gpt2最后输出的隐藏层给奖励
+        self.reward = nn.Linear(self.hidden_size, 1)
+        self._post_init()
+
+    def _post_init(self):
+        # 使用正态分布初始化权重
+        nn.init.normal_(
+            self.reward.weight,
+            std=(1.0 / np.sqrt(self.hidden_size + 1))
+        )
+        # 将偏置初始化为0
+        nn.init.zeros_(self.reward.bias)
+
+    def forward(self, hidden_states):
+        # 给出奖励
+        return self.reward(hidden_states)
+
+class GPT2RewardHead(nn.Module):
+    def __init__(self, model_name):
+        super().__init__()
+        self.llm = AutoModelForCausalLM.from_pretrained(model_name)
+        self.reward_head = RewardHead(self.llm.config)
+
+    def forward(self, input_ids, attention_mask):
+        # gpt2的前向传播，但是还要输出隐藏层
+        transformer_outputs = self.llm.forward(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            output_hidden_states=True
+        )
+        last_hidden_state = transformer_outputs.hidden_states[-1]
+        # 给出奖励
+        reward = self.reward_head(last_hidden_state).squeeze(-1)
+        # sigmoid用来将奖励搞到(0,1)范围内
+        return torch.sigmoid(reward)
+
+model = GPT2RewardHead(model_name)
+from torch.utils.data import DataLoader
+from transformers import DataCollatorWithPadding
+
+data_collator = DataCollatorWithPadding(tokenizer)
+dataloader_params = {
+    'batch_size': 16, # 还是使用6G显存
+    'shuffle': True,
+    'collate_fn': data_collator
+}
+train_dataloader = DataLoader(
+    tokenized_dataset_train,
+    **dataloader_params
+)
+
+device = torch.device('cuda') \
+    if torch.cuda.is_available() \
+    else torch.device('cpu')
+
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+# 二分类交叉熵损失
+criterion = nn.BCELoss()
+num_epochs = 1 # N+ Implementation Detail paper
+
+model.to(device)
+
+for epoch in range(num_epochs):
+    model.train()
+    for i, batch in enumerate(train_dataloader):
+        inputs = batch.to(device)
+        model_inputs = {
+            'input_ids': inputs['input_ids'],
+            'attention_mask': inputs['attention_mask']
+        }
+        # 模型针对训练数据的打分
+        scores = model(**model_inputs)
+        batch_indices = torch.arange(scores.shape[0])
+        # 模型对reward token的打分
+        score = scores[batch_indices, inputs['score_index']]
+        # 真实分数：0或者1
+        target = inputs['score']
+        loss = criterion(score, target)
+        # 三部曲：清空梯度 ⟶ 反向传播计算梯度 ⟶ 更新参数
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print('损失：', loss.item())
+
+torch.save(model.state_dict(), 'reward_model.pt')
+
+from sklearn.metrics import confusion_matrix
+model.eval()
+
+all_predictions = []
+all_labels = []
+
+for i, batch in enumerate(train_dataloader):
+    inputs = batch.to(device)
+    model_inputs = {
+        'input_ids': inputs['input_ids'],
+        'attention_mask': inputs['attention_mask']
+    }
+    with torch.no_grad():
+        scores = model(**model_inputs)
+        batch_indices = torch.arange(scores.shape[0])
+        score = scores[batch_indices, inputs['score_index']]
+        target = inputs['score']
+    predictions = (score > 0.5).int()
+
+    all_predictions.extend(predictions.cpu().numpy())
+    all_labels.extend(target.cpu().numpy())
+
+confusion_matrix(all_labels, all_predictions)
+\end{codebox}
 
 \end{document}

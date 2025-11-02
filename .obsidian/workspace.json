@@ -253,12 +253,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
+                "file": "6. 使用PPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "5. 基于人类反馈的强化学习（RLHF）"
+              "title": "6. 使用PPO微调LLM"
             }
           },
           {
@@ -492,6 +492,9 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "ElegantBook/_minted/B948A36AFEE8E8328383E5406F70673E.highlight.minted",
+    "ElegantBook/_minted/6CD0356533A16CDA0400F1EC762ED6B0.highlight.minted",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
     "ElegantBook/_minted/D8158519B678E2F82705E7473FBA4274.highlight.minted",
     "ElegantBook/_minted/C0C017C74A6114140A61090FABEF4B8F.highlight.minted",
     "ElegantBook/_minted/0B9E0807A2858871620250BE3D66F015.highlight.minted",
@@ -499,10 +502,7 @@
     "ElegantBook/_minted/B84A1CF005793949E444955880986394.highlight.minted",
     "ElegantBook/_minted/B7D5A74D7404B52A9A1F31460E3CE64F.highlight.minted",
     "ElegantBook/_minted/761A85EA509B04AFB69B3E2C4E907F33.highlight.minted",
-    "ElegantBook/_minted/3D56A6F895DFEEC145FEEE1A92FF9D35.highlight.minted",
-    "ElegantBook/_minted/62730881011DC652120109425A425C81.highlight.minted",
     "Excalidraw/5.8.excalidraw.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "2. 策略梯度法.md",
     "10. GRPO：组相对策略优化.md",
     "8. 使用DPO微调LLM.md",
