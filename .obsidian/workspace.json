@@ -253,12 +253,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
+                "file": "6. 使用PPO微调LLM.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "5. 基于人类反馈的强化学习（RLHF）"
+              "title": "6. 使用PPO微调LLM"
             }
           },
           {
@@ -492,6 +492,9 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "7. DPO：直接偏好优化.md",
+    "ElegantBook/t.aux",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
     "ElegantBook/rl-tutorial.toc",
     "ElegantBook/rl-tutorial.out",
     "ElegantBook/rl-tutorial.aux",
@@ -499,10 +502,7 @@
     "ElegantBook/_minted/B59C19ADD67981F13EABFD6EC59AC9CA.highlight.minted",
     "ElegantBook/_minted/FDB13DF56CE4D718A928E6141FEAFC73.highlight.minted",
     "ElegantBook/_minted/73F83DC9CB52A01002ECC1167443ECF6.highlight.minted",
-    "ElegantBook/_minted/604C0C9366542771007AE41AA6910E06.highlight.minted",
-    "ElegantBook/_minted/435887B76946F1277681248C7205F55B.highlight.minted",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "6. 使用PPO微调LLM.md",
     "附录G：uv教程.md",
     "Excalidraw/5.8.excalidraw.md",
@@ -535,7 +535,6 @@
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
     "附录H：torch.gather.md",
-    "Excalidraw/2.15.excalidraw.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]

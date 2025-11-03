@@ -772,13 +772,42 @@ $$
 
 先来推导上面公式中的第一项 $\mathbb{E}_\pi[R_t|S_t=s]$ 。
 
-$\mathbb{E}_\pi[R_t|S_t=s]$ 的含义是在 $t$ 时刻，环境的状态是 $s$ ，那么从 $t$ 时刻开始，获得的回报的期望是多少呢？那么需要考虑所有的情况，然后加起来就可以了。
+$\mathbb{E}_\pi[R_t|S_t=s]$ 的含义是在 $t$ 时刻，环境的状态是 $s$ ，那么在 $t$ 时刻，获得的即时奖励的期望是多少呢？那么需要考虑所有的情况，然后加起来就可以了。
 
-$$
+\begin{equation}\label{eq:bellman-first-term}
 \mathbb{E}_\pi[R_t|S_t=s]=\sum_a\sum_{s'}\pi(a|s)p(s'|s,a)r(s,a,s')
-$$
+\end{equation}
 
-如上面的数学式所示，将智能体行动的概率 $\pi(a|s)$ 、要迁移的状态的概率 $p(s'|s,a)$ 和奖励函数 $r(s,a,s')$ 相乘。对所有候选项都进行上述计算，得到它们的总和。
+如上面的数学式\ref{eq:bellman-first-term}所示，将智能体行动的概率 $\pi(a|s)$ 、要迁移的状态的概率 $p(s'|s,a)$ 和奖励函数 $r(s,a,s')$ 相乘。对所有候选项都进行上述计算，得到它们的总和。
+
+\begin{marker}
+式\ref{eq:bellman-first-term}中只有$s$是确定的，假设可选动作只有两个$\left\{ a_1, a_2 \right\}$，环境状态只有两种$\left\{ s_1, s_2 \right\}$。那么状态转移有：
+\begin{equation*}
+\begin{aligned}
+s \rightarrow a_1 \rightarrow s_1 \\
+s \rightarrow a_1 \rightarrow s_2 \\
+s \rightarrow a_2 \rightarrow s_1 \\
+s \rightarrow a_2 \rightarrow s_2 \\
+\end{aligned}
+\end{equation*}
+那么概率如下：
+\begin{equation*}
+\begin{aligned}
+\pi(a=a_1|s) = 0.2, p(s'=s_1|s,a=a_1) = 0.3, r(s,a=a_1,s'=s_1)=10 \\
+\pi(a=a_1|s) = 0.2, p(s'=s_2|s,a=a_1) = 0.7, r(s,a=a_1,s'=s_2)=20 \\
+\pi(a=a_2|s) = 0.8, p(s'=s_1|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_1)=30 \\
+\pi(a=a_2|s) = 0.8, p(s'=s_2|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_2)=40 \\
+\end{aligned}
+\end{equation*}
+那么即时奖励的期望是：
+\begin{equation*}
+\begin{aligned}
+E &= 0.2\times 0.3\times 10 + 0.2\times 0.7\times 20 + 0.8\times 0.5\times 30 + 0.8\times 0.5\times 40 \\
+&= 0.6 + 2.8 + 12.0 + 16.0 \\
+&= 31.4
+\end{aligned}
+\end{equation*}
+\end{marker}
 
 第一项推导完毕，接下来推导第二项。
 
