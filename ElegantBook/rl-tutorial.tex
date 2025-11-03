@@ -1265,15 +1265,15 @@ $$
 \label{fig:infty-trajectories}
 \end{figure}
 
-如式所示，$\nabla_{\theta}J(\theta)$ 表示期望值。接下来我们来计算期望值。这里，我们令策略 $\pi_{\theta}$ 的智能体实际采取动作，得到 $n$ 个轨迹 $\tau$ 。此时，通过对每个 $\tau$ 计算式子的期望值内部的式子（$\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$），并求出其平均值，从而近似得到 $\nabla_{\theta}J(\theta)$ 。数学式如下所示。
+如式所示，$\nabla_{\theta}J(\theta)$ 表示期望值。接下来我们来计算期望值。这里，我们令策略 $\pi_{\theta}$ 的智能体实际采取动作，得到 $n$ 个轨迹 $\tau$ 。此时，通过对每个 $\tau$ 计算式子的期望值内部的式子（$\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$），并求出其平均值，从而近似得到 $\nabla_{\theta}J(\theta)$ 。数学式如\ref{eq:sample-n-cal-expectation}所示。
 
-$$
+\begin{equation}\label{eq:sample-n-cal-expectation}
 \begin{aligned}
 \text{采样}: \tau^{(i)}\sim\pi_{\theta}\;\;\;\;(i=1,2,\cdots,n) \\
 x^{(i)} = \sum_{t=0}^TG(\tau^{(i)})\nabla_{\theta}\log\pi_{\theta}(A_t^{(i)}|S_t^{(i)}) \\
 \nabla_{\theta}J(\theta) \approx \frac{x^{(1)}+x^{(2)}+\cdots+x^{(n)}}{n}
 \end{aligned}
-$$
+\end{equation}
 
 上面式子中的 $\tau^{(i)}$ ，表示在第 $i$ 回合得到的轨迹，$A_t^{(i)}$ 表示在第 $i$ 回合的时刻 $t$ 的动作，$S_t^{(i)}$ 表示在第 $i$ 回合的时刻 $t$ 的状态。
 
@@ -1349,14 +1349,14 @@ $\begin{aligned}
 \label{fig:sample-one-trajectory}
 \end{figure}
 
-在这种情况下，数学式可以简化为如下形式。
+在这种情况下，数学式可以简化为如\ref{eq:sample-one-trajectory-cal-e}形式。
 
-$$
+\begin{equation}\label{eq:sample-one-trajectory-cal-e}
 \begin{aligned}
 \text{采样}: \tau\sim\pi_{\theta} \\
 \nabla_{\theta}J(\theta) \approx \sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t) \\
 \end{aligned}
-$$
+\end{equation}
 
 \begin{figure}[!ht]
 \centering
