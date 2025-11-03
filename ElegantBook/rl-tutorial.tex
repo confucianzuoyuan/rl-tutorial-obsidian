@@ -3950,8 +3950,7 @@ class Agent:
 
 \begin{codebox}{python}{初始化环境}
 env = gym.make('CartPole-v0')
-net = PolicyNet()
-optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+agent = Agent()
 # 每一组5条轨迹：β$G=5$β
 trajectories_per_update = 5
 \end{codebox}
@@ -3964,11 +3963,11 @@ while(True):
         trajectories, episode_rewards = [], []
         # 采样一组轨迹
         for _ in range(trajectories_per_update):
-            states, log_probs, chosen_actions, normalized_reward = collect_trajectory(env, net)
+            states, log_probs, chosen_actions, normalized_reward = agent.collect_trajectory(env)
             trajectories.append((states, log_probs, chosen_actions, normalized_reward))
             episode_rewards.append(normalized_reward * 200)
         # 使用一组轨迹更新智能体
-        agent.update(trajectories, net, optimizer)
+        agent.update(trajectories)
     # 一组轨迹的平均奖励
     avg_reward = sum(episode_rewards) / len(episode_rewards)
     trial_num += 1
@@ -3991,11 +3990,10 @@ frames = []
 while not done:
     frames.append(env.render(mode="rgb_array"))
 
-    logits = net(torch.from_numpy(state).float())
-    probs = torch.nn.functional.softmax(logits, dim=0)  
-    action = torch.multinomial(probs, 1).item()
+    action, _ = agent.get_action(state)
 
-    state, reward, done, _ = env.step(action)
+    next_state, reward, done, _ = env.step(action)
+    state = next_state
     episode_reward += reward
 
 print("episode_reward:", episode_reward)
