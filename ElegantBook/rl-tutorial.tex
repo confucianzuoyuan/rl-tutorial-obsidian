@@ -3758,17 +3758,37 @@ J^{\text{CLIP}}(\theta) & = \mathbb{E}_t\left[ \min\left( p_t(\theta)A_t, \text{
 
 为清晰起见，我们将方程完全用 $\theta$ 来表示，以明确哪些策略是变量、哪些策略用于计算优势。请注意，只有原始目标使用当前策略 $\pi_\theta$ 来计算优势 $A_t^{\pi_\theta}$，而其余目标都使用旧策略来计算优势 $A_t^{\pi_{\theta_\text{old}}}$。
 
-\chapter{GRPO}
+\chapter{组相对策略优化}
+
+\section{算法理论}
 
 \begin{marker}
 GRPO：Group Relative Policy Optimization，组相对策略优化
 \end{marker}
 
+\begin{theorem}{GRPO的目标函数}{}
 \begin{equation}
-J^{\text{GRPO}}(\theta)=\frac{1}{G}\displaystyle\sum_{i=1}^G \frac{1}{|o_{i}|}\displaystyle\sum_{t=1}^{|o_{i}|}\min\left[ \frac{\pi_{\theta}(a_{o_{i}}|s_{o_{i}})}{\pi_{\theta_{\text{old}}}(a_{o_{i}}|s_{o_{i}})}A_{i,t},\text{clip}\left( \frac{\pi_{\theta}(a_{o_{i}}|s_{o_{i}})}{\pi_{\theta_{\text{old}}}(a_{o_{i}}|s_{o_{i}})},1-\epsilon,1+\epsilon \right)A_{i,t}  \right]-\beta D_{\text{KL}}\left[ \pi_{\theta}||\pi_{\text{ref}} \right]
+J^{\text{GRPO}}(\theta)=\frac{1}{G}\displaystyle\sum_{i=1}^G \frac{1}{|\tau_{i}|}\displaystyle\sum_{t=1}^{|\tau_{i}|}\min\left[ \frac{\pi_{\theta}(a_{\tau_{i,t}}|s_{\tau_{i,t}})}{\pi_{\theta_{\text{old}}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})}A_{i,t},\text{clip}\left( \frac{\pi_{\theta}(a_{\tau_{i,t}}|s_{\tau_{i,t}})}{\pi_{\theta_{\text{old}}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})},1-\epsilon,1+\epsilon \right)A_{i,t}  \right]-\beta D_{\text{KL}}\left[ \pi_{\theta}||\pi_{\text{ref}} \right]
 \end{equation}
+\end{theorem}
 
-\begin{codebox}{python}{网络结构}
+先来说明一下GRPO目标函数中每个数学符号的含义：
+
+\begin{itemize}
+    \item $\pi_\theta$表示正在更新的策略。
+    \item $\pi_{\theta_\text{old}}$表示上一轮的策略，也就是旧策略。
+    \item $\pi_\text{ref}$表示冻结的参考模型。
+    \item $G$表示使用旧策略$\pi_{\theta_\text{old}}$采样的一组轨迹的轨迹数量，如果我们使用旧策略采样了10条轨迹，那么$G=10$。
+    \item $\tau_i$表示第$i$条轨迹，$|\tau_i|$表示第$i$条轨迹的动作数量，也就是这条轨迹执行了多少个动作轨迹结束了。
+    \item $\pi_{\theta}(a_{\tau_{i,t}}|s_{\tau_{i,t}})$表示第$i$轨迹的第$t$个时刻的状态为$s_{\tau_{i,t}}$，以及在这个状态下正在更新的策略$\pi_\theta$采取动作$a_{\tau_{i,t}}$的概率。
+    \item $\pi_{\theta_{\text{old}}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})$表示第$i$轨迹的第$t$个时刻的状态为$s_{\tau_{i,t}}$，以及在这个状态下旧策略$\pi_{\theta_\text{old}}$采取动作$a_{\tau_{i,t}}$的概率。
+    \item $A_{i,t}$表示第$i$条轨迹的第$t$个时刻的动作的优势。
+    \item $\beta D_\text{KL}[\pi_\theta|\pi_\text{ref}]$表示$\pi_\theta$和$\pi_\text{ref}$的偏离程度，也就是KL散度。$\beta$是超参数。
+\end{itemize}
+
+\section{使用GRPO玩倒立摆游戏}
+
+\begin{codebox}{python}{策略网络结构}
 import numpy as np
 import gym
 import torch
@@ -3795,197 +3815,192 @@ class PolicyNet(nn.Module):
 \begin{codebox}{python}{智能体}
 class Agent:
     def __init__(self):
-        self.gamma = 0.98 # 折扣因子
-        self.lr = 0.0002 # 学习率
-        self.action_size = 2 # 动作空间大小，共两个动作：向左推和向右推
+        self.lr = 0.0002
+        self.action_size = 2
 
         self.memory = []
-        self.pi = Policy(self.action_size) # 初始化策略神经网络π_θ
-        # 使用 Adam 优化器
+        self.pi = PolicyNet(self.action_size) # β$\pi_\theta$β
         self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
 
     def get_action(self, state):
-        # 将状态转换成torch.tensor类型
         state = torch.tensor(state[np.newaxis, :])
-        # 将状态输入策略神经网络，输出为两个动作的概率分布
         probs = self.pi(state)
-        # 取出概率分布
         probs = probs[0]
-        # 下面两行根据动作的分布采样出一个动作
         m = Categorical(probs)
-        # 执行采样
         action = m.sample().item()
 
-        # 返回动作和动作的概率
-        return action, probs[action]
+        return action, probs
 \end{codebox}
 
 将采样一条轨迹封装为一个函数
 
-\begin{codebox}{python}{采样轨迹}
+\begin{codebox}{python}{采样一条轨迹的函数}
 class Agent:
     ...
 
-    def collect_trajectory(env):
+    def collect_trajectory(self, env):
         state = env.reset()
         states, log_probs, chosen_actions = [], [], []
         episode_reward = 0
         done = False
 
         while not done:
+            # β$s_{\tau_{i,t}}$β
             states.append(state)
+            # β$a_{\tau_{i,t}},\pi_{\theta_\text{old}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})$β
             action, prob = self.get_action(state)
-            log_prob = torch.log(prob)
+            # β$\log\pi_{\theta_\text{old}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})$β
+            log_prob = torch.log(prob[action])
             log_probs.append(log_prob.item())
             chosen_actions.append(action)
-
+            # β$s_{\tau_{i,t+1}},R_{\tau_{i,t}}$β
             next_state, reward, done, _ = env.step(action)
             state = next_state
             episode_reward += reward
-
+        # 归一化奖励
         normalized_reward = episode_reward / 200.0
 
         return states, log_probs, chosen_actions, normalized_reward
 \end{codebox}
 
-计算优势
+这里的归一化奖励需要说一下，我们已经知道木杆坚持200步不倒下，游戏就成功结束了。那么如果木杆坚持了3步就倒下，这条轨迹的奖励应该如何计算呢？这里我们选择$\frac{3}{200}=0.015$。这就是我们给这条轨迹的奖励。
+
+GRPO的优势计算是和PPO的优势计算有区别的地方。PPO使用了价值函数网络评估每个动作的价值，并且使用了广义优势估计（GAE）。而GRPO创造性的提出了组相对优势。
+
+也就是轨迹$\tau_i$相对于\textbf{组内}其它轨迹的优势是多少？也就是如下
+
+轨迹$\tau_i$的归一化奖励是：
+
+\begin{equation}
+R_{\tau_{i}}^\text{normalized} = \frac{G(\tau_i)}{200}
+\end{equation}
+
+而一组轨迹的平均奖励是
+
+\begin{equation}
+\text{reward}_\text{mean} = \frac{1}{G}\sum_{i=0}^{G}R_{\tau_{i}}^\text{normalized}
+\end{equation}
+
+那么轨迹$\tau_i$相对于组内其它轨迹的优势为：
+
+\begin{equation}
+A_{\tau_i} = \frac{R_{\tau_{i}}^\text{normalized} - \text{reward}_\text{mean}}{\text{reward}_\text{std}}
+\end{equation}
 
 \begin{codebox}{python}{计算优势}
-import numpy as np
-
-
 def calc_advantages_with_grpo(trajectories):
+    # 每一条轨迹的归一化奖励组成的数组
     rewards = [r for o, l, a, r in trajectories]
+    # 一组轨迹的归一化奖励的均值
     mean_reward = sum(rewards) / len(rewards)
+    # 一组轨迹的归一化奖励的方差
     std_reward = np.std(rewards)  + 1e-8
+    # β$[A_{\tau_0},A_{\tau_0},\dots,A_{\tau_G}]$β
     advantages = [(r - mean_reward) / std_reward for r in rewards]  
     
     return advantages
 \end{codebox}
 
-更新网络的代码
+使用GRPO算法更新策略的代码如下
 
 \begin{codebox}{python}{GRPO更新}
-def grpo_update(trajectories, net, optimizer, n_iterations=20, eps=0.2):
-    # [1] [2-3]のGRPOの関数で、各エピソードの標準化されたAdvantageを求めます
-    advantages = calc_advantages_with_grpo(trajectories)
+class Agent:
+    ...
 
-    # [2] Policy NN を更新します。n_iterations回、更新をかけます
-    for i_iter in range(n_iterations):
-        loss = 0
-        for traj, advantage in zip(trajectories, advantages):
-            # 1エピソードの蓄えられた内容を取り出します
-            (states, log_probs, chosen_actions, _) = traj  
-            # 1エピソードの損失を0に初期化
-            trajectory_loss = 0                            
+    def update(self, trajectories, n_iterations=20, eps=0.2):
+        """使用旧策略采样的一组轨迹更新策略"""
+        # 计算一组轨迹中每条轨迹的组内优势
+        advantages = calc_advantages_with_grpo(trajectories)
 
-            # [3] エピソード内の各ステップについて損失（loss）を計算
-            for t in range(len(states)):
-                # 以下はPPOと同じ手続きです
-                # ====================================
-                # [3-1] 更新されたPolicyNNで、実際に step t で
-                # 選択された行動がどれくらい尤もらしいかを求めます
-                new_policy_probs = torch.nn.functional.softmax(net(torch.from_numpy(states[t]).float()), dim=0)
-                new_log_probs = torch.log(new_policy_probs)[chosen_actions[t]]
+        for i_iter in range(n_iterations):
+            loss = 0
+            # 遍历组内的每一条轨迹β$\tau_i$β和这条轨迹的组内优势
+            for traj, advantage in zip(trajectories, advantages):
+                # 取出轨迹$\tau_i$的状态、动作和动作的对数概率
+                (states, log_probs, chosen_actions, _) = traj  
+                trajectory_loss = 0
 
-                # [3-2] 更新前のPolicyNNで選択されたactionを選ぶ確率と、
-                # 更新後のNNの場合の比を求める（対数確率なので引き算してexpする）
-                ratio = torch.exp(new_log_probs - log_probs[t])
+                for t in range(len(states)):
+                    # 当前策略β$\pi_\theta$β在状态β$s_{\tau_{i,t}}$β下采取动作β$a_{\tau_{i,t}}$β
+                    _, new_policy_probs = self.get_action(states[t])
+                    # β$\log\pi_\theta(a_{\tau_{i,t}}|s_{\tau_{i,t}})$β
+                    new_log_probs = torch.log(new_policy_probs)[chosen_actions[t]]
+                    # log_probs[t]: β$\log\pi_{\theta_\text{old}}(a_{\tau_{i,t}}|s_{\tau_{i,t}})$β
+                    # 计算在相同状态下，新旧策略采取同一个动作的概率的比值
+                    ratio = torch.exp(new_log_probs - log_probs[t])
+                    # 裁剪比值
+                    clipped_ratio = torch.clamp(ratio, min=1 - eps, max=1 + eps)
+                    # 取最小值
+                    min = torch.min(ratio * advantage, clipped_ratio * advantage)
+                    # 将损失累加到轨迹的损失中
+                    trajectory_loss += -min
+                # 归一化：轨迹的损失 = 每个动作的平均损失
+                trajectory_loss /= len(states)
+                # 将轨迹β$\tau_i$β的损失累加到一组的总损失上面
+                loss += trajectory_loss
+            # 归一化：一组轨迹的损失 = 每条轨迹的平均损失
+            loss /= len(trajectories)
+            # 更新网络
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
 
-                # [3-3] 更新後の選ばれる確率が非常に大きくなってしまうと、
-                # 更新しすぎなので、epsの範囲にとどめる
-                clipped_ratio = torch.clamp(ratio, min=1 - eps, max=1 + eps)
-
-                # [3-4] 報酬を最大化したいので、マイナスを掛け算して最小化問題に置き換える
-                # そして平均より良かった施行を増やし、悪かったケースを減らすように更新
-                trajectory_loss += -clipped_ratio * advantage
-
-            # [4] エピソードのsteps数で正規化
-            trajectory_loss /= len(states)
-            loss += trajectory_loss
-
-        # [5] エピソード数で正規化
-        loss /= len(trajectories)
-
-        # [6] Policy NN の重みを更新
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-    return None  # 特に何も返さない
+        return None
 \end{codebox}
 
 \begin{codebox}{python}{初始化环境}
-# [1] 初期化と初期設定
 env = gym.make('CartPole-v0')
 net = PolicyNet()
 optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-
-# [2] GRPO で PocicyNetを更新する際のTrajectoryを溜める回数の設定
-trajectories_per_update = 5  # group size
+# 每一组5条轨迹：β$G=5$β
+trajectories_per_update = 5
 \end{codebox}
 
 \begin{codebox}{python}{训练循环}
-# [3] エピソードのループ100回を、平均報酬が195を超えるまで実施
-trial_num = 0  # 100回を何回tryしたかを示す
+trial_num = 0
 
 while(True):
-    # [4] エピソードのループ100回を開始
-    # trajectories_per_updateが5なので、20で100回になります
-    for i_episode in range(20):  
-        trajectories, episode_rewards = [], []  
-        # episode_rewardsには実際の総報酬を格納
-
-        # [5] GRPO で PocicyNetを更新する際のTrajectoryを溜める（エピソード5回分）
+    for i_episode in range(20):
+        trajectories, episode_rewards = [], []
+        # 采样一组轨迹
         for _ in range(trajectories_per_update):
             states, log_probs, chosen_actions, normalized_reward = collect_trajectory(env, net)
             trajectories.append((states, log_probs, chosen_actions, normalized_reward))
-            episode_rewards.append(normalized_reward * 200)  # 実際の総報酬を格納
-
-        # [6] GRPO で PociyNetの重みを更新
-        grpo_update(trajectories, net, optimizer)
-
-    # [7] 100回の平均報酬を求める
+            episode_rewards.append(normalized_reward * 200)
+        # 使用一组轨迹更新智能体
+        agent.update(trajectories, net, optimizer)
+    # 一组轨迹的平均奖励
     avg_reward = sum(episode_rewards) / len(episode_rewards)
-    trial_num+=1
-
-    # [8] 終了判定
+    trial_num += 1
+    # 如果一组轨迹的平均奖励大于195，则结束训练
     if avg_reward > 195:
-        print('訓練完了です。トライアル回数: ', trial_num)
+        print("训练结束，训练回合数：", trial_num)
         break
     else:
-        print(f'トライアル {trial_num}回目, avg reward: {avg_reward:.2f}')
+        print(f"{trial_num}回合，平均奖励: {avg_reward:.2f}")
 
 env.close()
 \end{codebox}
 
 \begin{codebox}{python}{可视化}
-# [0] 環境をリセット+初期変数の設定
 state = env.reset()
-done = False        # episodeの終わりを判定するフラグ
-episode_reward = 0  # episodeの総報酬を格納する
-frames = []         # 画像保存用リスト
+done = False
+episode_reward = 0
+frames = []
 
-# 倒れてdone=Trueになるまで続ける
 while not done:
-    # [1] 画面キャプチャ
-    frames.append(env.render(mode="rgb_array"))  # ndarray (400, 600, 3)
+    frames.append(env.render(mode="rgb_array"))
 
-    # [2] ActionをPolicyNetから選ぶ（左か右に押す）
     logits = net(torch.from_numpy(state).float())
-    # logitsにsoftmaxで、行動確率を求める
     probs = torch.nn.functional.softmax(logits, dim=0)  
-    action = torch.multinomial(probs, 1).item()  # 実行するactionを確率的に選択
+    action = torch.multinomial(probs, 1).item()
 
-    # [3] CartPoleの台車にActionを適用してstateを更新する
     state, reward, done, _ = env.step(action)
     episode_reward += reward
 
-# 実行結果
 print("episode_reward:", episode_reward)
 env.close()
 
-# 可視化
 show_animation(frames)
 \end{codebox}
 
@@ -4068,7 +4083,7 @@ tokenizer.save_pretrained('./gpt2-sft')
 
 g = pipeline('text-generation', model='./gpt2-sft')
 set_seed(42)
-pprint(g("这个房间真是", max_length=30, num_return_sequences=1))
+pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
 \end{codebox}
 
 \chapter{基于分类的微调}
@@ -4204,7 +4219,6 @@ for epoch in range(num_epochs):
         # 真实分数：0或者1
         target = inputs['score']
         loss = criterion(score, target)
-        # 三部曲：清空梯度 ⟶ 反向传播计算梯度 ⟶ 更新参数
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()

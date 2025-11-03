@@ -253,12 +253,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "6. 使用PPO微调LLM.md",
+                "file": "5. 基于人类反馈的强化学习（RLHF）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "6. 使用PPO微调LLM"
+              "title": "5. 基于人类反馈的强化学习（RLHF）"
             }
           },
           {
@@ -492,16 +492,19 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "ElegantBook/_minted/B948A36AFEE8E8328383E5406F70673E.highlight.minted",
-    "ElegantBook/_minted/6CD0356533A16CDA0400F1EC762ED6B0.highlight.minted",
+    "ElegantBook/_minted/73F83DC9CB52A01002ECC1167443ECF6.highlight.minted",
+    "ElegantBook/_minted/604C0C9366542771007AE41AA6910E06.highlight.minted",
+    "ElegantBook/_minted/435887B76946F1277681248C7205F55B.highlight.minted",
+    "ElegantBook/_minted/09DECCD71E79CB0CD6DF14C92311FD07.highlight.minted",
+    "ElegantBook/_minted/112AF38AD9AD9BFFD253F70FB86B1BF4.highlight.minted",
+    "ElegantBook/_minted/B1460179A141E40CC694E1F44CDE8DB2.highlight.minted",
+    "ElegantBook/_minted/B6FD0B285354AFFE3601DC0C59876EDF.highlight.minted",
+    "ElegantBook/_minted/E2165AFF3EA488F7338AE4145B810271.highlight.minted",
+    "ElegantBook/_minted/6A220C9B3F15BCE7D180AFFF8946A8F5.highlight.minted",
+    "4. 使用 PPO 玩倒立摆游戏.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
-    "ElegantBook/_minted/D8158519B678E2F82705E7473FBA4274.highlight.minted",
-    "ElegantBook/_minted/C0C017C74A6114140A61090FABEF4B8F.highlight.minted",
-    "ElegantBook/_minted/0B9E0807A2858871620250BE3D66F015.highlight.minted",
-    "ElegantBook/_minted/2689F162E87BE985874282BC47126F73.highlight.minted",
-    "ElegantBook/_minted/B84A1CF005793949E444955880986394.highlight.minted",
-    "ElegantBook/_minted/B7D5A74D7404B52A9A1F31460E3CE64F.highlight.minted",
-    "ElegantBook/_minted/761A85EA509B04AFB69B3E2C4E907F33.highlight.minted",
+    "6. 使用PPO微调LLM.md",
+    "附录G：uv教程.md",
     "Excalidraw/5.8.excalidraw.md",
     "2. 策略梯度法.md",
     "10. GRPO：组相对策略优化.md",
@@ -510,7 +513,6 @@
     "附录D：PPO数学推导.md",
     "附录F：重要性采样.md",
     "附录B：KL散度.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "未命名.md",
     "附录C：广义优势估计（GAE）.md",
@@ -530,12 +532,10 @@
     "Excalidraw/2.13.excalidraw.md",
     "Excalidraw/2.12.excalidraw.md",
     "1. 强化学习基础.md",
-    "6. 使用PPO微调LLM.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
     "附录H：torch.gather.md",
     "Excalidraw/2.15.excalidraw.md",
-    "Excalidraw/2.2.excalidraw.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]
