@@ -1160,12 +1160,14 @@ J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
 
 确定了目标函数后，下一步是计算它的梯度。这里将参数 $\theta$ 的梯度表示为 $\nabla_{\theta}$ 。我们的目标是求 $\nabla_{\theta}J(\theta)$ 。$\nabla$ 是梯度符号。
 
+\begin{theorem}{策略梯度定理}{}
 \begin{equation}\label{eq:policy-gradient-formula}
 \begin{aligned}
 \nabla_{\theta}J(\theta) &= \nabla_{\theta}\mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)] \\
 &= \mathbb{E}_{\tau\sim\pi_{\theta}}[\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
 \end{aligned}
 \end{equation}
+\end{theorem}
 
 公式\ref{eq:policy-gradient-formula}非常的重要。需要仔细研究。
 
@@ -1780,14 +1782,16 @@ $$
 
 上面的式子中行动 $A_t$ 的权重是 $G(\tau)$ 。这个权重 $G(\tau)$ 包括在时刻 $t$ 之前的奖励。也就是说，原本不相关的奖励作为噪声数据包含在内了。为了改进这一点（去除噪声数据），可以对权重 $G(\tau)$ 作如下修改。
 
-$$
+\begin{theorem}{REINFORCE版策略梯度定理}{}
+\begin{equation}\label{eq:reinforce-pg-theorem}
 \begin{aligned}
 \nabla_{\theta}J(\theta) &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^TG_t\nabla_{\pi}\log\pi_{\theta}(A_t|S_t)] \\
 G_t &= R_t + \gamma R_{t+1} + \cdots + \gamma^{T-1}R_T
 \end{aligned}
-$$
+\end{equation}
+\end{theorem}
 
-如式所示，权重变成了 $G_t$ 。权重 $G_t$ 是在时刻 $t\sim T$ 获得的奖励的总和。因此，选择行动 $A_t$ 的概率将由不包含时刻 $t$ 之前的奖励的权重 $G_t$ 增强。 这就是改进第一节的策略梯度法的思路。基于上式的算法叫作\textbf{REINFORCE}。
+如式\ref{eq:reinforce-pg-theorem}所示，权重变成了 $G_t$ 。权重 $G_t$ 是在时刻 $t\sim T$ 获得的奖励的总和。因此，选择行动 $A_t$ 的概率将由不包含时刻 $t$ 之前的奖励的权重 $G_t$ 增强。 这就是改进第一节的策略梯度法的思路。基于式\ref{eq:reinforce-pg-theorem}的算法叫作\textbf{REINFORCE}。
 
 \begin{marker}
 基于上式的REINFORCE算法优于最简单的策略梯度法（基于第一节的公式的算法）。通过无限增加的样本数，两个公式都会收敛到正确的 $\nabla_{\theta}J(\theta)$ （可以说是无偏差的）。但第一个公式的方差更大，因为公式中的权重包含了无关的数据（噪声）。
@@ -1821,15 +1825,13 @@ class Agent:
 
 \section{基线（baseline）}
 
-\mybox[blue]{使用REINFORCE玩倒立摆的问题}{
+\begin{marker}
 前面介绍的REINFORCE玩倒立摆有一个问题，那就是不管我们怎么推车，获得的奖励都是正奖励。也就是说不管怎么玩，我们都会提升某个状态采取某个动作的概率，即使奖励很少也是如此。其实我们在玩倒立摆时，获得的奖励很少时，应该降低某个状态下采取某个动作的概率。也就是说，我们应该在获得的奖励很多时，给予策略正的奖励，而在获得奖励很少时，给予策略负的奖励。这样会更加的合理。这就是\textbf{基线}的技术。
-\newline
-\newline
+
 倒立摆环境中只要倒立摆没有倒，给出的奖励总是 1 。也就是不管策略多么的差劲，采样出的轨迹的回报一定是正的。也就是说，即使轨迹的回报很低，也会提升在 $S_t$ 采取 $A_t$ 的概率，只是可能提升的不大。
-\newline
-\newline
+
 如果加入基线，那么如果轨迹的回报很低，权重就会成为负值，从而在策略更新之后，直接降低在 $S_t$ 采取 $A_t$ 的概率。所以训练速度会加快。
-}
+\end{marker}
 
 下面介绍一种叫作基线（baseline）的技术，该技术可以改进REINFORCE。让我们先通过一个简单的例子来了解一下基线的思路，然后再将基线应用于REINFORCE。
 
@@ -1837,10 +1839,12 @@ class Agent:
 
 式\ref{eq:reinforce-baseline-1}是REINFORCE的数学式。将基线应用于这个REINFORCE的数学式如式\ref{eq:reinforce-baseline-2}所示。
 
+\begin{theorem}{带基线的REINFORCE策略梯度定理}{}
 \begin{align}
 \nabla_{\theta}J(\theta) &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T G_t\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \label{eq:reinforce-baseline-1} \\
 &= E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T (G_t-b(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] \label{eq:reinforce-baseline-2}
 \end{align}
+\end{theorem}
 
 式\ref{eq:reinforce-baseline-2}用 $G_t-b(S_t)$ 代替了 $G_t$ 。这里 $b(S_t)$ 可以是任何函数。也就是说，只要输入是 $S_t$ ， $b(S_t)$ 是什么函数都行。这个 $b(S_t)$ 就是基线（baseline）。
 
@@ -1908,9 +1912,11 @@ pin={价值很低}] at (7cm,0)
 
 此时目标函数的梯度的数学式如式\ref{eq:actor-critic-objective}所示
 
+\begin{theorem}{Actor-Critic架构的REINFORCE策略梯度定理}{}
 \begin{equation}\label{eq:actor-critic-objective}
 \nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}\left[\sum_{t=0}^T(G_t-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)\right]
 \end{equation}
+\end{theorem}
 
 式\ref{eq:actor-critic-objective}中存在一个问题，即只要没抵达目标，就无法确定回报 $G_t$ 的值。也就是说，在抵达目标之前，无法更新策略和价值函数。如果这是基于蒙特卡洛方法的算法，那么二者无法更新就是它的缺点。
 
@@ -1990,13 +1996,15 @@ pin={价值很低}] at (7cm,0)
 
 下面将基于蒙特卡洛方法的公式切换为TD方法，其中，代替 $G_t$ 的是 $R_t+\gamma V_{\omega}(S_{t+1})$ 。此时得到的式子如下所示。
 
-$$
+\begin{theorem}{1步TD误差的Actor-Critic策略梯度定理}{}
+\begin{equation}\label{eq:one-td-step-pg}
 \nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^T(R_t+\gamma V_{\omega}(S_{t+1})-V_{\omega}(S_t))\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)]
-$$
+\end{equation}
+\end{theorem}
 
 1步TD误差经常表示为 $\delta = R_{t} + \gamma V_{\omega}(S_{t+1}) - V_{\omega}(S_{t})$
 
-基于上面的公式的算法就是 Actor-Critic 。策略 $\pi_{\theta}$ 和价值函数 $V_{\omega}$ 是神经网络，我们要同时训练这两个神经网络。具体来说，对于策略 $\pi_{\theta}$ 要基于上面的公式进行训练；而对于价值函数 $V_{\omega}$ ，则通过 TD 方法，以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 这个神经网络。
+基于上面的公式\ref{eq:one-td-step-pg}的算法就是 Actor-Critic 。策略 $\pi_{\theta}$ 和价值函数 $V_{\omega}$ 是神经网络，我们要同时训练这两个神经网络。具体来说，对于策略 $\pi_{\theta}$ 要基于上面的公式进行训练；而对于价值函数 $V_{\omega}$ ，则通过 TD 方法，以接近 $R_t+\gamma V_{\omega}(S_{t+1})$ 为目标训练 $V_{\omega}(S_t)$ 这个神经网络。
 
 \begin{marker}
 Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，也就是采取动作的人，相当于策略 $\pi_{\theta}$ 。而 Critic 是\textbf{评论家}的意思，相当于价值函数 $V_{\omega}$ 。因此，Actor-Critic 的意思是``使用 $V_{\omega}$ ，来评论基于策略 $\pi_{\theta}$ 采取的动作的好坏''。
@@ -2285,6 +2293,16 @@ $$
 
 这样每一个时间步的广义优势估计就计算出来了。
 
+\begin{theorem}{GAE的Actor-Critic策略梯度定理}{}
+\begin{equation}\label{eq:gae-pg}
+\nabla_{\theta}J(\theta)=E_{\tau\sim\pi_{\theta}}[\sum_{t=0}^TA^{\text{GAE}}_t\nabla_{\theta}\log\pi_{\theta}(a_t|s_t)]
+\end{equation}
+\end{theorem}
+
+\begin{marker}
+为了使符号更清晰，将动作$A_t$改为$a_t$，将状态$S_t$改为$s_t$。$A^{\text{GAE}}_t$中的$A$表示``Advantage''（优势）。
+\end{marker}
+
 \section{相关证明}
 
 \subsection{策略梯度法的证明}
@@ -2455,14 +2473,17 @@ $$
 1. & $\Phi_t=G(\tau)$                             & （最简单的策略梯度法） \\
 2. & $\Phi_t=G_t$                                 & （REINFORCE） \\
 3. & $\Phi_t=G_t-b(S_t)$                          & （带基线的REINFORCE） \\
-4. & $\Phi_t = R_t + \gamma V(S_{t+1})-V(S_t)$    & （Actor-Critic）
+4. & $\Phi_t = R_t + \gamma V(S_{t+1})-V(S_t)$    & （Actor-Critic） \\
+5. & $\Phi_t = A_t^{\text{GAE}}$                  & （广义优势估计）
 \end{tabular}
 
 
-上面4种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入``基线''这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
+上面几种方法的权重 $\Phi_t$ 各不相同。最简单的策略梯度法在所有时刻的权重都是 $G_\tau$ 。对它进行改进，将时刻 $t$ 的收益 $G_t$ 作为权重进行评估的是REINFORCE。另外，通过加入``基线''这一方法，减小了方差的方法是带基线的REINFORCE。Actor-Critic是一种除了策略之外，对价值函数也用神经网络建模的方法。期待 $(1)\rightarrow(2)\rightarrow(3)\rightarrow(4)\rightarrow(5)$ 这样的编号一直延续下去，从而有更高级的方法出现，产生更好的结果。
 
 \begin{marker}
 $\Phi_t$也叫做优势函数（Advantage Function），优势函数经常在文献中表示为$A(s,a)$，也就是在状态 $s$ 采取动作 $a$ 时，策略的优势是多少。
+
+强化学习中的很多花活儿都是针对如何改进$\Phi_t$而来的。比如GRPO算法使用的\textbf{组相对策略优势}。
 \end{marker}
 
 \chapter{近端策略优化}
@@ -2598,9 +2619,11 @@ $$
 
 而PPO的目标函数变成了式\ref{eq:ppo-clip-objective-function}：
 
+\begin{theorem}{带裁剪的PPO目标函数}{}
 \begin{equation}\label{eq:ppo-clip-objective-function}
 J(\theta)^{\text{ppo-clip}}=\mathbb{E}_{\tau\sim\pi_{{_\theta}_{\text{old}}}}\left[{\sum_{t=0}^T\left[\min\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}A_t^{\pi_{\text{old}}},\text{clip}\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)},1-\epsilon,1+\epsilon\right)A_t^{\pi_{\text{old}}}\right)\right]}\right]
 \end{equation}
+\end{theorem}
 
 只要计算出这个目标函数，然后进行反向传播（求$\nabla_\theta{J(\theta)^{\text{ppo-clip}}}$）就可以更新策略神经网络了。
 
