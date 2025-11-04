@@ -2681,32 +2681,49 @@ class ValueNet(nn.Module):
 \section{PPO算法的实现}
 
 我们来实现Agent。
-\newpage
-\begin{codebox}{python}{PPO-Agent-1}
+\begin{codebox}{python}{PPO-Agent}
 class Agent:
-    def __init__(self, device):
+    def __init__(self):
         self.gamma = 0.98
         self.lr_pi = 0.001
         self.lr_v = 0.02
         self.action_size = 2
-        self.device = device
 
-        self.pi = PolicyNet(self.action_size).to(device)
-        self.v = ValueNet().to(device)
+        self.pi = PolicyNet(self.action_size)
+        self.v = ValueNet()
 
         self.optimizer_pi = optim.Adam(self.pi.parameters(), lr=self.lr_pi)
         self.optimizer_v = optim.Adam(self.v.parameters(), lr=self.lr_v)
 
     def get_action(self, state):
-        state = torch.tensor(state[np.newaxis, :]).to(self.device)
+        state = torch.tensor(state[np.newaxis, :])
         probs = self.pi(state)
         probs = probs[0]
         m = Categorical(probs)
         action = m.sample().item()
-        return action, probs[action]
+        return action, probs
+
+    def collect_trajectory(self, env):
+        """采集一条轨迹"""
+        state = env.reset()
+        states, next_states, actions, action_probs, rewards, dones = [], [], [], [], [], []
+        done = False
+
+        while not done:
+            action, probs = self.get_action(state)
+            next_state, reward, done, _ = env.step(action)
+            states.append(state) # β$s_t$β
+            actions.append(action) # β$a_t$β
+            action_probs.append(probs[action]) # β$\pi(a_t|s_t)$β
+            next_states.append(next_state) # β$s_{t+1}$β
+            rewards.append(reward) # β$R_t$β
+            dones.append(done) # β$\text{done}_t$β
+            state = next_state # 状态转移
+
+        return states, next_states, actions, action_probs, rewards, dones
 \end{codebox}
 
-接下来我们要实现智能体的更新（\py{update}）代码，在PPO算法中，我们需要用到旧策略采样的轨迹。所以需要一个字典来保存旧策略采样的轨迹的完整信息。
+接下来我们要实现智能体的更新（\py{update}）代码，在PPO算法中，我们需要用到旧策略采样的轨迹。所以需要保存旧策略采样的轨迹的完整信息。
 
 我们采样的轨迹是：
 
@@ -2714,10 +2731,10 @@ $$
 \tau = \left[ s_0, a_0, R_0, s_1, a_1, R_1, \dots, s_T, a_T, R_T \right]
 $$
 
-那么我们创建一个字典 \py{transition_dict} 。结构如下
+那么我们使用元组来保存一条轨迹的信息。结构如下
 
 $$
-\text{transition\_dict}
+\text{一条轨迹的详细信息}
 =
 \begin{cases}
 \text{states}: \left[ s_0, s_1, \dots, s_{T-1} \right] \\
@@ -2730,22 +2747,23 @@ $$
 $$
 
 有了旧策略采样的轨迹的所有详细信息，我们就可以来实现PPO算法了。
-\newpage
+
 \begin{codebox}{python}{PPO-Agent-2}
 class Agent:
     ...
 
-    def update(self, transition_dict):
+    def update(self, trajectory):
+        states, next_states, actions, action_probs, rewards, dones = trajectory
         # β$[s_0,s_1,\dots,s_{T-1}]$β
-        states = torch.tensor(transition_dict["states"], dtype=torch.float).to(self.device)
+        states = torch.tensor(states)
         # β$[a_0,a_1,\dots,a_{T-1}]$β
-        actions = torch.tensor(transition_dict["actions"]).view(-1, 1).to(self.device)
+        actions = torch.tensor(actions).view(-1, 1)
         # β$[R_0,R_1,\dots,R_{T-1}]$β
-        rewards = torch.tensor(transition_dict["rewards"], dtype=torch.float).view(-1, 1).to(self.device)
+        rewards = torch.tensor(rewards).view(-1, 1)
         # β$[s_1,s_2,\dots,s_T]$β
-        next_states = torch.tensor(transition_dict["next_states"], dtype=torch.float).to(self.device)
+        next_states = torch.tensor(next_states)
         # β$[\text{False}_1, \text{False}_2, \dots, \text{True}_T]$β
-        dones = torch.tensor(transition_dict["dones"], dtype=torch.float).view(-1, 1).to(self.device)
+        dones = torch.tensor(dones, dtype=torch.float).view(-1, 1)
         # β$[V(s_0),V(s_1),\dots,V(s_{T-1})]$β
         V = self.v(states).detach()
         # β$\text{TD-target}_t=R_t+\gamma V(s_{t+1})$β
@@ -2756,11 +2774,11 @@ class Agent:
         td_delta = td_target - V
         # 计算每个时刻t的广义优势估计（GAE）
         # β$[A^{\text{GAE}}_0,A^{\text{GAE}}_1,\dots,A^{\text{GAE}}_{T-1}]$β
-        gae = compute_gae(self.gamma, td_delta.cpu()).to(self.device)
+        gae = compute_gae(self.gamma, td_delta.cpu())
         # 冻结一份旧策略采取动作的对数概率β$\log{\pi_{\theta_\text{old}}(a_t|s_t)}$β
         # β$[\log{\pi_{\theta_\text{old}}(a_0|s_0)},\log{\pi_{\theta_\text{old}}(a_1|s_1)}],\dots,\log{\pi_{\theta_\text{old}}(a_{T-1}|s_{T-1})}$β
-        old_probs = torch.tensor(transition_dict["action_probs"], dtype=torch.float).view(-1, 1)
-        old_log_probs = torch.log(old_probs).to(self.device).detach()
+        old_probs = torch.tensor(action_probs).view(-1, 1)
+        old_log_probs = torch.log(old_probs).detach()
         # 每条轨迹使用10次，也就是更新10次策略网络
         for _ in range(10):
             # 新策略采取动作的对数概率：β$\log{\pi_\theta(a_t|s_t)}$β
@@ -2804,7 +2822,7 @@ def compute_gae(gamma, td_delta):
         last_gae = gamma * lmbda * last_gae + delta
         gae_list.append(last_gae)
     gae_list.reverse()
-    return torch.tensor(gae_list, dtype=torch.float)
+    return torch.tensor(gae_list)
 \end{codebox}
 
 \section{训练循环}
@@ -2814,49 +2832,24 @@ def train(env, agent):
     return_list = []
     for i in range(10):
         for episode in range(50):
-            episode_return = 0
-            transition_dict = {
-                "states": [],
-                "actions": [],
-                "next_states": [],
-                "rewards": [],
-                "action_probs": [],
-                "dones": []
-            }
-            state = env.reset()
-            done = False
-            while not done:
-                action, action_prob = agent.get_action(state)
-                next_state, reward, done, _ = env.step(action)
-                transition_dict['states'].append(state)
-                transition_dict['actions'].append(action)
-                transition_dict['next_states'].append(next_state)
-                transition_dict['rewards'].append(reward)
-                transition_dict['dones'].append(done)
-                transition_dict["action_probs"].append(action_prob)
-                state = next_state
-                episode_return += reward
+            trajectory = agent.collect_trajectory(env)
+            episode_return = sum(trajectory[4])
             return_list.append(episode_return)
-            agent.update(transition_dict)
+            agent.update(trajectory)
             if (episode + 1) % 10 == 0:
-                print(f"episode: {50 * i + episode + 1}, return: {np.mean(return_list[-10:])}")
+                print(f"回合：{50 * i + episode + 1}, 回报：{np.mean(return_list[-10:])}")
+    
     return return_list
 
 def main():
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     env = gym.make("CartPole-v0")
     env.seed(0)
     torch.manual_seed(0)
-    agent = Agent(device)
+    agent = Agent()
     return_list = train(env, agent)
-    episodes_list = list(range(len(return_list)))
-    f = plt.figure()
-    plt.plot(episodes_list, return_list)
-    plt.xlabel('Episodes')
-    plt.ylabel('Returns')
-    plt.title('CartPole-v0')
-    plt.show()
-    f.savefig("ppo-loss.pdf", bbox_inches="tight")
+    episode_list = list(range(len(return_list)))
+    plot_loss(episode_list, return_list, "ppo-loss.pdf")
+    test_agent(agent, env)
 
 if __name__ == "__main__":
     main()
@@ -2904,7 +2897,7 @@ KL散度（Kullback-Leibler Divergence, KLD）非常重要。
 
 衡量两个概率分布之间差异的一种方法是KL散度。当给定两个概率分布 $p(x)$ 和 $q(x)$ 时，KL散度可以用下面的数学式表示。
 
-\begin{definition}{KL散度}{}
+\begin{definition}{连续型随机变量的KL散度}{}
 \begin{equation}
 D_{KL}(p\Vert q)=\int p(x)\log\frac{p(x)}{q(x)}dx
 \end{equation}
@@ -2912,9 +2905,11 @@ D_{KL}(p\Vert q)=\int p(x)\log\frac{p(x)}{q(x)}dx
 
 上面的式子是当 $x$ 为连续型随机变量时的KL散度。当 $x$ 为离散型随机变量时，数学式如下所示。
 
-$$
+\begin{definition}{离散型随机变量的KL散度}{}
+\begin{equation}
 D_{KL}(p\Vert q)=\sum_x p(x)\log\frac{p(x)}{q(x)}
-$$
+\end{equation}
+\end{definition}
 
 KL散度具有以下特性：
 
