@@ -908,6 +908,8 @@ V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
 
 \section{原始策略梯度法}
 
+\subsection{理论介绍}
+
 在倒立摆游戏的环境中，我们唯一能控制的，就是推车所采用的\textbf{策略}。而环境和奖励函数我们是无法控制的。
 
 \begin{table}[!ht]
@@ -1184,7 +1186,11 @@ J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
 \end{figure}
 
 \begin{marker}
-我们的目标是让 $J(\theta)$ 最大。
+我们的目标是让 $J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]$ 最大。但是我们发现$G(\tau)$这个轨迹的回报无法求导，换句话说就是对目标函数\textbf{无法进行优化}。
+\end{marker}
+
+\begin{marker}
+目标函数可以优化的意思其实就是可以求导。
 \end{marker}
 
 在神经网络的训练中，我们的目的是让\textbf{损失函数}最小。而在策略梯度法中，我们的目的是让\textbf{目标函数}最大。所以都可以使用梯度法。让损失函数最小，使用梯度下降法。让目标函数最大，使用梯度上升法。
@@ -1386,6 +1392,8 @@ x^{(i)} = \sum_{t=0}^TG(\tau^{(i)})\nabla_{\theta}\log\pi_{\theta}(A_t^{(i)}|S_t
 \label{fig:use-one-sample-cal-pg}
 \end{figure}
 
+\subsection{代码实现}
+
 接下来，我们用代码来实现一下策略梯度法。
 
 我们讲一些实现细节。我们可以把强化学习想成一个分类问题，这个分类问题就是输入倒立摆的状态，输出某个类。在解决分类问题时，我们要收集一些训练数据，数据中要有输入与输出的对。在实现的时候，我们把倒立摆的状态当作分类器的输入，就像在解决图像分类的问题，只是现在的类不是图像里面的东西，而是看到倒立摆的状态我们要采取什么样的动作，每一个动作就是一个类。比如第一个类是向左，第二个类是向右。
@@ -1393,27 +1401,26 @@ x^{(i)} = \sum_{t=0}^TG(\tau^{(i)})\nabla_{\theta}\log\pi_{\theta}(A_t^{(i)}|S_t
 在解决分类问题时，我们要有输入和正确的输出，要有训练数据。但在强化学习中，我们通过采样来获得训练数据。假设在采样的过程中，在某个状态下，我们采样到要采取动作 $A$， 那么就把动作 $A$ 当作标准答案（ground truth）。比如，我们在某个状态下，采样到要向左。因为是采样，所以向左这个动作不一定概率最高。假设我们采样到向左，在训练的时候，让智能体调整网络的参数，如果看到某个状态，我们就向左。在一般的分类问题里面，我们在实现分类的时候，目标函数都会写成最小化交叉熵（cross entropy），最小化交叉熵就是最大化对数似然（log likelihood）。
 
 \mybox[blue]{从极大似然估计的角度看策略梯度}{
-$$
+\begin{equation*}
 \begin{aligned}
 J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
 &= G(\tau)\log{\left(\prod_{t=0}^T\pi_{\theta}(A_{t}|S_{t})\right)}
 \end{aligned}
-$$
+\end{equation*}
 最大化目标就会提升某些状态对应的动作的概率。
 }
 
-\newpage
-\begin{codebox}{python}{策略神经网络}
+\begin{codebox}{python}{策略神经网络$\pi_\theta$}
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
-        self.l1 = nn.Linear(4, 128)
-        self.l2 = nn.Linear(128, action_size)
+        self.l1 = nn.Linear(4, 128) # 推车环境中状态是一个4维数组
+        self.l2 = nn.Linear(128, action_size) # 输出是一个2维数组
 
     def forward(self, x):
         x = F.relu(self.l1(x))
         x = F.softmax(self.l2(x), dim=1)
-        return x
+        return x # 输出：β$[\pi_\theta(a=\text{向左推}|s),\pi_\theta(a=\text{向右推}|s)]$β
 \end{codebox}
 
 这里实现的神经网络模型由两层全连接层构成。最终输出的元素数是动作的数量（\py{action_size}）。由于这个最终输出是\py{softmax}函数的输出，因此可以得到每个动作的概率。
@@ -1422,19 +1429,19 @@ class PolicyNet(nn.Module):
 
 我们还记得，策略神经网络的输入是环境的状态，输出是要采取的动作的概率分布。所谓动作的概率分布就是：向左推的概率是多少，向右推的概率是多少。
 
-而我们的网络结构输入的张量的维度是 4 。为什么呢？因为倒立摆环境的状态有 4 个维度。输出是\py{action_size}个维度。也就是动作的数量个维度。
+而我们的网络结构输入的张量的维度是 4 。为什么呢？因为倒立摆环境的状态有 4 个维度。
+
+输出是\py{action_size}个维度。也就是动作的数量个维度。
 
 \mybox[blue]{softmax函数}{
 如果将具有 $n$ 个元素的向量输入到softmax函数中，那么输出的同样是具有 $n$ 个元素的向量。此时，第 $i$ 个输出 $y_i$ 的式子如下所示。
-\\
-$$y_i = \frac{\mathrm{e}^{x_i}}{\sum_{k=1}^n\mathrm{e}^{x_k}}$$
-\\
+\begin{equation*}
+y_i = \frac{\mathrm{e}^{x_i}}{\sum_{k=1}^n\mathrm{e}^{x_k}}
+\end{equation*}
 这里的 $\mathrm{e}$ 是自然常数(值为 $2.718 28...$ 的无限小数)。softmax函数的输出值全部为 $0$ 以上 $1$ 以下的实数，它们的合计值为 $1$（$\sum_{i=1}^ny_i=1$）。因此，softmax函数的输出可以作为概率使用。
 }
 
 下面是 \py{Agent} 类的代码。首先显示初始化和 \py{get_action} 方法。
-
-\newpage
 
 \begin{codebox}{python}{智能体代码}
 class Agent:
@@ -1447,34 +1454,33 @@ class Agent:
         self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
 
     def get_action(self, state):
-        # 将状态转换成torch.tensor类型
+        # β$(4,)\rightarrow(1,4)$β
         state = torch.tensor(state[np.newaxis, :])
-        # 将状态输入策略神经网络，输出为两个动作的概率分布
+        # probs: [[向左推的概率, 向右推的概率]]
         probs = self.pi(state)
-        # 取出概率分布
+        # 取出概率分布：[向左推的概率, 向右推的概率]
         probs = probs[0]
         # 根据动作的概率分布创建一个二项分布
         m = Categorical(probs)
-        # 使用创建的二项分布进行采样
+        # 使用二项分布采样动作β$\pi_\theta(a_t|s_t)$β
         action = m.sample().item()
 
-        # 返回动作和动作的概率
+        # (采样的动作, [向左推的概率, 向右推的概率])
         return action, probs
 \end{codebox}
 
-\py{get_action} 方法决定了在 \py{state} 状态下采取的动作。为此，可以通过 \py{self.pi(state)} 进行神经网络的前向传播，得到概率分布 \py{probs} 。然后，基于该概率分布，进行一次动作的采样。该方法还返回了所选动作的概率（上面代码中的\py{probs[action]}）。
+\py{get_action} 方法决定了在 \py{state} 状态下采取的动作。为此，可以通过 \py{self.pi(state)} 进行神经网络的前向传播，得到概率分布 \py{probs} 。然后，基于该概率分布，进行一次动作的采样。该方法还返回了所有动作的概率（上面代码中的\py{probs}）。
 
 下面来试用一下 \py{get_action} 方法。代码如下所示。
 
-\newpage
 \begin{codebox}{python}{}
 env = gym.make("CartPole-v0")
-state = env.reset()
+state = env.reset() # β$S_0$β
 agent = Agent()
 
 action, probs = agent.get_action(state)
-print("动作：", action)
-print("动作的概率：", probs[action].item())
+print("动作：", action) # β$A_0$β
+print("动作的概率：", probs[action].item()) # β$\pi_\theta(A_0|S_0)$β
 
 G = 100.0 # β$G(\tau)$β
 J = -G * probs[action].log() # β$-G(\tau)\log{\pi_\theta(A_0|S_0)}$β
@@ -1498,14 +1504,14 @@ G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)
 作为参考，下面对照列出了上面的代码中出现的变量与相应的数学式。
 
 \begin{itemize}
-\item \py{prob}：$\pi_{\theta}(A_0|S_0)$
+\item \py{probs[action]}：$\pi_{\theta}(A_0|S_0)$
 \item \py{G}：$G(\tau)$
 \item \py{J}：$G(\tau)\log\pi_{\theta}(A_0|S_0)$
 \end{itemize}
 
 求出\py{J}之后，通过\py{J.backward()}求 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)$ 。下面是\py{Agent}类剩下的代码。
-\newpage
-\begin{codebox}{python}{}
+
+\begin{codebox}{python}{采集轨迹的代码和更新策略的代码}
 class Agent:
     ...
 
