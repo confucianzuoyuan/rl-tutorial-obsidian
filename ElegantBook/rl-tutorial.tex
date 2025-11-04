@@ -2655,15 +2655,6 @@ $$
 \end{marker}
 
 \begin{codebox}{python}{策略网络和价值函数网络的定义}
-import numpy as np
-import gym
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.distributions import Categorical
-import matplotlib.pyplot as plt
-
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
@@ -2899,23 +2890,25 @@ KL散度（Kullback-Leibler Divergence, KLD）非常重要。
 
 假设有一个连续型随机变量 $x$ ，其概率密度表示为 $p(x)$ 。此时，函数 $f(x)$ 的期望值可以用下面的数学式表示。
 
-$$
+\begin{equation}
 \mathbb{E}_{p(x)}[f(x)]=\int f(x)p(x)dx
-$$
+\end{equation}
 
 关于概率分布 $q(x)$ 的期望值可以用下面的数学式表示。
 
-$$
+\begin{equation}
 \mathbb{E}_{q(x)}[f(x)]=\int f(x)q(x)dx
-$$
+\end{equation}
 
 \textbf{KL散度的定义}
 
 衡量两个概率分布之间差异的一种方法是KL散度。当给定两个概率分布 $p(x)$ 和 $q(x)$ 时，KL散度可以用下面的数学式表示。
 
-$$
+\begin{definition}{KL散度}{}
+\begin{equation}
 D_{KL}(p\Vert q)=\int p(x)\log\frac{p(x)}{q(x)}dx
-$$
+\end{equation}
+\end{definition}
 
 上面的式子是当 $x$ 为连续型随机变量时的KL散度。当 $x$ 为离散型随机变量时，数学式如下所示。
 
