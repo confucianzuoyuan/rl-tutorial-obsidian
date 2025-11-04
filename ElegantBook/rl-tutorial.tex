@@ -644,11 +644,11 @@ MDP通过假设马尔可夫性质的存在来模拟状态转移和奖励。引�
 MDP的马尔可夫性质可以被看作是对环境而不是对智能体的约束。这意味着为了满足马尔可夫性质，环境需要保持某个``状态''。从智能体的角度来看，在当前状态下有足够的信息来做出最佳选择，所以它可以在此基础上采取行动。
 \end{marker}
 
-智能体的行动是由随机性策略决定的，数学式如下所示。
+智能体的行动是由随机性策略决定的，数学式如\ref{eq:random-policy}所示。
 
-$$
+\begin{equation}\label{eq:random-policy}
 \pi(a|s)
-$$
+\end{equation}
 
 $\pi(a|s)$ 表示在状态 $s$ 下采取行动 $a$ 的概率。
 
@@ -660,11 +660,11 @@ $\pi(a|s)$ 表示在状态 $s$ 下采取行动 $a$ 的概率。
 
 \subsection{收益}
 
-为了定义收益，我们思考这样一个场景：设时刻为 $t$ ，状态为 $S_t$ （其中 $t$ 是任意值）。然后，智能体根据策略 $\pi$ 执行行动 $A_t$ ，获得奖励 $R_t$ ，之后迁移到新状态 $S_{t+1}$，这个过程不断重复进行。在这种情况下，收益 $G_t$ 的定义如下所示。
+为了定义收益，我们思考这样一个场景：设时刻为 $t$ ，状态为 $S_t$ （其中 $t$ 是任意值）。然后，智能体根据策略 $\pi$ 执行行动 $A_t$ ，获得奖励 $R_t$ ，之后迁移到新状态 $S_{t+1}$，这个过程不断重复进行。在这种情况下，收益 $G_t$ 的定义如\ref{eq:timestep-t-return}所示。
 
-$$
+\begin{equation}\label{eq:timestep-t-return}
 G_t = R_t + \gamma R_{t+1} + \gamma^2 R_{t+2} + \cdots
-$$
+\end{equation}
 
 $\gamma$ 为折扣因子。
 
@@ -672,19 +672,19 @@ $\gamma$ 为折扣因子。
 
 我们已经重新定义了``收益''。智能体的目标是使这种收益最大化。这里有一点需要注意，那就是智能体和环境的行动可能是``随机性''的。智能体可能随机地决定行动，状态也可能随机迁移。在这种情况下，获得的收益将呈现随机的特点。即使从相同的状态开始，不同回合的收益也随机变化。例如，某个回合的收益为 $10.4$ ，另一个回合的收益为 $8.7$ 。
 
-为了处理这种随机行动，需要使用期望值或``收益的期望值''作为衡量标准。收益的期望值的数学式如下所示。
+为了处理这种随机行动，需要使用期望值或``收益的期望值''作为衡量标准。收益的期望值的数学式如\ref{eq:gt-expectation}所示。
 
-$$
+\begin{equation}\label{eq:gt-expectation}
 v_\pi(s) = \mathbb{E}[G_t|S_t=s,\pi]
-$$
+\end{equation}
 
 我们指定的条件是状态 $S_t$ 为 $s$ 智能体的策略为 $\pi$ （其中时刻 $t$ 是任意值）。在这些条件下，智能体获得的收益的期望值为上面的公式。在这里，我们用特殊符号 $v_\pi(s)$ 来表示收益的期望值。就是\textbf{状态价值函数}（state-value function）。
 
 在公式的右侧，智能体的策略 $\pi$ 被作为条件给出。这是因为如果策略 $\pi$ 发生变化，那么智能体获得的奖励也会发生变化，而这些奖励的总和，即收益也会发生变化。为了明确这一点，状态价值函数通常会写作 $v_\pi(s)$ ，将 $\pi$ 写在 $v$ 的右下角。此外，上面的公式也可以写成下面的形式。
 
-$$
+\begin{equation}
 v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]
-$$
+\end{equation}
 
 在上面的式子中，记载 $\pi$ 的位置是 $\mathbb{E}_\pi$ 。与式（1）一样，这么写的含义是策略 $\pi$ 是作为条件给出的。从现在起，本教程将采取式（2）的风格来书写式子。
 
@@ -698,73 +698,80 @@ $$
 
 这里使用骰子作为例子。我们使用的骰子是理想的六面体，每一面的数字出现的概率都是 $\frac{1}{6}$ 。在数学式中，我们用随机变量 $x$ 表示掷骰子出现的数字， $x$ 是 $1$ 和 $6$ 之间的整数。那么每个数字出现的概率就是 $\frac{1}{6}$ 。 我们用 $p(x)=\frac{1}{6}$ 表示骰子的数字出现的概率。现在来计算掷骰子的期望值。计算式如下所示。
 
-$$
+\begin{equation}
 \begin{aligned}
 \mathbb{E}[x] &= 1\times\frac{1}{6}+2\times\frac{1}{6}+3\times\frac{1}{6}+4\times\frac{1}{6}+5\times\frac{1}{6}+6\times\frac{1}{6} \\
 &= 3.5
 \end{aligned}
-$$
+\end{equation}
 
 如上所述，期望值是在所有情况下``出现的数字''和``概率''相乘并加在一起得到的和。顺带一提，如果使用 $\sum$ 符号，那么期望值的数学式如下所示。
 
-$$
+\begin{equation}
 \mathbb{E}[x]=\sum_xxp(x)
-$$
+\end{equation}
 
-另外，$x$和$y$同时发生的概率（这叫作``联合概率''）如下所示。
+\begin{marker}
+\begin{itemize}
+\item 全期望公式：$\mathbb{E}[X]=\mathbb{E}[\mathbb{E}[X|Y]]$
+\item 条件期望的迭代公式：$\mathbb{E}[X|Y]=\mathbb{E}[\mathbb{E}[X|Z]|Y]$
+\end{itemize}
+\end{marker}
 
-$$
+另外，$x$和$y$同时发生的概率（这叫作``联合概率''）如\ref{eq:union-probability}所示。
+
+\begin{equation}\label{eq:union-probability}
 p(x,y)=p(x)p(y|x)=p(y)p(x|y)
-$$
+\end{equation}
 
 假设奖励用 $r(x,y)$ 来表示，那么奖励的期望值如下
 
-$$
+\begin{equation}
 \begin{aligned}
 \mathbb{E}[r(x,y)] &= \sum_x\sum_yp(x,y)r(x,y) \\
 &= \sum_x\sum_yp(x)p(y|x)r(x,y)
 \end{aligned}
-$$
+\end{equation}
 
 回顾收益（回报）的定义。
 
-$$
+\begin{equation}
 G_t = R_t + \gamma R_{t+1} + \gamma^2 R_{t+2} + \cdots
-$$
+\end{equation}
 
 那么有以下公式
 
-$$
+\begin{equation}
 G_{t+1} = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots
-$$
+\end{equation}
 
 所以有以下递推公式：
 
-$$
+\begin{equation}
 \begin{aligned}
 G_t &= R_t+\gamma R_{t+1}+\gamma^2R_{t+2}+\cdots \\
 &= R_t + \gamma(R_{t+1}+\gamma R_{t+2}+\cdots) \\
 &= R_t+\gamma G_{t+1}
 \end{aligned}
-$$
+\end{equation}
 
 这种递推关系被用于强化学习的许多理论和算法中。
 
 下面将递推公式代入状态价值函数的定义式中。状态价值函数是收益的期望值，其数学式的定义如下所示。
 
-$$
+\begin{equation}
 v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]
-$$
+\end{equation}
 
 如上面的公式所示，状态 $s$ 的价值函数被表示为 $v_\pi(s)$ 。将递推公式带入上面的式子的 $G_t$ 中，得到下面的式子：
 
-$$
+\begin{equation}
 \begin{aligned}
 v_\pi(s) &= \mathbb{E}_\pi[G_t|S_t=s] \\
 &= \mathbb{E}_\pi[R_t+\gamma G_{t+1}|S_t=s] \\
 &= \mathbb{E}_\pi[R_t|S_t=s] + \gamma\mathbb{E}_\pi[G_{t+1}|S_t=s]
 \end{aligned}
-$$
+\end{equation}
 
 \begin{marker}
 期望的线性性质：$\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]$
@@ -781,22 +788,13 @@ $\mathbb{E}_\pi[R_t|S_t=s]$ 的含义是在 $t$ 时刻，环境的状态是 $s$ 
 如上面的数学式\ref{eq:bellman-first-term}所示，将智能体行动的概率 $\pi(a|s)$ 、要迁移的状态的概率 $p(s'|s,a)$ 和奖励函数 $r(s,a,s')$ 相乘。对所有候选项都进行上述计算，得到它们的总和。
 
 \begin{marker}
-式\ref{eq:bellman-first-term}中只有$s$是确定的，假设可选动作只有两个$\left\{ a_1, a_2 \right\}$，环境状态只有两种$\left\{ s_1, s_2 \right\}$。那么状态转移有：
+式\ref{eq:bellman-first-term}中只有$s$是确定的，假设可选动作只有两个$\left\{ a_1, a_2 \right\}$，环境状态只有两种$\left\{ s_1, s_2 \right\}$。那么状态转移和概率如下：
 \begin{equation*}
 \begin{aligned}
-s \rightarrow a_1 \rightarrow s_1 \\
-s \rightarrow a_1 \rightarrow s_2 \\
-s \rightarrow a_2 \rightarrow s_1 \\
-s \rightarrow a_2 \rightarrow s_2 \\
-\end{aligned}
-\end{equation*}
-那么概率如下：
-\begin{equation*}
-\begin{aligned}
-\pi(a=a_1|s) = 0.2, p(s'=s_1|s,a=a_1) = 0.3, r(s,a=a_1,s'=s_1)=10 \\
-\pi(a=a_1|s) = 0.2, p(s'=s_2|s,a=a_1) = 0.7, r(s,a=a_1,s'=s_2)=20 \\
-\pi(a=a_2|s) = 0.8, p(s'=s_1|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_1)=30 \\
-\pi(a=a_2|s) = 0.8, p(s'=s_2|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_2)=40 \\
+s \rightarrow a_1 \rightarrow s_1: \pi(a=a_1|s) = 0.2, p(s'=s_1|s,a=a_1) = 0.3, r(s,a=a_1,s'=s_1)=10 \\
+s \rightarrow a_1 \rightarrow s_2: \pi(a=a_1|s) = 0.2, p(s'=s_2|s,a=a_1) = 0.7, r(s,a=a_1,s'=s_2)=20 \\
+s \rightarrow a_2 \rightarrow s_1: \pi(a=a_2|s) = 0.8, p(s'=s_1|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_1)=30 \\
+s \rightarrow a_2 \rightarrow s_2: \pi(a=a_2|s) = 0.8, p(s'=s_2|s,a=a_2) = 0.5, r(s,a=a_2,s'=s_2)=40 \\
 \end{aligned}
 \end{equation*}
 那么即时奖励的期望是：
@@ -834,48 +832,49 @@ v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]
 
 因此，我们首先要将 $t+1$ 代入上面的式子的 $t$ 中。式子变化如下。
 
-$$
+\begin{equation}
 v_\pi(s) = \mathbb{E}_\pi[G_{t+1}|S_{t+1}=s]
-$$
+\end{equation}
 
 这就是状态 $S_{t+1}=s$ 时的价值函数。接下来要关注的是 $\mathbb{E}_\pi[G_{t+1}|S_t=s]$ 。这是在当前时刻为 $t$ 时，下一个时刻 $(t+1)$ 的收益期望值。解决的关键在于将条件 $S_t=s$ 变为 $S_{t+1}=s$ 的形式。换句话说，就是要进入下一个时刻。
 
 通过观察可以得到
 
-$$
+\begin{equation}
 \begin{aligned}
 \mathbb{E}_\pi[G_{t+1}|S_t=s] &= \sum_{a,s'}\pi(a|s)p(s'|s,a)\mathbb{E}_\pi[G_{t+1}|S_{t+1}=s'] \\
 &= \sum_{a,s'}\pi(a|s)p(s'|s,a)v_\pi(s')
 \end{aligned}
-$$
+\end{equation}
 
 完成第二项的展开以后，汇总一下得到
 
-$$
-\boxed{
+\begin{theorem}{贝尔曼方程}{}
+\begin{equation}\label{eq:bellman-equation}
 \begin{aligned}
 v_\pi(s) &= \mathbb{E}_\pi[R_t|S_t=s] + \gamma\mathbb{E}_\pi[G_{t+1}|S_t=s] \\
 &= \sum_{a,s'}\pi(a|s)p(s'|s,a)r(s,a,s')+\gamma\sum_{a,s'}\pi(a|s)p(s'|s,a)v_\pi(s') \\
 &= \sum_{a,s'}\pi(a|s)p(s'|s,a)\{r(s,a,s')+\gamma v_\pi(s')\}
 \end{aligned}
-}
-$$
+\end{equation}
+\end{theorem}
 
-上面的式子就是大名鼎鼎的\textbf{贝尔曼方程}。贝尔曼方程是表示状态 $s$ 的价值函数和下一个可能的状态 $s'$ 的价值函数之间关系的式子。这个贝尔曼方程对所有状态 $s$ 和所有策略 $\pi$ 都成立。
+上面的式子\ref{eq:bellman-equation}就是大名鼎鼎的\textbf{贝尔曼方程}。贝尔曼方程是表示状态 $s$ 的价值函数和下一个可能的状态 $s'$ 的价值函数之间关系的式子。这个贝尔曼方程对所有状态 $s$ 和所有策略 $\pi$ 都成立。
 
 状态价值函数的贝尔曼方程的另一种重要的表示形式：\textbf{贝尔曼期望方程}。
 
-$$
-\boxed{
+\begin{theorem}{贝尔曼期望方程}{}
+\begin{equation}\label{eq:bellman-expectation-equation-0}
 \begin{aligned}
 V_\pi(S_t)
 &= \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t] \\
 \end{aligned}
-}
-$$
+\end{equation}
+\end{theorem}
 
-\mybox[blue]{贝尔曼期望方程的推导过程}{
-$$
+贝尔曼期望方程的推导过程如下：
+
+\begin{equation}
 \begin{aligned}
 V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
 &= \mathbb{E}_\pi\left[\sum_{k=0}^\infty\gamma^kR_{t+k}\mid S_t\right] \\
@@ -886,13 +885,7 @@ V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
 &= \mathbb{E}_\pi[R_t|S_t]+\gamma \mathbb{E}_\pi[V_\pi(S_{t+1})|S_t] \\
 &= \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t] \\
 \end{aligned}
-$$
-\mybox[red]{全期望公式}{
-全期望公式：$\mathbb{E}[X]=\mathbb{E}[\mathbb{E}[X|Y]]$
-\\
-条件期望的迭代公式：$\mathbb{E}[X|Y]=\mathbb{E}[\mathbb{E}[X|Z]|Y]$
-}
-}
+\end{equation}
 
 \section{下一步}
 
