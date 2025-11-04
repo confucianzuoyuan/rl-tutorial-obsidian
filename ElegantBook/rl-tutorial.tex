@@ -910,6 +910,7 @@ V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
       & \cellcolor[HTML]{96FFFB}策略函数 & \multicolumn{1}{l|}{\cellcolor[HTML]{FCFF2F}环境} & \cellcolor[HTML]{67FD9A}奖励函数 \\ \hline
 倒立摆游戏 & 推车的策略                        & \multicolumn{1}{l|}{倒立摆环境}                      & 保持平衡，奖励为1                    \\ \hline
 \end{tabular}
+\caption{只有策略函数是我们可以控制的，环境和奖励我们无法控制}
 \end{table}
 
 现在通行的做法就是策略函数是一个神经网络。输入是环境的状态，输出是动作的概率分布。
@@ -1070,27 +1071,27 @@ V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
 
 首先明确问题的设定。这里考虑的是回合制任务，并基于策略 $\pi_{\theta}$ 选择动作的情况。在这种情况下，假定得到了以下由``状态、动作、奖励''构成的时间序列数据。
 
-$$
+\begin{equation}
 \tau = (S_0, A_0, R_0, S_1, A_1, R_1, \cdots, S_{T+1})
-$$
+\end{equation}
 
 这个 $\tau$ 也叫作轨迹（trajectory）。
 
 而一条轨迹发生的概率是：
 
-$$
+\begin{equation}
 \begin{aligned}
 \Pr(\tau)
 &=p\left(S_{0}\right) \pi_{\theta}\left(A_{0} | S_{0}\right) p\left(S_{1} | S_{0}, A_{0}\right) \pi_{\theta}\left(A_{1} | S_{1}\right) p\left(S_{2} | S_{1}, A_{1}\right) \cdots \pi_{\theta}\left(A_{T} | S_{T}\right) p\left(S_{T+1} | S_{T}, A_{T}\right) \\
 &=p\left(S_{0}\right) \prod_{t=1}^{T} \pi_{\theta}\left(A_{t} | S_{t}\right) p\left(S_{t+1} | S_{t}, A_{t}\right)
 \end{aligned}
-$$
+\end{equation}
 
 此时可以使用折扣因子 $\gamma$ 对回报（Return，收益）作如下定义。
 
-$$
+\begin{equation}
 G(\tau) = R_0 + \gamma R_1 + \gamma^2 R_2 + \cdots + \gamma^T R_T
-$$
+\end{equation}
 
 \begin{figure}[!ht]
 \centering
@@ -1147,11 +1148,13 @@ $$
 \label{fig:return-calculate}
 \end{figure}
 
-为了表明回报可以由 $\tau$ 计算出来，上面的式子将其表示为了 $G(\tau)$ 。此时，目标函数 $J(\theta)$ 可以表示为以下式子。
+为了表明回报可以由 $\tau$ 计算出来，上面的式子将其表示为了 $G(\tau)$ 。此时，目标函数 $J(\theta)$ 可以表示为式\ref{eq:rl-objective}。
 
-\begin{equation}
+\begin{definition}{强化学习的目标函数}{}
+\begin{equation}\label{eq:rl-objective}
 J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
 \end{equation}
+\end{definition}
 
 回报 $G(\tau)$ 是随机变动的，所以它的期望值是目标函数。上式中期望值 $E$ 的下标为 $\tau\sim\pi_{\theta}$ ，这个下标表示 $\tau$ 是基于 $\pi_{\theta}$ 生成的。
 
@@ -1245,7 +1248,20 @@ J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
 策略梯度法求得的梯度是一个期望值，而期望值无法计算。
 \end{marker}
 
-这里有一个问题，那就是真正的期望是无法准确求出来的。因为期望是所有的轨迹得到的奖励计算出来的。而轨迹有无数条。如果我们能够走满倒立摆的 200 步，那么不同轨迹的数量可能是 $2^{200}$ 。这是一个天文数字。所以我们希望能够求出\textbf{近似}期望值的数值。比如利用\textbf{大数定理}，多采样几条轨迹，那么就会比较接近期望值。
+这里有一个问题，那就是真正的期望是无法准确求出来的。因为期望是所有的轨迹得到的奖励计算出来的。而轨迹有无数条。如果我们能够走满倒立摆的 200 步，那么不同轨迹的数量可能是 $2^{200}$，如图\ref{fig:unlimited-samples}，这是一个天文数字。所以我们希望能够求出\textbf{近似}期望值的数值。比如利用\textbf{大数定理}，多采样几条轨迹，那么就会比较接近期望值。
+
+\begin{figure}[!ht]
+\centering
+\begin{equation*}
+\begin{aligned}
+& S_0^{\tau_0} \rightarrow A_0^{\tau_0} \rightarrow S_1^{\tau_0} \rightarrow A_1^{\tau_0} \rightarrow \dots \\
+& S_0^{\tau_1} \rightarrow A_0^{\tau_1} \rightarrow S_1^{\tau_1} \rightarrow A_1^{\tau_1} \rightarrow \dots \\
+& S_0^{\tau_2} \rightarrow A_0^{\tau_2} \rightarrow S_1^{\tau_2} \rightarrow A_1^{\tau_2} \rightarrow \dots \\
+& \dots\dots
+\end{aligned}
+\end{equation*}
+\caption{无数条轨迹}\label{fig:unlimited-samples}
+\end{figure}
 
 \mybox[blue]{大数定律}{
 样本数量越多，则其算术平均值就有越高的概率接近期望。
@@ -1268,26 +1284,20 @@ $$
 
 \begin{figure}[!ht]
 \centering
-\resizebox{0.4\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\Huge]
-\draw [line width=1pt, short] (10.25,20.5) .. controls (19,27.75) and (21.75,22.5) .. (32,27.25);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (20.75,23.25) and (21.5,19.5) .. (32.25,22);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (23.25,22) and (22.75,17.5) .. (32,16.75);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (23.25,20.5) and (16.5,17.25) .. (31.75,12.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,16.75) and (16.25,12.25) .. (32,10.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,12.75) and (16.25,12.25) .. (31,8);
-\node [font=\Huge] at (32.75,27.25) {$\tau_0$};
-\node [font=\Huge] at (32.75,22) {$\tau_1$};
-\node [font=\Huge] at (32.5,16.75) {$\tau_2$};
-\node [font=\Huge] at (32.25,12.25) {$\tau_3$};
-\end{circuitikz}
-}%
-\caption{无数条轨迹}
-\label{fig:infty-trajectories}
+\begin{equation*}
+\begin{aligned}
+& S_0^{\tau_0} \rightarrow A_0^{\tau_0} \rightarrow S_1^{\tau_0} \rightarrow A_1^{\tau_0} \rightarrow \dots \\
+& {\color{green} S_0^{\tau_1} \rightarrow A_0^{\tau_1} \rightarrow S_1^{\tau_1} \rightarrow A_1^{\tau_1} \rightarrow \dots} \\
+& S_0^{\tau_2} \rightarrow A_0^{\tau_2} \rightarrow S_1^{\tau_2} \rightarrow A_1^{\tau_2} \rightarrow \dots \\
+& {\color{green} S_0^{\tau_3} \rightarrow A_0^{\tau_3} \rightarrow S_1^{\tau_3} \rightarrow A_1^{\tau_3} \rightarrow \dots} \\
+& S_0^{\tau_4} \rightarrow A_0^{\tau_4} \rightarrow S_1^{\tau_4} \rightarrow A_1^{\tau_4} \rightarrow \dots \\
+& \dots\dots
+\end{aligned}
+\end{equation*}
+\caption{只采样$n$条轨迹}\label{fig:n-samples}
 \end{figure}
 
-如式所示，$\nabla_{\theta}J(\theta)$ 表示期望值。接下来我们来计算期望值。这里，我们令策略 $\pi_{\theta}$ 的智能体实际采取动作，得到 $n$ 个轨迹 $\tau$ 。此时，通过对每个 $\tau$ 计算式子的期望值内部的式子（$\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$），并求出其平均值，从而近似得到 $\nabla_{\theta}J(\theta)$ 。数学式如\ref{eq:sample-n-cal-expectation}所示。
+如式所示，$\nabla_{\theta}J(\theta)$ 表示期望值。接下来我们来计算期望值。这里，我们令策略 $\pi_{\theta}$ 的智能体实际采取动作，得到 $n$ 个轨迹 $\tau$ ，如图\ref{fig:n-samples}。此时，通过对每个 $\tau$ 计算式子的期望值内部的式子（$\sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$），并求出其平均值，从而近似得到 $\nabla_{\theta}J(\theta)$ 。数学式如\ref{eq:sample-n-cal-expectation}所示。
 
 \begin{equation}\label{eq:sample-n-cal-expectation}
 \begin{aligned}
@@ -1299,76 +1309,21 @@ x^{(i)} = \sum_{t=0}^TG(\tau^{(i)})\nabla_{\theta}\log\pi_{\theta}(A_t^{(i)}|S_t
 
 上面式子中的 $\tau^{(i)}$ ，表示在第 $i$ 回合得到的轨迹，$A_t^{(i)}$ 表示在第 $i$ 回合的时刻 $t$ 的动作，$S_t^{(i)}$ 表示在第 $i$ 回合的时刻 $t$ 的状态。
 
-\begin{figure}[!ht]
-\centering
-\resizebox{1\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\Huge]
-\node [font=\Huge] at (10,19.25) {
-$\begin{aligned}
-    \tau^1: \quad  (S^1_1 & ,A^1_1)\quad G(\tau^1) \\ (S^1_2 & ,A^1_2)\quad G(\tau^1) \\ & \vdots \quad\quad\quad\quad\vdots \\ \tau^2: \quad  (S^2_1 & ,A^2_1)\quad G(\tau^2) \\ (S^2_2 & ,A^2_2)\quad G(\tau^2) \\ & \vdots \quad\quad\quad\quad\vdots \\
-\end{aligned}$
-};
-\draw [ line width=1.1pt ] (5,24) rectangle (16,15);
-\node [font=\Huge] at (6.5,26) {对于策略$\pi$};
-\node [font=\Huge] at (36,26.25) {$\theta=\theta+\alpha\nabla_\theta J(\theta)$};
-\node [font=\Huge] at (39,22.5) {$\nabla_\theta J(\theta)=\frac{1}{n}\sum_{i=1}^n\sum_{t=1}^{T_i}G(\tau^i)\nabla_\theta\log\pi_\theta(A_t^{(i)}|S_t^{(i)})$};
-\draw [ line width=1.1pt ] (30,28) rectangle (48,20);
-\node [font=\Huge] at (6.5,13) {采样的轨迹只使用一次};
-\node [font=\Huge] at (34,30) {更新模型};
-\node [font=\Huge] at (33.25,17.75) {数据采样};
-\draw [line width=2pt, ->, >=Stealth] (30,28) .. controls (20.5,25.5) and (24,33) .. (16,24);
-\draw [line width=2pt, ->, >=Stealth] (16,15) .. controls (20,12) and (23,15) .. (30,20);
-\end{circuitikz}
-}%
-\caption{使用多条采样的轨迹更新策略}
-\label{fig:multiple-trajectories-update-policy}
-\end{figure}
+另外，再思考一下蒙特卡洛方法的样本数为 $1$ ，即上式中 $n=1$ 的情况，如图\ref{fig:one-sample}所示。
 
 \begin{figure}[!ht]
 \centering
-\resizebox{0.4\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\Huge]
-\draw [line width=1pt, short] (10.25,20.5) .. controls (19,27.75) and (21.75,22.5) .. (32,27.25);
-\draw [ color={rgb,255:red,16; green,218; blue,50}, line width=1pt, short] (10.25,20.5) .. controls (20.75,23.25) and (21.5,19.5) .. (32.25,22);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (23.25,22) and (22.75,17.5) .. (32,16.75);
-\draw [ color={rgb,255:red,16; green,218; blue,50}, line width=1pt, short] (10.25,20.5) .. controls (23.25,20.5) and (16.5,17.25) .. (31.75,12.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,16.75) and (16.25,12.25) .. (32,10.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,12.75) and (16.25,12.25) .. (31,8);
-\node [font=\Huge] at (32.75,27.25) {$\tau_0$};
-\node [font=\Huge] at (32.75,22) {$\tau_1$};
-\node [font=\Huge] at (32.5,16.75) {$\tau_2$};
-\node [font=\Huge] at (32.25,12.25) {$\tau_3$};
-\draw [ line width=1.1pt ] (23.5,7.5) circle (0cm);
-\end{circuitikz}
-}%
-\caption{采样多条轨迹}
-\label{fig:sample-multiple-trajectories}
-\end{figure}
-
-另外，再思考一下蒙特卡洛方法的样本数为 $1$ ，即上式中 $n=1$ 的情况。
-
-\begin{figure}[!ht]
-\centering
-\resizebox{0.4\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\Huge]
-\draw [line width=1pt, short] (10.25,20.5) .. controls (19,27.75) and (21.75,22.5) .. (32,27.25);
-\draw [ color={rgb,255:red,16; green,218; blue,50}, line width=1pt, short] (10.25,20.5) .. controls (20.75,23.25) and (21.5,19.5) .. (32.25,22);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (23.25,22) and (22.75,17.5) .. (32,16.75);
-\draw [line width=1pt, short] (10.25,20.5) .. controls (23.25,20.5) and (16.5,17.25) .. (31.75,12.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,16.75) and (16.25,12.25) .. (32,10.25);
-\draw [line width=1pt, dashed] (10.25,20.5) .. controls (21.5,12.75) and (16.25,12.25) .. (31,8);
-\node [font=\Huge] at (32.75,27.25) {$\tau_0$};
-\node [font=\Huge] at (32.75,22) {$\tau_1$};
-\node [font=\Huge] at (32.5,16.75) {$\tau_2$};
-\node [font=\Huge] at (32.25,12.25) {$\tau_3$};
-\draw [ line width=1.1pt ] (23.5,7.5) circle (0cm);
-\end{circuitikz}
-}%
-\caption{只采样一条轨迹}
-\label{fig:sample-one-trajectory}
+\begin{equation*}
+\begin{aligned}
+& S_0^{\tau_0} \rightarrow A_0^{\tau_0} \rightarrow S_1^{\tau_0} \rightarrow A_1^{\tau_0} \rightarrow \dots \\
+& {\color{green} S_0^{\tau_1} \rightarrow A_0^{\tau_1} \rightarrow S_1^{\tau_1} \rightarrow A_1^{\tau_1} \rightarrow \dots} \\
+& S_0^{\tau_2} \rightarrow A_0^{\tau_2} \rightarrow S_1^{\tau_2} \rightarrow A_1^{\tau_2} \rightarrow \dots \\
+& S_0^{\tau_3} \rightarrow A_0^{\tau_3} \rightarrow S_1^{\tau_3} \rightarrow A_1^{\tau_3} \rightarrow \dots \\
+& S_0^{\tau_4} \rightarrow A_0^{\tau_4} \rightarrow S_1^{\tau_4} \rightarrow A_1^{\tau_4} \rightarrow \dots \\
+& \dots\dots
+\end{aligned}
+\end{equation*}
+\caption{只采样$1$条轨迹}\label{fig:one-sample}
 \end{figure}
 
 在这种情况下，数学式可以简化为如\ref{eq:sample-one-trajectory-cal-e}形式。
@@ -1379,34 +1334,6 @@ $\begin{aligned}
 \nabla_{\theta}J(\theta) \approx \sum_{t=0}^TG(\tau)\nabla_{\theta}\log\pi_{\theta}(A_t|S_t) \\
 \end{aligned}
 \end{equation}
-
-\begin{figure}[!ht]
-\centering
-\resizebox{1\textwidth}{!}{%
-\begin{circuitikz}
-\tikzstyle{every node}=[font=\Huge]
-\node [font=\Huge] at (10,19.25) {
-$\begin{aligned}
-\tau: \quad  (S_1 & ,A_1)\quad G(\tau) \\
-(S_2 & ,A_2)\quad G(\tau) \\
-& \vdots \quad\quad\quad\quad\vdots \\
-\end{aligned}$
-};
-\draw [ line width=1.1pt ] (5,24) rectangle (16,15);
-\node [font=\Huge] at (6.5,26) {对于策略$\pi$};
-\node [font=\Huge] at (36,26.25) {$\theta=\theta+\alpha\nabla_\theta J(\theta)$};
-\node [font=\Huge] at (39,22.5) {$\nabla_\theta J(\theta)=\sum_{t=1}^{T}G(\tau)\nabla_\theta\log\pi_\theta(A_t|S_t)$};
-\draw [ line width=1.1pt ] (30,28) rectangle (48,20);
-\node [font=\Huge] at (6.5,13) {采样的轨迹只使用一次};
-\node [font=\Huge] at (34,30) {更新模型};
-\node [font=\Huge] at (33.25,17.75) {数据采样};
-\draw [line width=2pt, ->, >=Stealth] (30,28) .. controls (20.5,25.5) and (24,33) .. (16,24);
-\draw [line width=2pt, ->, >=Stealth] (16,15) .. controls (20,12) and (23,15) .. (30,20);
-\end{circuitikz}
-}%
-\caption{使用一条采样的轨迹更新策略}
-\label{fig:one-trajectory-update-policy}
-\end{figure}
 
 为了简单起见，本章将使用以上面的式子为对象的策略梯度法。上面的式子的计算就是对所有时刻（$t=0\sim T$）求 $\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$ ，然后将各梯度乘以作为权重的回报 $G(\tau)$ ，最后求它们的和。这个计算过程如图\ref{fig:use-one-sample-cal-pg}所示。
 
