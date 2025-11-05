@@ -262,6 +262,18 @@
             }
           },
           {
+            "id": "50709008a5e463ae",
+            "type": "leaf",
+            "state": {
+              "type": "excalidraw",
+              "state": {
+                "file": "Drawing 2025-11-05 09.35.38.excalidraw.md"
+              },
+              "icon": "excalidraw-icon",
+              "title": "Drawing 2025-11-05 09.35.38.excalidraw"
+            }
+          },
+          {
             "id": "5502ffcf32c10ece",
             "type": "leaf",
             "state": {
@@ -326,7 +338,7 @@
             }
           }
         ],
-        "currentTab": 19
+        "currentTab": 20
       }
     ],
     "direction": "vertical"
@@ -488,10 +500,14 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "20ca4d8f0616e145",
+  "active": "50709008a5e463ae",
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "ElegantBook/_minted/E39D21E6B06CF8B69CBAF1B70AEE7D77.highlight.minted",
+    "ElegantBook/_minted/8648959730943F980FBE69EBDEAC1E0E.highlight.minted",
+    "2. 策略梯度法.md",
+    "Drawing 2025-11-05 09.35.38.excalidraw.md",
     "ElegantBook/_minted/2E000486C8EEE18752659BD0C3507405.highlight.minted",
     "ElegantBook/_minted/3A854CA2696712675D563A14C100648B.highlight.minted",
     "ElegantBook/_minted/CA0F813FFA1C30EDA8CC19293ECEE1BB.highlight.minted",
@@ -499,8 +515,6 @@
     "ElegantBook/_minted/2B412182D3957CC9359F90735C0F4367.highlight.minted",
     "ElegantBook/_minted/F6158826DA744287CC509DE06B900467.highlight.minted",
     "ElegantBook/_minted/40470EBBAE915BDA6C45E9F369A2DDC1.highlight.minted",
-    "ElegantBook/_minted/E49A2E40313324D1E9F8DC471B26511A.highlight.minted",
-    "ElegantBook/_minted/A6C9449BA0EEC19AF0232EB5893D7E2E.highlight.minted",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "8. 使用DPO微调LLM.md",
@@ -509,7 +523,6 @@
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "附录G：uv教程.md",
     "Excalidraw/5.8.excalidraw.md",
-    "2. 策略梯度法.md",
     "10. GRPO：组相对策略优化.md",
     "附录E：策略梯度法的证明.md",
     "附录D：PPO数学推导.md",
@@ -535,7 +548,6 @@
     "1. 强化学习基础.md",
     "Excalidraw/2.3.excalidraw.md",
     "Excalidraw/2.16.excalidraw.md",
-    "附录H：torch.gather.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]

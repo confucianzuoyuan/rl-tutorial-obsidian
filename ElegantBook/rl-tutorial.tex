@@ -249,20 +249,20 @@
 
 所以有如下：
 
-$$
+\begin{equation}
 \begin{aligned}
 \pi(a=a_{_\text{向左推}}|s)=0.7 \\
 \pi(a=a_{_\text{向右推}}|s)=0.3
 \end{aligned}
-$$
+\end{equation}
 
 如果这个 $\pi$ 函数是一个神经网络，那么这就是\textbf{深度学习 + 强化学习 = 深度强化学习}。当今 AI 界最热门的话题。
 
 所以玩倒立摆游戏的一个\textbf{回合}（episode）就是环境的状态为 $S_0$ ，推车采取动作 $A_0$ ，然后获得奖励 $R_0$ ，然后环境的状态转移到了 $S_1$ ，推车接着采取动作 $A_1$ ，然后获得奖励 $R_1$ ...。下标是时刻，或者时间步。把它们写到一起，就是一个\textbf{轨迹}（trajectory）。轨迹用数学符号 $\tau$ 表示，读作\textbf{掏}。
 
-$$
+\begin{equation}
 \tau = (S_0,A_0,R_0,S_1,A_1,R_1,S_2,A_2,R_2\dots)
-$$
+\end{equation}
 
 由于根据环境的状态，采取的动作是从一个概率分布中采样得到的，所以轨迹会有很多很多条。
 
@@ -319,15 +319,15 @@ $$
 
 但是未来的奖励不如现在的奖励有吸引力，所以需要\textbf{打折}。那么，从 $t$ 时刻起，未来一共获得的奖励叫做\textbf{回报}（或者收益，Return）。
 
-$$
+\begin{equation}
 G_t = R_t + \gamma R_{t+1} + \gamma^2 R_{t+2} + \cdots
-$$
+\end{equation}
 
 $\gamma$ 叫做折扣因子。随着时间的推移，奖励会被 $\gamma$ 指数级削弱。这个 $\gamma$ 被称为折扣因子（discount rate），其被设定为 $0.0$ 和 $1.0$ 之间的实数。如果折扣因子是 $0.9$，那么有以下式子成立。
 
-$$
+\begin{equation}
 G_t = R_t + 0.9 R_{t+1} + 0.81 R_{t+2} + \cdots
-$$
+\end{equation}
 
 引入折现率主要是为了防止连续性任务的收益变得无穷大。在连续性任务中，如果没有折扣因子（或 $\gamma=1$ ），那么收益就会发散到无穷大。因此，设置折扣因子可以防止收益的发散。
 
@@ -382,19 +382,13 @@ V_\pi(S_t=s)
 贝尔曼期望方程：$V_\pi(S_t) = \mathbb{E}_\pi[R_t+\gamma V_\pi(S_{t+1})|S_t]$
 \end{marker}
 
+\begin{marker}
 直观解释：
-
-当前环境对你的价值 = 当前环境现在给你的奖励 + 折扣因子 $\times$ 未来环境对你的价值
-
-你对公司的评估 = 现在公司给你的薪资 + 折扣因子 $\times$ 你对公司未来的评估
-
-也就是你觉得现在公司怎么样？得看公司现在给你开的钱和你觉得公司未来的前景，综合考虑。
-
-现在给的钱少，但是你觉得公司前景不错（折扣因子0.99），那么你对公司的评估也不错。
-
-现在给的钱很多，但是你觉得公司前景会倒闭（折扣因子0.01，但如果不倒闭公司未来前景家这也很不错，但是倒闭的概率很大），那么你对公司的评估也不错。
-
-还有一种可能，现在钱很少，公司倒闭的可能性很大，但一旦公司每倒闭，就很牛逼。
+\begin{itemize}
+\item 当前环境对你的价值 = 当前环境现在给你的奖励 + 折扣因子 $\times$ 未来环境对你的价值
+\item 你对公司的评估 = 现在公司给你的薪资 + 折扣因子 $\times$ 你对公司未来的评估
+\end{itemize}
+\end{marker}
 
 \section{倒立摆环境编程实践}
 
@@ -436,10 +430,10 @@ env = gym.make("CartPole-v0")
 下面继续执行以下代码。
 
 \begin{codebox}{python}{}
-state = env.reset() # 重置环境的状态
+state = env.reset() # 重置环境的状态β$\rightarrow S_0$β
 print(state) # 初始状态
 action_space = env.action_space # 推车有几个动作？（向左推，向右推）
-print(action_space) # 行动的维度
+print(action_space) # 行动的维度=2
 \end{codebox}
 
 上面的代码通过 \py{state = env.reset()} 获得了初始状态。观察它的输出，你会发现它是拥有 4 个元素的数组。作为参考，下面依次列出这 4 个元素。
@@ -462,8 +456,8 @@ print(next_state)
 上面的代码通过 \py{env.step(action)} 采取行动。作为结果 ，我们得到了以下 4 个信息。
 
 \begin{itemize}
-\item 下一个状态\py{next_state}
-\item 奖励\py{reward}
+\item 下一个状态\py{next_state}：$S_1$
+\item 奖励\py{reward}：$R_0$
 \item 是否结束的标志位\py{done}
 \item 附加信息\py{info}
 \end{itemize}
@@ -475,7 +469,7 @@ print(next_state)
 \begin{codebox}{python}{随机策略}
 state = env.reset() # 重置环境的状态
 done = False # 游戏是否结束，初始值为False，也就是未结束
-episode_rewards = []  # 每回合奖励
+episode_rewards = []  # 每回合奖励β$[R_0, R_1, \dots, R_T]$β
 total_reward = 0 # 带折扣因子的回报（总奖励）
 frames = []         # 保存每一帧
 gamma = 0.95 # 折扣因子β$\gamma$β
@@ -485,11 +479,12 @@ while not done:
     # 渲染画面，并保存帧
     frames.append(env.render(mode="rgb_array"))
 
-    # 随机选择一个动作，0：向左推，1：向右推
+    # 随机选择一个动作β$A_t$β，0：向左推，1：向右推
     action = random.choice([0, 1])
 
-    # 下一个状态，即时奖励，是否结束，_
+    # 下一个状态β$S_{t+1}$β，即时奖励β$R_t$β，是否结束，_
     next_state, reward, done, _ = env.step(action)
+    # β$[R_0, R_1, \dots, R_T]$β
     episode_rewards.append(reward)
 
 # β逆序计算$G_t = R_t + \gamma G_{t+1}$β
