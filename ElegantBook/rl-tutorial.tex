@@ -710,9 +710,14 @@ v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]
 
 如上所述，期望值是在所有情况下``出现的数字''和``概率''相乘并加在一起得到的和。顺带一提，如果使用 $\sum$ 符号，那么期望值的数学式如下所示。
 
+\begin{definition}{期望的定义}{}
 \begin{equation}
-\mathbb{E}[x]=\sum_xxp(x)
+\begin{aligned}
+\mathbb{E}[x] &= \sum_xxp(x) \\
+\mathbb{E}[f(x)] &= \sum_xf(x)p(x)
+\end{aligned}
 \end{equation}
+\end{definition}
 
 \begin{marker}
 \begin{itemize}
@@ -1047,8 +1052,8 @@ V_\pi(S_t) &= \mathbb{E}_\pi[G_t|S_t] \\
 \end{equation*}
 \annotate[yshift=-1em]{below,left}{pi1}{策略神经网络}
 \annotate[yshift=-1em]{below,right}{pi2}{神经网络的参数}
-\annotate[yshift=1em]{above,left}{pi3}{策略神经网络}
-\annotate[yshift=1em]{above,right}{pi4}{神经网络的参数}
+\annotate[yshift=1em]{above,left}{pi3}{在状态$s$下，采取的动作$a$}
+\annotate[yshift=1em]{above,right}{pi4}{当前状态$s$}
 \bigskip
 \bigskip
 \caption{策略神经网络}\label{fig:policy-nn-function}
@@ -1512,37 +1517,37 @@ class Agent:
 
     def collect_trajectory(self, env):
         state = env.reset()
-        states, actions = [], []
-        reward_list = []
+        states, actions, rewards = [], [], []
         done = False
 
         while not done:
-            states.append(state)
             action, _ = self.get_action(state)
-            actions.append(action)
             next_state, reward, done, _ = env.step(action)
-            state = next_state
-            reward_list.append(reward)
-
-        return states, actions, reward_list
+            states.append(state) # β$S_t$β
+            actions.append(action) # β$A_t$β
+            rewards.append(reward) # β$R_t$β
+            state = next_state # β$S_t \rightarrow S_{t+1}$β
+        # β$[S_0, S_1, \dots, S_T]$β
+        # β$[A_0, A_1, \dots, A_T]$β
+        # β$[R_0, R_1, \dots, R_T]$β
+        return states, actions, rewards
 
     def update(self, trajectory):
-        states, actions, reward_list = trajectory
+        states, actions, rewards = trajectory
+        # 逆序计算β$G(\tau)$β
         G = 0
-        for r in reward_list[::-1]:
+        for r in rewards[::-1]:
             G = r + self.gamma * G
         loss = 0
         for s, a in zip(states, actions):
             _, probs = self.get_action(s)
-            log_prob = torch.log(probs)[a]
-            loss += -log_prob * G
+            log_prob = torch.log(probs)[a] # β$\log\pi_\theta(A_t|S_t)$β
+            loss += -log_prob * G # β$-\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t)$β
 
         self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        loss.backward() # β$\nabla_\theta\left\{ -\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t) \right\}$β
+        self.optimizer.step() # β$\theta=\theta-\alpha\nabla_\theta\left\{ -\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t) \right\}$β
 \end{codebox}
-
-\py{add}方法是智能体每次采取行动并获得奖励时被调用的方法。该方法将奖励（\py{reward}）和智能体采取的行动的概率（\py{prob}）存储在内存（\py{self.memory}）中。\py{update}方法是智能体到达目标时被调用的方法。该方法首先会求回报\py{G}。回报可以通过反向计算获得的奖励的做法来高效的计算。然后该方法会计算损失函数。具体做法是对每个时刻求 \py{-prob.log()}，再将其乘以作为权重的\py{G}，之后求它们的和。剩下的就是一直以来的神经网络的训练代码。
 
 在训练神经网络时，通常要设置损失函数。对于这个例子，我们可以将目标函数 $J(\theta)$ 乘以 $-1$ 所得到的 $-J(\theta)$ 作为损失函数，此时可以通过梯度下降法的最优化方法（SGD、Adam等）更新参数。
 
@@ -3649,15 +3654,6 @@ J^{\text{GRPO}}(\theta)=\frac{1}{G}\displaystyle\sum_{i=1}^G \frac{1}{|\tau_{i}|
 \section{使用GRPO玩倒立摆游戏}
 
 \begin{codebox}{python}{策略网络结构}
-import numpy as np
-import gym
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.distributions import Categorical
-import matplotlib.pyplot as plt
-
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
