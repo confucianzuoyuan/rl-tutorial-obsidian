@@ -3413,11 +3413,11 @@ J(\pi')-J(\pi)=\mathbb{E}_{\tau\sim\pi'}\left[ \sum^T_{t=0}\gamma^tA^\pi(s_t,a_t
 \mybox[blue]{公式\ref{eq:two-policy-diff}的证明}{
 从反方向证明
 \begin{align}
-& \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tA^\pi(s_t,a_t) \right]\label{eq:two-policy-proof-1} \\
-&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^t(R_t+\gamma V^{\pi}(s_{t+1})-V^{\pi}(s_t)) \right]\label{eq:two-policy-proof-2} \\
-&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tR_t+\sum_{t\geq 0}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-3} \\
-&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t\geq 0}\gamma^tR_t\right] + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{t\geq 0}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-4} \\
-&= J(\pi') + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{t\geq 1}\gamma^{t}V^{\pi}(s_{t})-\sum_{t\geq 0}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-5} \\
+& \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t=0}^{T}\gamma^tA^\pi(s_t,a_t) \right]\label{eq:two-policy-proof-1} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t=0}^{T}\gamma^t(R_t+\gamma V^{\pi}(s_{t+1})-V^{\pi}(s_t)) \right]\label{eq:two-policy-proof-2} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t=0}^{T}\gamma^tR_t+\sum_{t=0}^{T}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t=0}^{T}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-3} \\
+&= \mathbb{E}_{\tau\sim\pi'}\left[ \sum_{t=0}^{T}\gamma^tR_t\right] + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{t=0}^{T}\gamma^{t+1}V^{\pi}(s_{t+1})-\sum_{t=0}^{T}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-4} \\
+&= J(\pi') + \mathbb{E}_{\tau\sim\pi'}\left[\sum_{{\color{red}t=1}}^{T}\gamma^{{\color{red}t}}V^{\pi}(s_{{\color{red}t}})-\sum_{t=0}^{T}\gamma^tV^{\pi}(s_t) \right]\label{eq:two-policy-proof-5} \\
 &= J(\pi') - \mathbb{E}_{\tau\sim\pi'}\left[ V^\pi(s_0) \right]\label{eq:two-policy-proof-6} \\
 &= J(\pi') - \mathbb{E}_{\tau\sim\pi'}\left[ J(\pi) \right]\label{eq:two-policy-proof-7} \\
 &= J(\pi') - J(\pi)\label{eq:two-policy-proof-8}
@@ -3446,6 +3446,17 @@ J(\pi')-J(\pi) &= \mathbb{E}_{\tau\sim{\color{red}\pi'}}\left[ \sum_{t\geq 0}A^\
 &= J^{\text{CPI}}_\pi(\pi')
 \end{aligned}
 \end{equation}
+
+\begin{marker}
+重要性采样
+\begin{equation*}
+\begin{aligned}
+\underset{x\sim P}{\mathbb{E}}[f(x)] &= \underset{x\sim Q}{\mathbb{E}}\left[ \frac{P(x)}{Q(x)}f(x) \right] \\
+& \approx \frac{1}{|D|}\sum_{x\in D}\frac{P(x)}{Q(x)}f(x),\quad D\sim Q
+\end{aligned}
+\end{equation*}
+$P(x)/Q(x)$是$x$的\textbf{重要性采样权重}
+\end{marker}
 
 式\ref{eq:cpi}也就是新目标右手边的$J^{\text{CPI}}_\pi(\pi')$叫做\textbf{替代目标}（surrogate objective）。因为新目标中包含了新旧策略的比值，所以叫做``替代目标''。上标CPI的意思是``保守策略迭代''（conservative policy iteration）。
 
