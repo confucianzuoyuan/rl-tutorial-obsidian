@@ -2951,12 +2951,12 @@ KL散度具有以下特性：
 
 我们用 $q$ 来表示这个估计的概率分布。此时，``真实概率分布$p$''和``估计概率分布$q$''之间的KL散度可以做如下计算。
 
-$$
+\begin{equation}
 \begin{aligned}
 D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.5}+0.3\log\frac{0.3}{0.5} \\
 &= 0.082\cdots
 \end{aligned}
-$$
+\end{equation}
 
 KL散度约为0.082。假设另一个人对这枚硬币的概率分布做了如下估计。
 
@@ -2972,12 +2972,12 @@ KL散度约为0.082。假设另一个人对这枚硬币的概率分布做了如�
 
 这与真实的概率分布值大相径庭。此时的KL散度的值如下所示。
 
-$$
+\begin{equation}
 \begin{aligned}
 D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.2}+0.3\log\frac{0.3}{0.8} \\
 &= 0.58\cdots
 \end{aligned}
-$$
+\end{equation}
 
 这个值比第一个KL散度的值要大。最后，假设又有一个人对这枚硬币的概率分布做了如下估计。
 
@@ -2993,13 +2993,13 @@ $$
 
 这个分布与真实的概率分布相同。此时的KL散度的值如下所示。
 
-$$
+\begin{equation}
 \begin{aligned}
 D_{KL}(p\Vert q) &= 0.7\log\frac{0.7}{0.7}+0.3\log\frac{0.3}{0.3} \\
 &= 0.7\log 1+0.3\log 1\quad(\log 1 = 0) \\
 &= 0
 \end{aligned}
-$$
+\end{equation}
 
 由于 $p$ 和 $q$ 是相同的概率分布，因此KL散度为0。
 
@@ -3035,21 +3035,21 @@ $$
 
 似然函数：
 
-$$
+\begin{equation}
 L(\theta) = \prod_{i=1}^{n} P(y_i | x_i; \theta)
-$$
+\end{equation}
 
 对数似然：
 
-$$
+\begin{equation}
 \log L(\theta) = \sum_{i=1}^{n} \log P(y_i | x_i; \theta)
-$$
+\end{equation}
 
 最大化对数似然 = 最小化负对数似然：
 
-$$
+\begin{equation}
 \text{Loss} = -\frac{1}{n}\sum_{i=1}^{n} \log P(y_i | x_i; \theta)
-$$
+\end{equation}
 
 这就是\textbf{交叉熵损失}！
 
@@ -3057,17 +3057,17 @@ $$
 
 KL散度衡量两个分布的差异：
 
-$$
+\begin{equation}
 D_{KL}(P||Q) = \sum_{i} P(x_i) \log \frac{P(x_i)}{Q(x_i)} = \sum_{i} P(x_i) \log P(x_i) - \sum_{i} P(x_i) \log Q(x_i)
-$$
+\end{equation}
 
-$$
+\begin{equation}
 D_{KL}(P||Q) = -H(P) + H(P,Q)
-$$
+\end{equation}
 
-$$
+\begin{equation}
 \frac{\partial D_{KL}(P\Vert Q)}{\partial\theta} = \frac{\partial H(P, Q)}{\partial \theta}
-$$
+\end{equation}
 
 其中：
 
@@ -3082,48 +3082,48 @@ $$
 
 重要性采样利用从其他概率分布中采样的数据来计算某个概率分布的期望值。为了说明重要性采样，下面来看一个计算期望值$\mathbb{E}_\pi[x]$的简单例子。设$x$是随机变量，$x$的概率用$\pi(x)$表示。期望值的式子如下所示。
 
-$$
+\begin{equation}
 \mathbb{E}_\pi[x] = \sum x \pi(x)
-$$
+\end{equation}
 
 我们先复习一下学过的内容。为了用蒙特卡洛方法近似这个期望值，我们从概率分布$\pi$对$x$进行采样，并取其平均值。数学式如下所示：
 
-$$
+\begin{equation}
 \begin{aligned}
 \text{采样}: x^{(i)}\sim\pi\quad (i=1,2,\cdots,n) \\
 \mathbb{E}_\pi[x]\simeq\frac{x^{(1)}+x^{(2)}+\cdots+x^{(n)}}{n}
 \end{aligned}
-$$
+\end{equation}
 
 式子中的符号$x^{(i)}\sim\pi$表示第$i$个数据$x(i)$是从概率分布$\pi$中采样的。
 
 接下来回到正题。我们现在探讨的是从别的概率分布中采样$x$的场景。假设$x$是从概率分布$b$（而不是$\pi$）中采样的。在这种情况下，期望值$\mathbb{E}_\pi[x]$如何被近似呢？解决这个问题的关键在于下面这个式子的变形。
 
-$$
+\begin{equation}
 \begin{aligned}
 \mathbb{E}_\pi[x] &= \sum x\pi(x) \\
 &= \sum x \frac{b(x)}{b(x)}\pi(x) \\
 &= \sum x \frac{\pi(x)}{b(x)}b(x)
 \end{aligned}
-$$
+\end{equation}
 
 这里的要点是插入$\frac{b(x)}{b(x)}$。$\frac{b(x)}{b(x)}$总是为$1$，所以等式成立。然后，我们将式子变为$\sum\cdots b(x)$的形式，如上面的式子所示，这样它就可以被视为概率分布$b(x)$的期望值了。实际上对上面的式子变形，可以得到以下式子。
 
-$$
+\begin{equation}
 \begin{aligned}
 \mathbb{E}_\pi[x] &= \sum x\frac{\pi(x)}{b(x)}b(x) \\
 &= \mathbb{E}_b\left[ x\frac{\pi(x)}{b(x)} \right] 
 \end{aligned}
-$$
+\end{equation}
 
 这里需要注意的是式子中的$\mathbb{E}_b$，它表示的是概率分布$b$的期望值。另外每个$x$都要乘以$\frac{\pi(x)}{b(x)}$这一点也很重要。如果$\rho(x)=\frac{\pi(x)}{b(x)}$，那么我们就可以把式子看作每个$x$都乘以权重$\rho(x)$。根据以上探讨，基于式的蒙特卡洛方法如下所示。
 
-$$
+\begin{equation}
 \begin{aligned}
 \text{采样}: x^{(i)}\sim b\quad (i=1,2,\cdots,n) \\
 \mathbb{E}_\pi[x]\simeq\frac{\rho(x^{(1)})+\rho(x^{(2)})+\cdots+\rho(x^{(n)})}{n}
 \end{aligned}
-$$
+\end{equation}
 
 这样我们就使用从不同于$\pi$的概率分布$b$中采样的数据计算出了$\mathbb{E}_\pi[x]$。下面来实现重要性采样的代码 。这里我们对图\ref{fig:importance-sampling-1}所示的概率分布进行重要性采样。
 
@@ -3195,9 +3195,9 @@ print("MC: {:.2f} (var: {:.2f})".format(mean, var))
 
 首先，套用定义式求期望值。求出的结果是$2.7$（这是真实的值）。然后，使用蒙特卡洛方法来求这个值。这里只基于概率分布 \py{pi} 采样 100 个数据，然后求平均值。为此，我们用NumPy的\py{np.mean}方法求出了平均值。结果是$2.78$，接近于真实值。作为参考，我们还使用NumPy的\py{np.var}方法求出了方差。方差的值是$0.27$。在与下一次重要性采样的结果进行比较时，这个值将被用作参考。方差用于表示数据的离散程度。期望值和方差之间的关系可以用以下式子表示。
 
-$$
+\begin{equation}
 \text{Var}[X] = \mathbb{E}[(X-\mathbb{E}[X])^2]
-$$
+\end{equation}
 
 方差是数据$X$和$X$的平均值$\mathbb{E}[X]$之间的差的平方的期望值。直观地说，它代表了数据的离散程度，如图\ref{fig:var-def}所示。
 
@@ -3944,7 +3944,13 @@ pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
 
 \begin{codebox}{python}{Reward Model}
 from datasets import load_dataset
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorWithPadding
+import torch
+from torch import nn
+import numpy as np
+from torch.utils.data import DataLoader
+from sklearn.metrics import confusion_matrix
+
 model_name = 'gpt2-chinese-cluecorpussmall'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -3983,11 +3989,6 @@ map_kwargs = {
 tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
 
 tokenized_dataset_train.set_format(type='torch')
-
-import torch
-from torch import nn
-import numpy as np
-from transformers import AutoModelForCausalLM
 
 class RewardHead(nn.Module):
     """奖励头，是一个线性层"""
@@ -4032,10 +4033,9 @@ class GPT2RewardHead(nn.Module):
         return torch.sigmoid(reward)
 
 model = GPT2RewardHead(model_name)
-from torch.utils.data import DataLoader
-from transformers import DataCollatorWithPadding
 
 data_collator = DataCollatorWithPadding(tokenizer)
+
 dataloader_params = {
     'batch_size': 16, # 还是使用6G显存
     'shuffle': True,
@@ -4046,9 +4046,7 @@ train_dataloader = DataLoader(
     **dataloader_params
 )
 
-device = torch.device('cuda') \
-    if torch.cuda.is_available() \
-    else torch.device('cpu')
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
 # 二分类交叉熵损失
@@ -4080,7 +4078,6 @@ for epoch in range(num_epochs):
 
 torch.save(model.state_dict(), 'reward_model.pt')
 
-from sklearn.metrics import confusion_matrix
 model.eval()
 
 all_predictions = []
