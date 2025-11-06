@@ -3370,6 +3370,138 @@ print("IS: {:.2f} (var: {:.2f})".format(mean, var)) # 输出：IS: 2.72 (var: 2.
 
 以上就是对重要性采样的介绍。
 
+\subsection{带折扣的状态访问分布}
+
+\textbf{带折扣的状态访问分布} $d^\pi(s)$ 定义为：
+
+\begin{equation}
+d^\pi(s) = (1-\gamma) \sum_{t=0}^{\infty} \gamma^t P(s_t = s | \pi_\theta)
+\end{equation}
+
+其中：
+
+\begin{itemize}
+\item $\gamma \in [0,1)$ 是折扣因子
+\item $P(s_t = s | \pi_\theta)$ 是在策略 $\pi_\theta$ 下，时刻 $t$ 访问状态 $s$ 的概率
+\item $(1-\gamma)$ 是归一化因子
+\end{itemize}
+
+直观理解
+
+\begin{itemize}
+\item $d^\pi(s)$ 告诉我们：在策略 $\pi$ 下，考虑折扣因子后，我们``有多常''访问状态 $s$
+\item 早期访问的状态（小的 $t$）权重更高（因为 $\gamma^t$ 衰减）
+\item 这个分布自然地从``最大化折扣累积回报''的目标中产生
+\end{itemize}
+
+策略梯度法的目标是最大化期望累积回报：
+
+\begin{equation}
+\begin{aligned}
+J(\theta) &= \mathbb{E}_{\tau \sim \pi_\theta}\left[ G(\tau) \right] \\
+&= \mathbb{E}_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^{\infty} \gamma^t r(s_t, a_t) \right]
+\end{aligned}
+\end{equation}
+
+其中 $\tau = (s_0, a_0, s_1, a_1, \ldots)$ 是轨迹。
+
+展开期望
+
+将期望展开为对所有可能轨迹的求和：
+
+\begin{equation}
+J(\theta) = \sum_{\tau} P(\tau | \pi_\theta) \sum_{t=0}^{\infty} \gamma^t r(s_t, a_t)
+\end{equation}
+
+其中轨迹概率为：
+
+\begin{equation}
+P(\tau | \pi_\theta) = p(s_0) \prod_{t=0}^{\infty} \pi_\theta(a_t|s_t) p(s_{t+1}|s_t, a_t)
+\end{equation}
+
+交换求和顺序
+
+关键步骤：交换对轨迹和时间步的求和顺序
+
+\begin{equation}
+\begin{aligned}
+J(\theta) &= \sum_{\tau} p(\tau | \pi_\theta) \sum_{t=0}^{\infty} \gamma^t r(s_t, a_t) \\
+&= \sum_{t=0}^{\infty} \gamma^t \sum_{\tau} p(\tau | \pi_\theta) r(s_t, a_t) \\
+&= \sum_{t=0}^{\infty} \gamma^t \mathbb{E}_{\tau \sim \pi_\theta} [r(s_t, a_t)]
+\end{aligned}
+\end{equation}
+
+边缘化为状态-动作对
+
+对于固定的时刻 $t$，我们可以边缘化出 $(s_t, a_t)$：
+
+\begin{equation}
+\begin{aligned}
+\mathbb{E}_{\tau \sim \pi_\theta} [r(s_t, a_t)] &= \sum_{s,a} p(s_t=s, a_t=a | \pi_\theta) r(s,a) \\
+&= \sum_{s,a} p(s_t=s | \pi_\theta) \pi_\theta(a|s) r(s,a)
+\end{aligned}
+\end{equation}
+
+因此：
+
+\begin{equation}
+J(\theta) = \sum_{t=0}^{\infty} \gamma^t \sum_{s,a} P(s_t=s | \pi_\theta) \pi_\theta(a|s) r(s,a)
+\end{equation}
+
+再次交换求和顺序
+
+现在交换对 $t$ 和 $(s,a)$ 的求和：
+
+\begin{equation}
+\begin{aligned}
+J(\theta) &= \sum_{s,a} \left[ \sum_{t=0}^{\infty} \gamma^t P(s_t=s | \pi_\theta) \right] \pi_\theta(a|s) r(s,a) \\
+&= \sum_{s,a} \left[ \sum_{t=0}^{\infty} \gamma^t P(s_t=s | \pi_\theta) \right] \pi_\theta(a|s) r(s,a)
+\end{aligned}
+\end{equation}
+
+引入归一化因子
+
+注意到括号内的求和：
+
+\begin{equation}
+\sum_{t=0}^{\infty} \gamma^t P(s_t=s | \pi_\theta)
+\end{equation}
+
+这是一个\textbf{未归一化}的状态访问频率。为了使其成为概率分布，我们引入归一化因子 $(1-\gamma)$：
+
+\begin{equation}
+d^{\pi_\theta}(s) = (1-\gamma) \sum_{t=0}^{\infty} \gamma^t P(s_t=s | \pi_\theta)
+\end{equation}
+
+最终形式
+
+因此目标函数可以写成：
+
+\begin{equation}
+\boxed{J(\theta) = \frac{1}{1-\gamma} \sum_s d^{\pi_\theta}(s) \sum_a \pi_\theta(a|s) r(s,a)}
+\end{equation}
+
+或者，如果我们重新定义目标函数（常见做法）：
+
+\begin{equation}
+\boxed{J(\theta) = \sum_s d^{\pi_\theta}(s) \sum_a \pi_\theta(a|s) r(s,a) = \mathbb{E}_{s \sim d^{\pi_\theta}, a \sim \pi_\theta}[r(s,a)]}
+\end{equation}
+
+这里我们吸收了 $\frac{1}{1-\gamma}$ 常数因子（因为它不影响优化）。
+
+为什么需要 $(1-\gamma)$ 因子？
+
+验证 $d^\pi$ 是概率分布：
+
+\begin{equation}
+\begin{aligned}
+\sum_s d^\pi(s) &= (1-\gamma) \sum_s \sum_{t=0}^{\infty} \gamma^t P(s_t=s|\pi) \\
+&= (1-\gamma) \sum_{t=0}^{\infty} \gamma^t \underbrace{\sum_s P(s_t=s|\pi)}_{=1} \\
+&= (1-\gamma) \sum_{t=0}^{\infty} \gamma^t \\
+&= (1-\gamma) \cdot \frac{1}{1-\gamma} = 1 \quad \checkmark
+\end{aligned}
+\end{equation}
+
 \section{替代目标}
 
 在本节中，我们将介绍用于 PPO 算法的代理（surrogate）目标。首先，我们通过讨论性能崩溃问题来引出这一动机。随后我们将看到如何修改原始的策略梯度目标以避免该问题。

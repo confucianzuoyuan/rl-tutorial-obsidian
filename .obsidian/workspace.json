@@ -267,12 +267,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2. 策略梯度法.md",
+                "file": "未命名.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2. 策略梯度法"
+              "title": "未命名"
             }
           },
           {
@@ -506,6 +506,7 @@
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "2. 策略梯度法.md",
     "ElegantBook/_minted/5E30178C7EDEE45FE3352C96A831BEAB.highlight.minted",
     "ElegantBook/_minted/1BF9802EDB3E877B192ACAC4BAFC1FCE.highlight.minted",
     "ElegantBook/_minted/78F1140D210F03A4D84B97D15C89AA5E.highlight.minted",
@@ -514,13 +515,11 @@
     "ElegantBook/_minted/86EE476D09F54E2D59462E0FEB98D93B.highlight.minted",
     "ElegantBook/_minted/912D2FAEFA98C6B0E3AC1EF31251E5F1.highlight.minted",
     "ElegantBook/_minted/C9066FA731A7FF3A4D857704BC34AF70.highlight.minted",
-    "ElegantBook/_minted/E6F73A904F94CDB5B304085305B7AD15.highlight.minted",
     "Drawing 2025-11-05 09.35.38.excalidraw.md",
     "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "ppo项目架构图.excalidraw.md",
     "未命名.md",
-    "2. 策略梯度法.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
     "8. 使用DPO微调LLM.md",
