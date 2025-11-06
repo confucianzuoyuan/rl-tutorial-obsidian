@@ -1289,7 +1289,7 @@ J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
 \caption{无数条轨迹}\label{fig:unlimited-samples}
 \end{figure}
 
-\mybox[blue]{大数定律}{
+\mybox[cyan]{大数定律}{
 样本数量越多，则其算术平均值就有越高的概率接近期望。
 \\
 例如，抛掷一颗均匀的6面的骰子，1，2，3，4，5，6应等概率出现，所以每次扔出骰子后，出现点数的期望是
@@ -1412,7 +1412,7 @@ x^{(i)} = \sum_{t=0}^TG(\tau^{(i)})\nabla_{\theta}\log\pi_{\theta}(A_t^{(i)}|S_t
 
 在解决分类问题时，我们要有输入和正确的输出，要有训练数据。但在强化学习中，我们通过采样来获得训练数据。假设在采样的过程中，在某个状态下，我们采样到要采取动作 $A$， 那么就把动作 $A$ 当作标准答案（ground truth）。比如，我们在某个状态下，采样到要向左。因为是采样，所以向左这个动作不一定概率最高。假设我们采样到向左，在训练的时候，让智能体调整网络的参数，如果看到某个状态，我们就向左。在一般的分类问题里面，我们在实现分类的时候，目标函数都会写成最小化交叉熵（cross entropy），最小化交叉熵就是最大化对数似然（log likelihood）。
 
-\mybox[blue]{从极大似然估计的角度看策略梯度}{
+\mybox[cyan]{从极大似然估计的角度看策略梯度}{
 \begin{equation*}
 \begin{aligned}
 J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
@@ -1422,7 +1422,7 @@ J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
 最大化目标就会提升某些状态对应的动作的概率。
 }
 
-\begin{codebox}{python}{策略神经网络$\pi_\theta$}{x10}
+\begin{codebox}{python}{策略神经网络$\pi_\theta$}{pythoncode:policynet}
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
@@ -1435,7 +1435,7 @@ class PolicyNet(nn.Module):
         return x # 输出：β$[\pi_\theta(a=\text{向左推}|s),\pi_\theta(a=\text{向右推}|s)]$β
 \end{codebox}
 
-这里实现的神经网络模型由两层全连接层构成。最终输出的元素数是动作的数量（\py{action_size}）。由于这个最终输出是\py{softmax}函数的输出，因此可以得到每个动作的概率。
+代码\ref{pythoncode:policynet}实现的神经网络模型由两层全连接层构成。最终输出的元素数是动作的数量（\py{action_size}）。由于这个最终输出是\py{softmax}函数的输出，因此可以得到每个动作的概率。
 
 这个网络结构就是我们要训练的策略神经网络 $\pi_\theta$ 。其中 $\theta$ 就是神经网络的参数。
 
@@ -1445,7 +1445,7 @@ class PolicyNet(nn.Module):
 
 输出是\py{action_size}个维度。也就是动作的数量个维度。
 
-\mybox[blue]{softmax函数}{
+\mybox[cyan]{softmax函数}{
 如果将具有 $n$ 个元素的向量输入到softmax函数中，那么输出的同样是具有 $n$ 个元素的向量。此时，第 $i$ 个输出 $y_i$ 的式子如下所示。
 \begin{equation*}
 y_i = \frac{\mathrm{e}^{x_i}}{\sum_{k=1}^n\mathrm{e}^{x_k}}
@@ -1455,7 +1455,7 @@ y_i = \frac{\mathrm{e}^{x_i}}{\sum_{k=1}^n\mathrm{e}^{x_k}}
 
 下面是 \py{Agent} 类的代码。首先显示初始化和 \py{get_action} 方法。
 
-\begin{codebox}{python}{智能体代码}{x11}
+\begin{codebox}{python}{Agent}{pythoncode:pg-agent-1}
 class Agent:
     def __init__(self):
         self.gamma = 0.98 # β折扣因子$\gamma$β
@@ -1480,7 +1480,7 @@ class Agent:
 
 下面来试用一下 \py{get_action} 方法。代码如下所示。
 
-\begin{codebox}{python}{}{x12}
+\begin{codebox}{python}{执行1步动作然后反向传播，观察结果}{pythoncode:onestep-backward}
 env = gym.make("CartPole-v0")
 state = env.reset() # β$S_0$β
 agent = Agent()
@@ -1518,7 +1518,9 @@ G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)
 
 求出\py{J}之后，通过\py{J.backward()}求 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)$ 。下面是\py{Agent}类剩下的代码。
 
-\begin{codebox}{python}{采集轨迹的代码和更新策略的代码}{x13}
+我们先来编写采集一条轨迹的详细信息的代码\ref{pythoncode:gp-agent-2}。
+
+\begin{codebox}{python}{采集一条轨迹的详细数据，接代码\ref{pythoncode:pg-agent-1}}{pythoncode:pg-agent-2}
 class Agent:
     ...
 
@@ -1538,6 +1540,13 @@ class Agent:
         # β$[A_0, A_1, \dots, A_T]$β
         # β$[R_0, R_1, \dots, R_T]$β
         return states, actions, rewards
+\end{codebox}
+
+然后编写更新策略的代码\ref{pythoncode:gp-agent-3}。
+
+\begin{codebox}{python}{更新策略的代码，接代码\ref{pythoncode:pg-agent-2}}{pythoncode:pg-agent-3}
+class Agent:
+    ...
 
     def update(self, trajectory):
         states, actions, rewards = trajectory
@@ -1558,18 +1567,20 @@ class Agent:
 
 在训练神经网络时，通常要设置损失函数。对于这个例子，我们可以将目标函数 $J(\theta)$ 乘以 $-1$ 所得到的 $-J(\theta)$ 作为损失函数，此时可以通过梯度下降法的最优化方法（SGD、Adam等）更新参数。
 
-代码中第\ref{code:pg-start}$\sim$\ref{code:pg-end}行可以改写成并行版本如下：
+代码\ref{pythoncode:pg-agent-3}中第\ref{code:pg-start}$\sim$\ref{code:pg-end}行可以改写成并行版本\ref{pythoncode:cal-loss-concurrent}。
 
-\begin{codebox}{python}{}{x14}
+\begin{marker}
+\begin{codebox}{python}{计算对数概率和损失的并行版本}{pythoncode:cal-loss-concurrent}
 states = torch.tensor(states)
 actions = torch.tensor(actions).view(-1, 1)
 log_probs = torch.log(self.pi(states).gather(1, actions))
 loss = -torch.sum(log_probs) * G
 \end{codebox}
+\end{marker}
 
-最后在倒立摆环境中运行智能体。代码如下所示。
+最后在倒立摆环境中训练智能体。代码如\ref{pythoncode:train-3000-steps}所示。
 
-\begin{codebox}{python}{}{x15}
+\begin{codebox}{python}{训练$\pi_\theta$，更新3000次策略网络}{pythoncode:train-3000-steps}
 env = gym.make('CartPole-v0')
 agent = Agent()
 return_list = []
@@ -1591,9 +1602,9 @@ for episode in range(3000):
 
 运行此代码，随着回合的推进，获得的奖励也会增加。下图是结果的示意图。
 
-绘制示意图的代码如下：
+绘制示意图的代码\ref{pythoncode:plot-pg-loss}。
 
-\begin{codebox}{python}{绘制策略的损失图像}{x17}
+\begin{codebox}{python}{绘制策略的损失图像}{pythoncode:plot-pg-loss}
 def plot_loss(episode_list, return_list, filename):
     f = plt.figure()
     plt.plot(episode_list, return_list)
@@ -1616,7 +1627,7 @@ plot_loss(episode_list, return_list, "pg-loss.pdf")
 
 我们可以测试一下训练的策略神经网络。看看倒立摆能不能坚持很长时间。
 
-\begin{codebox}{python}{可视化}{x18}
+\begin{codebox}{python}{测试训练结果}{pythoncode:testagent-pg}
 def test_agent(agent, env):
     state = env.reset()
     done = False
@@ -1739,27 +1750,25 @@ G_t &= R_t + \gamma R_{t+1} + \cdots + \gamma^{T-1}R_T
 
 \subsection{REINFORCE的代码实现}
 
-由于REINFORCE的方差小，因此即使数据样本少，也能高精度地近似数据。下面我们来实现REINFORCE以验证其精度。REINFORCE的代码与上一节中的代码基本相同，不同之处只有 \py{Agent} 类的 \py{update} 方法。下面仅列出了不同部分的代码。
+由于REINFORCE的方差小，因此即使数据样本少，也能高精度地近似数据。下面我们来实现REINFORCE以验证其精度。REINFORCE的代码与上一节中的代码基本相同，不同之处只有 \py{Agent} 类的 \py{update} 方法。下面仅列出了不同部分的代码\ref{pythoncode:reinforce}。
 
-\begin{codebox}{python}{}{x19}
+\begin{codebox}{python}{使用REINFORCE改进原始策略梯度法}{pythoncode:reinforce}
 class Agent:
     ...
 
     def update(self, trajectory):
-        states, actions, reward_list = trajectory
+        states, actions, rewards = trajectory
         G, loss = 0, 0
-        for r, s, a in zip(reward_list[::-1], states[::-1], actions[::-1]):
-            G = r + self.gamma * G
-            _, probs = self.get_action(s)
-            log_prob = torch.log(probs)[a]
-            loss += -log_prob * G
+        for r, s, a in zip(rewards[::-1], states[::-1], actions[::-1]):
+            G = r + self.gamma * G # β$G_t=R_t+\gamma{G_{t+1}}$β
+            probs = self.pi(torch.tensor(s).unsqueeze(0)).squeeze(0)
+            log_prob = torch.log(probs)[a] # β$\log\pi_\theta(A_t|S_t)$β
+            loss += -log_prob * G # β$-\sum_{t=0}^{T}G_t\log\pi_\theta(A_t|S_t)$β
 
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 \end{codebox}
-
-\py{self.memory} 是按先后顺序保存智能体获得的奖励（\py{reward}）和行动概率（\py{prob}）的列表。上面的代码按从后向前的顺序依次访问了 \py{self.memory} 的元素，并计算了每个时刻的 \py{G} 。
 
 我们使用可视化代码将回合和奖励绘制出来。
 
@@ -1965,9 +1974,9 @@ Actor-Critic 中的 Actor 是\textbf{演员}（采取动作的人）的意思，
 
 \subsection{Actic-Critic的代码实现}
 
-下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如下所示。
+下面实现Actor-Critic。策略和价值函数这两个神经网络的代码如\ref{pythoncode:acnet}所示。
 
-\begin{codebox}{python}{策略网络和价值网络}{x21}
+\begin{codebox}{python}{策略网络和价值网络}{pythoncode:acnet}
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
@@ -1991,9 +2000,9 @@ class ValueNet(nn.Module):
         return x
 \end{codebox}
 
-上面的代码将策略的网络实现为了 \py{PolicyNet} 类，将价值函数的网络实现为了 \py{ValueNet} 类。策略的最终输出是 \py{Softmax} 函数的输出，所以输出的是概率。接下来是 \py{Agent} 类的代码。
+上面的代码将策略的网络实现为了 \py{PolicyNet} 类，将价值函数的网络实现为了 \py{ValueNet} 类。策略的最终输出是 \py{Softmax} 函数的输出，所以输出的是概率。接下来是 \py{Agent} 类的代码\ref{pythoncode:ac-agent}。
 
-\begin{codebox}{python}{Agent代码}{x22}
+\begin{codebox}{python}{Actor-Critic-Agent}{pythoncode:ac-agent}
 class Agent:
     def __init__(self):
         self.gamma = 0.98 # 折扣因子β$\gamma$β
@@ -2009,9 +2018,7 @@ class Agent:
         self.optimizer_v = optim.Adam(self.v.parameters(), lr=self.lr_v)
 
     def get_action(self, state):
-        state = torch.tensor(state[np.newaxis, :])
-        probs = self.pi(state)
-        probs = probs[0]
+        probs = self.pi(torch.tensor(state).unsqueeze(0)).squeeze(0)
         m = Categorical(probs)
         action = m.sample().item()
         return action, probs
@@ -2024,8 +2031,8 @@ class Agent:
         next_state, # β$S_{t+1}$β
         done
     ):
-        state = torch.tensor(state[np.newaxis, :]) # β$S_t$β
-        next_state = torch.tensor(next_state[np.newaxis, :]) # β$S_{t+1}$β
+        state = torch.tensor(state).unsqueeze(0) # β$S_t$β
+        next_state = torch.tensor(next_state).unsqueeze(0) # β$S_{t+1}$β
 
         # β$\circled{1}$βself.v 的损失：均方差
         # β$\text{TD目标}=R_t+\gamma{V_\omega(S_{t+1})}$β
@@ -2052,7 +2059,7 @@ class Agent:
 
 \py{update}方法可以训练价值函数和策略。在代码 $\circled{1}$ 处为价值函数(\py{self.v})计算损失。为此要计算TD目标（target），求出当前状态下其与价值函数（v）的均方差。然后，在代码 $\circled{2}$ 处为策略（\py{self.pi}）计算损失。需要将其乘以 $-1$ 的值作为损失。剩下的就是一直以来的神经网络的训练代码。
 
-\begin{codebox}{python}{Actor-Critic智能体的训练代码}{x23}
+\begin{codebox}{python}{Actor-Critic Agent的训练代码}{pythoncode:actrain}
 env = gym.make("CartPole-v0")
 agent = Agent()
 return_list = []
@@ -2097,13 +2104,13 @@ test_agent(agent, env)
 
 首先，$t$时刻的1步TD误差是：
 
-$$
+\begin{equation}
 \delta_t=R_t+\gamma V(s_{t+1})-V(s_t)
-$$
+\end{equation}
 
 其中$V$是价值函数神经网络$V_\omega$。那么我们计算一下多步TD误差：
 
-$$
+\begin{equation}
 \begin{aligned}
 A_t^{(1)} &= \delta_t &&= -V(s_t)+R_t+\gamma V(s_{t+1}) \\
 A_t^{(2)} &= \delta_t+\gamma\delta_{t+1} &&= -V(s_t)+R_t+\gamma R_{t+1}+\gamma^2 V(s_{t+2}) \\
@@ -2111,11 +2118,11 @@ A_t^{(3)} &= \delta_t+\gamma\delta_{t+1}+\gamma^2 \delta_{t+2} &&= -V(s_t)+R_t+\
 &\quad\vdots &&\quad\quad\vdots \\
 A_t^{(k)} &= \sum_{l=0}^{k-1}\gamma^l\delta_{t+l} &&= -V(s_t)+R_t+\gamma R_{t+1}+\cdots+\gamma^{k-1}R_{t+k-1}+\gamma^kV(s_{t+k})
 \end{aligned}
-$$
+\end{equation}
 
 然后，GAE将这些不同步数的优势估计进行指数加权平均：
 
-$$
+\begin{equation}
 \begin{aligned}
 A_t^{\text{GAE}} &= (1-\lambda)(A_t^{(1)}+\lambda A_t^{(2)}+\lambda^2A_t^{(3)}+\cdots) \\
 &= (1-\lambda)(\delta_t+\lambda(\delta_t+\gamma\delta_{t+1})+\lambda^2(\delta_t+\gamma\delta_{t+1}+\gamma^2\delta_{t+2})+\cdots) \\
@@ -2123,15 +2130,15 @@ A_t^{\text{GAE}} &= (1-\lambda)(A_t^{(1)}+\lambda A_t^{(2)}+\lambda^2A_t^{(3)}+\
 &= (1-\lambda)\left({\delta_t\frac{1}{1-\lambda}+\gamma\delta_{t+1}\frac{\lambda}{1-\lambda}+\gamma^2\delta_{t+2}\frac{\lambda^2}{1-\lambda}+\cdots}\right) \\
 &= \sum_{l=0}^{\infty}(\gamma\lambda)^l\delta_{t+l}
 \end{aligned}
-$$
+\end{equation}
 
 其中，$\lambda\in [0,1]$ 是在GAE中额外引入的一个超参数。当 $\lambda=0$ 时，$A_t^{\text{GAE}}=\delta_t=R_t+\gamma V(s_{t+1})-V(s_t)$ ，也就是仅仅只看一步差分得到的优势；当 $\lambda=1$ 时，$A_t^{\text{GAE}}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}=\sum_{l=0}^{\infty}\gamma^lR_{t+l}-V(s_t)$ ，则是看每一步差分得到的优势的完全平均值。
 
 有上面的式子，我们还可以推导出一个递推公式
 
-$$
+\begin{equation}
 A_t = \delta_t + \gamma\lambda A_{t+1}
-$$
+\end{equation}
 
 下面是计算GAE的代码，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
 
@@ -2139,19 +2146,19 @@ $$
 
 首先，我们有 $n$ 个1步TD误差。
 
-$$
+\begin{equation}
 \text{TD}_\delta = \left[\delta_t, \delta_{t+1}, \dots, \delta_{t+n}\right]
-$$
+\end{equation}
 
 先把数组逆序
 
-$$
+\begin{equation}
 \text{TD}_\delta = \left[\delta_{t+n}, \delta_{t+n-1}, \dots, \delta_{t}\right]
-$$
+\end{equation}
 
 然后遍历逆序数组，有如下结果：
 
-$$
+\begin{equation}
 \begin{aligned}
 A_{t+n} &= \delta_{t+n} \\
 A_{t+n-1} &= \delta_{t+n-1} + \gamma\lambda A_{t+n} \\
@@ -2159,7 +2166,7 @@ A_{t+n-2} &= \delta_{t+n-2} + \gamma\lambda A_{t+n-1} \\
 \vdots \\
 A_t &= \delta_t + \gamma\lambda A_{t+1}
 \end{aligned}
-$$
+\end{equation}
 
 这样每一个时间步的广义优势估计就计算出来了。
 
@@ -2179,13 +2186,13 @@ $$
 
 当 $J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack$ 时，其梯度如下面的式子所示。
 
-$$
+\begin{equation}
 \nabla_\theta{J(\theta)}=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG(\tau)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
-$$
+\end{equation}
 
 下面对上面的式子进行证明。
 
-$$
+\begin{equation}
 \begin{aligned}
 \nabla_\theta{J(\theta)} &= \nabla_\theta\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack \\
 &= \nabla_\theta\sum_\tau{\Pr(\tau|\theta)G(\tau)} \quad{\color{cyan}\text{（展开期望值）}} \\
@@ -2196,14 +2203,13 @@ $$
 &= \sum_\tau G(\tau)\Pr(\tau|\theta){\color{red}\nabla_\theta\log\Pr(\tau|\theta)} \quad{\color{cyan}\text{（}\log\text{梯度的技巧）}} \\
 &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)\nabla_\theta\log\Pr(\tau|\theta)}\right\rbrack
 \end{aligned}
-$$
+\end{equation}
 
 这里对``log梯度的技巧''进行说明。这个技巧利用了以下等式。
 
-$$
+\begin{equation}
 \nabla_\theta\log\Pr(\tau|\theta)=\frac{\nabla_\theta\Pr(\tau|\theta)}{\Pr(\tau|\theta)}
-$$
-
+\end{equation}
 
 \begin{marker}
 log梯度技巧：$\log(f(x))'=\frac{f'(x)}{f(x)}$
@@ -2252,82 +2258,84 @@ $\nabla_\theta$ 是对 $\theta$ 的梯度。与 $\theta$ 无关的元素的梯�
 
 这样我们就完成了 $\nabla_\theta{J(\theta)}$ 的推导。
 
-\mybox[blue]{从极大似然估计的角度看策略梯度}{
-$$
+\mybox[cyan]{从极大似然估计的角度看策略梯度}{
+\begin{equation*}
 \begin{aligned}
 J(\theta) &= \sum_{t=0}^TG(\tau)\log \pi_{\theta}(A_{t}|S_{t}) \\
 &= G(\tau)\log{\left(\prod_{t=0}^T\pi_{\theta}(A_{t}|S_{t})\right)}
 \end{aligned}
-$$
+\end{equation*}
 最大化目标就会提升某些状态对应的动作的概率。
 }
 
 \subsection{基线的推导}
 
-$$
+\begin{equation}
 \begin{aligned}
 \nabla_\theta J(\theta) &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
 &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T(G_t-b(S_t))\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
 &= \mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^TG_{t}\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t})\right] -\mathbb{E}_{\tau\sim \pi_{\theta}}\left[ \sum_{t=0}^Tb(S_{t})\nabla_{\theta}\log \pi_{\theta}(A_{t}|S_{t}) \right] \\
 &= \mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^TG_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack \\
 \end{aligned}
-$$
+\end{equation}
 
 如上面的式子所示，我们可以使用 $G_t-b(S_t)$ 代替 $G_t$ 。$b(S_t)$ 是\textbf{任何函数}，我们称之为``基线''。下面进行上式的推导。
 
 首先，证明以下式子成立。
 
-$$
+\begin{equation}
 \mathbb{E}_{x\sim P_\theta}\left\lbrack{\nabla_\theta\log P_\theta(x)}\right\rbrack = 0
-$$
+\end{equation}
 
 这里假设随机变量 $x$ 是基于概率分布 $P_\theta(x)$ 生成的。$P_\theta(x)$ 会根据参数 $\theta$ 改变概率分布的形状。此时有以下式子成立。
 
-$$
+\begin{equation}
 \sum_xP_\theta(x)=1
-$$
+\end{equation}
 
 由于 $P_\theta(x)$ 是概率分布，因此所有 $x$ 的值的和为 1 。然后，求这个式子的梯度。
 
-$$
+\begin{equation}
 \nabla_\theta\sum_xP_\theta(x)=\nabla_\theta 1 = 0
-$$
+\end{equation}
 
 接下来，使用log梯度的技巧将式子展开，过程如下所示。
 
-$$
+\begin{equation}
 \begin{aligned}
 0 &= \nabla_\theta\sum_xP_\theta(x) \\
 &= \sum_x\nabla_\theta P_\theta(x) \\
 &= \sum_xP_\theta(x)\nabla_\theta\log P_\theta(x) \\
 &= \mathbb{E}_{x\sim P_\theta}\left\lbrack{\nabla_\theta\log P_\theta(x)}\right\rbrack
 \end{aligned}
-$$
+\end{equation}
 
 证明(1)完毕。接下来将证明的式子用于我们的问题。具体来说，用 $A_t$ 代替(1)中的 $x$ ，然后使用 $\pi_\theta(\cdot|S_t)$ 代替 $P_\theta(\cdot)$ 。这样就可以得到以下式子。
 
-$$
+\begin{equation}
 \mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
-$$
+\end{equation}
 
 上面的式子是对 $A_t$ 的期望值。因此，我们可以像下面的式子那样，将任何函数 $b(S_t)$ 放入期望值中。$E[x]=0\to E[cx]=c\cdot 0=0$ 。
 
-$$
+\begin{equation}
 \mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{b(S_t)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
-$$
+\end{equation}
 
 $b(S_t)$ 是以 $S_t$ 为参数的函数，即使 $A_t$ 发生变化，它的值也不会改变。由于式子(2)是对 $A_t$ 的期望值，因此即使在期望值中加入函数 $b(S_t)$ ，等式也成立。
 
-\mybox[blue]{NOTE}{
+\begin{marker}
 动作 $A_t$ 的变化会导致收益 $G_t$ 的变化，因此以下式子不成立。
-$$\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{G_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0$$
-}
+\begin{equation*}
+\mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{G_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
+\end{equation*}
+\end{marker}
 
 式子(2)在整个 $t=0\sim T$ 的范围都成立，所以可以得到以下式子。
 
-$$
+\begin{equation}
 \mathbb{E}_{A_t\sim\pi_\theta}\left\lbrack{\sum_{t=0}^Tb(S_t)\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack = 0
-$$
+\end{equation}
 
 所以基线证明完毕。
 
@@ -2335,9 +2343,9 @@ $$
 
 在本章中，我们学习了基于策略的方法——策略梯度法。具体来说，我们学习了 4 种策略梯度法的算法。它们的统一的数学式如下所示。
 
-$$
+\begin{equation}
 \nabla_\theta J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T\Phi_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
-$$
+\end{equation}
 
 \begin{tabular}{lll}
 1. & $\Phi_t=G(\tau)$                             & （最简单的策略梯度法） \\
@@ -2430,14 +2438,14 @@ PPO: Proximal Policy Optimization，近端策略优化
 \caption{梯度爆炸更新}
 \end{figure}
 
-\mybox[blue]{策略梯度法的问题}{
+\begin{marker}
 策略梯度法存在的问题是训练出来的新策略可能比旧策略还要差。
 \mybox[red]{能否找到一个算法，使得训练出来的新策略\textbf{一定}比旧策略好呢？}{
-$$
+\begin{equation*}
 J(\theta_\text{new})-J(\theta_\text{old})\geq 0
-$$
+\end{equation*}
 }
-}
+\end{marker}
 
 \section{近端策略优化}
 
@@ -2471,15 +2479,15 @@ PPO算法是Actor-Critic架构的，也就是演员-评论家架构。
 
 策略梯度法的目标函数
 
-$$
+\begin{equation}
 J(\theta) = \mathbb{E}_{\tau\sim\pi_{\theta}}[G(\tau)]
-$$
+\end{equation}
 
 策略梯度法的目标函数的梯度
 
-$$
+\begin{equation}
 \nabla_{\theta}J(\theta)=\mathbb{E}_{\tau\sim\pi_{\theta}}\left[\sum_{t=0}^TA_t^{\pi_\theta}\nabla_{\theta}\log\pi_{\theta}(a_t|s_t)\right]
-$$
+\end{equation}
 
 其中 $A_t^{\pi_\theta}$ 为估计的优势。这里的 $A$ 表示优势，也就是Advantage。表示当前策略采取动作 $A_t$ 之后，相对于价值函数评估的价值的优势是多少。
 
@@ -2522,9 +2530,9 @@ J(\theta)^{\eqnmarkbox[NavyBlue]{ppo1}{\text{ppo-clip}}}=\mathbb{E}_{\eqnmarkbox
 
 例如：当我们使用旧策略玩了一把倒立摆游戏之后，保存的轨迹中
 
-$$
+\begin{equation}
 \pi_{\theta_\text{old}}(a_1|s_1)=\left[ \text{向左推的概率}=0.3, \text{向右推的概率}=0.7 \right]
-$$
+\end{equation}
 
 那么新策略也可以针对$s_1$计算一下采取动作的概率分布。
 
@@ -2676,7 +2684,7 @@ $$
 \end{itemize}
 \end{marker}
 
-\begin{codebox}{python}{策略网络和价值函数网络的定义}{x24}
+\begin{codebox}{python}{策略网络和价值函数网络的定义}{pythoncode:pponet}
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
@@ -2702,8 +2710,9 @@ class ValueNet(nn.Module):
 
 \section{PPO算法的实现}
 
-我们来实现Agent。
-\begin{codebox}{python}{PPO-Agent}{x25}
+我们来实现Agent，代码见\ref{pythoncode:ppoagent1}。
+
+\begin{codebox}{python}{PPO-Agent}{pythoncode:ppoagent1}
 class Agent:
     def __init__(self):
         self.gamma = 0.98
@@ -2749,13 +2758,13 @@ class Agent:
 
 我们采样的轨迹是：
 
-$$
+\begin{equation}
 \tau = \left[ s_0, a_0, R_0, s_1, a_1, R_1, \dots, s_T, a_T, R_T \right]
-$$
+\end{equation}
 
 那么我们使用元组来保存一条轨迹的信息。结构如下
 
-$$
+\begin{equation}
 \text{一条轨迹的详细信息}
 =
 \begin{cases}
@@ -2766,11 +2775,11 @@ $$
 \text{rewards}: \left[ R_0, R_1, \dots, R_{T-1} \right] \\
 \text{dones}: \left[ \text{False}, \text{False}, \dots, \text{True} \right]
 \end{cases}
-$$
+\end{equation}
 
-有了旧策略采样的轨迹的所有详细信息，我们就可以来实现PPO算法了。
+有了旧策略采样的轨迹的所有详细信息，我们就可以来实现PPO算法了。见代码\ref{pythoncode:ppoagent2}。
 
-\begin{codebox}{python}{PPO-Agent-2}{x26}
+\begin{codebox}{python}{PPO-Agent，接代码\ref{pythoncode:ppoagent1}}{pythoncode:ppoagent2}
 class Agent:
     ...
 
@@ -2832,7 +2841,7 @@ class Agent:
 
 \section{广义优势估计的计算}
 
-\begin{codebox}{python}{GAE}{x27}
+\begin{codebox}{python}{GAE}{pythoncode:calgae}
 def compute_gae(gamma, td_delta):
     # β$\delta_t$β
     td_delta = td_delta.detach().numpy()
@@ -2849,7 +2858,7 @@ def compute_gae(gamma, td_delta):
 
 \section{训练循环}
 
-\begin{codebox}{python}{PPO训练循环}{x28}
+\begin{codebox}{python}{PPO训练循环}{pythoncode:trainppo}
 def train(env, agent):
     return_list = []
     for i in range(10):
@@ -3096,6 +3105,12 @@ D_{KL}(P||Q) = -H(P) + H(P,Q)
 
 \subsection{重要性采样}
 
+\begin{marker}
+重要性采样：Importance Sampling
+\end{marker}
+
+\subsubsection{什么是重要性采样？}
+
 重要性采样利用从其他概率分布中采样的数据来计算某个概率分布的期望值。为了说明重要性采样，下面来看一个计算期望值$\mathbb{E}_\pi[x]$的简单例子。设$x$是随机变量，$x$的概率用$\pi(x)$表示。期望值的式子如下所示。
 
 \begin{equation}
@@ -3178,9 +3193,9 @@ D_{KL}(P||Q) = -H(P) + H(P,Q)
 \label{fig:importance-sampling-1}
 \end{figure}
 
-这里的目标是求出期望值$\mathbb{E}_\pi[x]$。我们先尝试用普通的蒙特卡洛方法求概率分布$\pi$的期望值。代码如下所示。
+这里的目标是求出期望值$\mathbb{E}_\pi[x]$。我们先尝试用普通的蒙特卡洛方法求概率分布$\pi$的期望值。代码如\ref{pythoncode:is1}所示。
 
-\begin{codebox}{python}{}{x29}
+\begin{codebox}{python}{用普通的蒙特卡洛方法求概率分布$\pi$的期望值}{pythoncode:is1}
 import numpy as np
 
 x = np.array([1, 2, 3])
@@ -3188,7 +3203,7 @@ pi = np.array([0.1, 0.1, 0.8])
 
 # 期望值β$\mathbb{E}_\pi[x]$β
 e = np.sum(x * pi)
-print("E_pi[x]", e)
+print("E_pi[x]", e) # 输出：E_pi[x] 2.7
 
 # 蒙特卡洛方法
 n = 100
@@ -3199,14 +3214,7 @@ for _ in samples:
 
 mean = np.mean(samples)
 var = np.var(samples)
-print("MC: {:.2f} (var: {:.2f})".format(mean, var))
-\end{codebox}
-
-\underline{输出结果}
-
-\begin{codebox}{bash}{}{x30}
-    E_pi[x] 2.7
-    MC: 2.78 (var: 0.27)
+print("MC: {:.2f} (var: {:.2f})".format(mean, var)) # 输出：MC: 2.78 (var: 0.27)
 \end{codebox}
 
 首先，套用定义式求期望值。求出的结果是$2.7$（这是真实的值）。然后，使用蒙特卡洛方法来求这个值。这里只基于概率分布 \py{pi} 采样 100 个数据，然后求平均值。为此，我们用NumPy的\py{np.mean}方法求出了平均值。结果是$2.78$，接近于真实值。作为参考，我们还使用NumPy的\py{np.var}方法求出了方差。方差的值是$0.27$。在与下一次重要性采样的结果进行比较时，这个值将被用作参考。方差用于表示数据的离散程度。期望值和方差之间的关系可以用以下式子表示。
@@ -3258,9 +3266,9 @@ print("MC: {:.2f} (var: {:.2f})".format(mean, var))
 \label{fig:var-def}
 \end{figure}
 
-下面尝试用重要性采样的方法来求期望值。代码如下所示。
+下面尝试用重要性采样的方法来求期望值。代码如\ref{pythoncode:is2}所示。
 
-\begin{codebox}{python}{}{x31}
+\begin{codebox}{python}{用重要性采样的方法来求期望值}{pythoncode:is2}
 b = np.array([1/3, 1/3, 1/3])
 n = 100
 samples = []
@@ -3274,13 +3282,7 @@ for _ in range(n):
 
 mean = np.mean(samples)
 var = np.var(samples)
-print("IS: {:.2f} (var: {:.2f})".format(mean, var))
-\end{codebox}
-
-\underline{输出结果}
-
-\begin{codebox}{bash}{}{x32}
-    IS: 2.95 (var: 10.63)
+print("IS: {:.2f} (var: {:.2f})".format(mean, var)) # 输出：IS: 2.95 (var: 10.63)
 \end{codebox}
 
 这里使用概率分布\py{b}进行采样，不过进行采样的目标是\py{b}的索引\py{([0, 1, 2])}。这是因为在计算权重\py{rho}时，要用到的是采样得到的索引。
@@ -3345,7 +3347,7 @@ print("IS: {:.2f} (var: {:.2f})".format(mean, var))
 
 那么，怎样才能减小方差呢？一种方法是使两个概率分布（$b$和$\pi$）更加接近。这样可以使权重$\rho$的值更接近于$1$。下面来做个实验。与之前的代码相比，这次只有概率分布中的$b$的值被改变了。
 
-\begin{codebox}{python}{}{x33}
+\begin{codebox}{python}{减小方差的方法}{pythoncode:is3}
 b = np.array([0.2, 0.2, 0.6])
 n = 100
 samples = []
@@ -3359,13 +3361,7 @@ for _ in range(n):
 
 mean = np.mean(samples)
 var = np.var(samples)
-print("IS: {:.2f} (var: {:.2f})".format(mean, var))
-\end{codebox}
-
-\underline{输出结果}
-
-\begin{codebox}{bash}{}{x34}
-    IS: 2.72 (var: 2.48)
+print("IS: {:.2f} (var: {:.2f})".format(mean, var)) # 输出：IS: 2.72 (var: 2.48)
 \end{codebox}
 
 上面的代码假设$b$的概率分布为\py{[0.2, 0.2, 0.6]}，其形状更接近于\py{pi}的概率分布。结果是，平均值为$2.72$，更接近于正确答案。另外，方差是$2.48$，比以前小。
@@ -3680,7 +3676,7 @@ J^{\text{GRPO}}(\theta)=\frac{1}{G}\displaystyle\sum_{i=1}^G \frac{1}{|\tau_{i}|
 
 \section{使用GRPO玩倒立摆游戏}
 
-\begin{codebox}{python}{策略网络结构}{x35}
+\begin{codebox}{python}{策略网络结构}{pythoncode:grponet}
 class PolicyNet(nn.Module):
     def __init__(self, action_size):
         super().__init__()
@@ -3695,7 +3691,7 @@ class PolicyNet(nn.Module):
 
 智能体的代码
 
-\begin{codebox}{python}{智能体}{x36}
+\begin{codebox}{python}{GRPO的智能体}{pythoncode:grpoagent}
 class Agent:
     def __init__(self):
         self.lr = 0.0002
@@ -3706,9 +3702,7 @@ class Agent:
         self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
 
     def get_action(self, state):
-        state = torch.tensor(state[np.newaxis, :])
-        probs = self.pi(state)
-        probs = probs[0]
+        probs = self.pi(torch.tensor(state).unsqueeze(0)).squeeze(0)
         m = Categorical(probs)
         action = m.sample().item()
 
@@ -3717,7 +3711,7 @@ class Agent:
 
 将采样一条轨迹封装为一个函数
 
-\begin{codebox}{python}{采样一条轨迹的函数}{x37}
+\begin{codebox}{python}{GRPO智能体采样一条轨迹的函数，接代码\ref{pythoncode:grpoagent}}{pythoncode:grpoagent1}
 class Agent:
     ...
 
@@ -3770,7 +3764,7 @@ R_{\tau_{i}}^\text{normalized} = \frac{G(\tau_i)}{200}
 A_{\tau_i} = \frac{R_{\tau_{i}}^\text{normalized} - \text{reward}_\text{mean}}{\text{reward}_\text{std}}
 \end{equation}
 
-\begin{codebox}{python}{计算优势}{x38}
+\begin{codebox}{python}{计算组相对优势}{pythoncode:calgrpoadvantage}
 def calc_advantages_with_grpo(trajectories):
     # 每一条轨迹的归一化奖励组成的数组
     rewards = [r for o, l, a, r in trajectories]
@@ -3786,7 +3780,7 @@ def calc_advantages_with_grpo(trajectories):
 
 使用GRPO算法更新策略的代码如下
 
-\begin{codebox}{python}{GRPO更新}{x39}
+\begin{codebox}{python}{GRPO更新策略的代码，接代码\ref{pythoncode:grpoagent1}}{pythoncode:grpoagent2}
 class Agent:
     ...
 
@@ -3831,14 +3825,12 @@ class Agent:
         return None
 \end{codebox}
 
-\begin{codebox}{python}{初始化环境}{x40}
+\begin{codebox}{python}{GRPO训练循环}{pythoncode:traingrpo}
 env = gym.make('CartPole-v0')
 agent = Agent()
 # 每一组5条轨迹：β$G=5$β
 trajectories_per_update = 5
-\end{codebox}
 
-\begin{codebox}{python}{训练循环}{x41}
 trial_num = 0
 
 while(True):
@@ -3864,7 +3856,7 @@ while(True):
 env.close()
 \end{codebox}
 
-\begin{codebox}{python}{可视化}{x42}
+\begin{codebox}{python}{可视化GRPO}{pythoncode:visualizegrpo}
 state = env.reset()
 done = False
 episode_reward = 0
@@ -3884,8 +3876,6 @@ env.close()
 
 show_animation(frames)
 \end{codebox}
-
-
 
 \part{基于人类反馈的强化学习（RLHF）}
 
