@@ -578,9 +578,9 @@ show_animation(frames)
 
 假设在时刻 $t$ 的状态是 $S_t$ 。基于这个状态 $S_t$ ，智能体执行行动 $A_t$ ，获得奖励 $R_t$ 并迁移到下一个状态 $S_{t+1}$ 。智能体与环境之间的这种实际的互动产生了以下迁移。
 
-$$
+\begin{equation}
 S_0,A_0,R_0,S_1,A_1,R_1,S_2,A_2,R_2,\cdots
-$$
+\end{equation}
 
 这个时间序列数据从第一个状态 $S_0$ 开始。在状态 $S_0$ ，智能体执行行动 $A_0$ 并获得奖励 $R_0$ 。时刻变为 $1$ ，状态变为 $S_1$ 。接下来，基于状态 $S_1$ ，智能体执行行动 $A_1$ 并获得奖励 $R_1$，然后进入下一个状态 $S_2\cdots\cdots$ 这个流程不断持续下去。
 
@@ -1454,12 +1454,7 @@ class Agent:
         self.optimizer = optim.Adam(self.pi.parameters(), lr=self.lr)
 
     def get_action(self, state):
-        # β$(4,)\rightarrow(1,4)$β
-        state = torch.tensor(state[np.newaxis, :])
-        # probs: [[向左推的概率, 向右推的概率]]
-        probs = self.pi(state)
-        # 取出概率分布：[向左推的概率, 向右推的概率]
-        probs = probs[0]
+        probs = self.pi(torch.tensor(state).unsqueeze(0)).squeeze(0)
         # 根据动作的概率分布创建一个二项分布
         m = Categorical(probs)
         # 使用二项分布采样动作β$\pi_\theta(a_t|s_t)$β
@@ -1538,11 +1533,11 @@ class Agent:
         G = 0
         for r in rewards[::-1]:
             G = r + self.gamma * G
-        loss = 0
+        loss = 0β$\label{code:pg-start}$β
         for s, a in zip(states, actions):
-            _, probs = self.get_action(s)
+            probs = self.pi(torch.tensor(s).unsqueeze(0)).squeeze(0)
             log_prob = torch.log(probs)[a] # β$\log\pi_\theta(A_t|S_t)$β
-            loss += -log_prob * G # β$-\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t)$β
+            loss += -log_prob * Gβ$\label{code:pg-end}$β # β$-\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t)$β
 
         self.optimizer.zero_grad()
         loss.backward() # β$\nabla_\theta\left\{ -\sum_{t=0}^{T}G(\tau)\log\pi_\theta(A_t|S_t) \right\}$β
@@ -1550,6 +1545,15 @@ class Agent:
 \end{codebox}
 
 在训练神经网络时，通常要设置损失函数。对于这个例子，我们可以将目标函数 $J(\theta)$ 乘以 $-1$ 所得到的 $-J(\theta)$ 作为损失函数，此时可以通过梯度下降法的最优化方法（SGD、Adam等）更新参数。
+
+代码中第\ref{code:pg-start}$\sim$\ref{code:pg-end}行可以改写成并行版本如下：
+
+\begin{codebox}{python}{}
+states = torch.tensor(states)
+actions = torch.tensor(actions).view(-1, 1)
+log_probs = torch.log(self.pi(states).gather(1, actions))
+loss = -torch.sum(log_probs) * G
+\end{codebox}
 
 最后在倒立摆环境中运行智能体。代码如下所示。
 
