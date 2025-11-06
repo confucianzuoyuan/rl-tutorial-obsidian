@@ -1518,7 +1518,7 @@ G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)
 
 求出\py{J}之后，通过\py{J.backward()}求 $G(\tau)\nabla_{\theta}\log\pi_{\theta}(A_0|S_0)$ 。下面是\py{Agent}类剩下的代码。
 
-我们先来编写采集一条轨迹的详细信息的代码\ref{pythoncode:gp-agent-2}。
+我们先来编写采集一条轨迹的详细信息的代码\ref{pythoncode:pg-agent-2}。
 
 \begin{codebox}{python}{采集一条轨迹的详细数据，接代码\ref{pythoncode:pg-agent-1}}{pythoncode:pg-agent-2}
 class Agent:
@@ -1542,7 +1542,7 @@ class Agent:
         return states, actions, rewards
 \end{codebox}
 
-然后编写更新策略的代码\ref{pythoncode:gp-agent-3}。
+然后编写更新策略的代码\ref{pythoncode:pg-agent-3}。
 
 \begin{codebox}{python}{更新策略的代码，接代码\ref{pythoncode:pg-agent-2}}{pythoncode:pg-agent-3}
 class Agent:
@@ -4011,37 +4011,93 @@ show_animation(frames)
 
 \part{基于人类反馈的强化学习（RLHF）}
 
-\chapter{大语言模型的预训练}
+\chapter{预训练的大语言模型}
+
+\section{gpt2预训练模型}
+
+\begin{marker}
+我们使用的是中文版gpt2：``gpt2-chinese-cluecorpussmall''。
+\end{marker}
+
+我们测试一下预训练大模型。
+
+\begin{codebox}{python}{测试预训练大模型}{pythoncode:gpt2test}
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, set_seed
+from pprint import pprint
+
+model_path = "./gpt2-chinese-cluecorpussmall"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(model_path)
+print(sum(p.numel() for p in model.parameters()))
+
+# 测试分词功能
+
+# 编码
+text = "你好，我是强化学习"
+tokens = tokenizer(text)
+print(tokens)
+
+# 解码
+print(tokenizer.decode(tokens['input_ids']))
+
+# 对一批数据进行编码
+texts = [
+    "我自横刀向天笑",
+    "生存还是毁灭，这是一个问题",
+    "爱是恒久忍耐，又有恩慈"
+]
+tokens_obj = tokenizer(texts)
+
+for tokens in tokens_obj["input_ids"]:
+    print(tokenizer.decode(tokens))
+
+# 给提示词，看一下gpt2的输出
+# 生成式任务
+g = pipeline("text-generation", model="./gpt2-chinese-cluecorpussmall")
+set_seed(42)
+# 给定提示词，输出完整内容
+pprint(g(
+    "你是谁？",
+    max_length=30,
+    num_return_sequences=1
+))
+\end{codebox}
 
 \chapter{监督微调（SFT）}
 
-\begin{codebox}{python}{SFT}{x43}
+\section{gpt2的监督微调}
+
+\begin{marker}
+我们使用的底座模型是中文版gpt2：``gpt2-chinese-cluecorpussmall''。
+\end{marker}
+
+\begin{codebox}{python}{对gpt2进行监督微调}{pythoncode:gpt2finetune}
 import torch
-from transformers import BertTokenizer, GPT2LMHeadModel, DataCollatorForLanguageModeling, pipeline, set_seed
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, pipeline, set_seed
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 from pprint import pprint
 
 dataset = load_dataset("csv", data_files="online_shopping_10_cats.csv")
 
-ds_train = dataset['train']
-ds_train = ds_train.filter(lambda x : x['review'] != None and len(x['review']) > 20 and len(x['review']) < 1024)
+ds_train = dataset["train"]
+ds_train = ds_train.filter(lambda x : x["review"] != None and len(x["review"]) > 20 and len(x["review"]) < 1024)
 
-tokenizer = BertTokenizer.from_pretrained("./gpt2-chinese-cluecorpussmall")
-model = GPT2LMHeadModel.from_pretrained("./gpt2-chinese-cluecorpussmall")
+tokenizer = AutoTokenizer.from_pretrained("./gpt2-chinese-cluecorpussmall")
+model = AutoModelForCausalLM.from_pretrained("./gpt2-chinese-cluecorpussmall")
 
 def tokenize(batch):
-    return tokenizer(batch['review'])
+    return tokenizer(batch["review"])
 
 map_kwargs = {
     'batched': True,
     'batch_size': 512,
-    'remove_columns': ['cat', 'label', 'review']
+    'remove_columns': ["cat", "label", "review"]
 }
 
 tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
 
-tokenized_dataset_train.set_format(type='torch')
+tokenized_dataset_train.set_format(type="torch")
 
 tokenizer.eos_token = tokenizer.pad_token
 
@@ -4066,7 +4122,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
 # 否则容易过拟合，造成灾难性遗忘
 num_epochs = 1
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda")
 model.to(device)
 for epoch in range(num_epochs):
     model.train()
@@ -4078,12 +4134,12 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
         if i % 100 == 0:
-            print(f'Loss: {loss.item()}')
+            print(f"Step: {i}, Loss: {loss.item()}")
 
 model.save_pretrained('./gpt2-sft')
 tokenizer.save_pretrained('./gpt2-sft')
 
-
+# 测试微调后的模型
 g = pipeline('text-generation', model='./gpt2-sft')
 set_seed(42)
 pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
@@ -4091,7 +4147,9 @@ pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
 
 \chapter{基于分类的微调}
 
-\begin{codebox}{python}{Reward Model}{x44}
+\section{将gpt2预训练模型微调成一个分类模型}
+
+\begin{codebox}{python}{奖励模型}{pythoncode:gpt2-reward-model}
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorWithPadding
 import torch
@@ -4100,8 +4158,8 @@ import numpy as np
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix
 
-model_name = 'gpt2-chinese-cluecorpussmall'
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model_path = "./gpt2-chinese-cluecorpussmall"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 tokenizer.eos_token = tokenizer.pad_token
 REWARD_TOKEN_ID = tokenizer.eos_token_id
@@ -4109,35 +4167,35 @@ REWARD_TOKEN_ID = tokenizer.eos_token_id
 ds = load_dataset("csv", data_files="online_shopping_10_cats.csv")
 ds_train = ds['train']
 
-ds_train = ds_train.filter(lambda x : x['review'] != None and len(x['review']) > 20 and len(x['review']) < 1024)
+ds_train = ds_train.filter(lambda x : x["review"] != None and len(x["review"]) > 20 and len(x["review"]) < 1024)
 
 def tokenize(batch):
     # 提取出文本内容
-    outputs = tokenizer(batch['review'])
+    outputs = tokenizer(batch["review"])
     # 每条数据一个评分，初始化为 0 。
-    outputs['score'] = [0] * len(outputs['input_ids'])
+    outputs["score"] = [0] * len(outputs["input_ids"])
     # 对每条数据的最后的reward token进行评分
-    outputs['score_index'] = [0] * len(outputs['input_ids'])
-    for i in range(len(outputs['input_ids'])):
+    outputs["score_index"] = [0] * len(outputs["input_ids"])
+    for i in range(len(outputs["input_ids"])):
         # 第 i 条数据的末尾添加一个 eos token，作为reward token
-        outputs['input_ids'][i].append(REWARD_TOKEN_ID)
+        outputs["input_ids"][i].append(REWARD_TOKEN_ID)
         # reward token的掩码设置为 1 。
-        outputs['attention_mask'][i].append(1)
+        outputs["attention_mask"][i].append(1)
         # 正向情感的文本评分为 1 。负向情感的评分为 0 。
-        outputs['score'][i] = float(batch['label'][i])
+        outputs["score"][i] = float(batch["label"][i])
         # 对 reward token 进行评分，也就是评分的索引为 reward token 的索引。
-        outputs['score_index'][i] = len(outputs['input_ids'][i]) - 1
+        outputs["score_index"][i] = len(outputs["input_ids"][i]) - 1
     return outputs
 
 map_kwargs = {
     "batched": True,
     "batch_size": 512,
-    "remove_columns": ['cat', 'label', 'review']
+    "remove_columns": ["cat", "label", "review"]
 }
 
 tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
 
-tokenized_dataset_train.set_format(type='torch')
+tokenized_dataset_train.set_format(type="torch")
 
 class RewardHead(nn.Module):
     """奖励头，是一个线性层"""
@@ -4181,21 +4239,22 @@ class GPT2RewardHead(nn.Module):
         # sigmoid用来将奖励搞到(0,1)范围内
         return torch.sigmoid(reward)
 
-model = GPT2RewardHead(model_name)
+model = GPT2RewardHead(model_path)
 
 data_collator = DataCollatorWithPadding(tokenizer)
 
 dataloader_params = {
-    'batch_size': 16, # 还是使用6G显存
-    'shuffle': True,
-    'collate_fn': data_collator
+    "batch_size": 16, # 还是使用6G显存
+    "shuffle": True,
+    "collate_fn": data_collator
 }
+
 train_dataloader = DataLoader(
     tokenized_dataset_train,
     **dataloader_params
 )
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device("cuda")
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
 # 二分类交叉熵损失
@@ -4218,14 +4277,14 @@ for epoch in range(num_epochs):
         # 模型对reward token的打分
         score = scores[batch_indices, inputs['score_index']]
         # 真实分数：0或者1
-        target = inputs['score']
+        target = inputs["score"]
         loss = criterion(score, target)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print('损失：', loss.item())
+        print("Loss: ", loss.item())
 
-torch.save(model.state_dict(), 'reward_model.pt')
+torch.save(model.state_dict(), "reward_model.pt")
 
 model.eval()
 
@@ -4235,14 +4294,14 @@ all_labels = []
 for i, batch in enumerate(train_dataloader):
     inputs = batch.to(device)
     model_inputs = {
-        'input_ids': inputs['input_ids'],
-        'attention_mask': inputs['attention_mask']
+        "input_ids": inputs["input_ids"],
+        "attention_mask": inputs["attention_mask"]
     }
     with torch.no_grad():
         scores = model(**model_inputs)
         batch_indices = torch.arange(scores.shape[0])
-        score = scores[batch_indices, inputs['score_index']]
-        target = inputs['score']
+        score = scores[batch_indices, inputs["score_index"]]
+        target = inputs["score"]
     predictions = (score > 0.5).int()
 
     all_predictions.extend(predictions.cpu().numpy())
@@ -4250,5 +4309,102 @@ for i, batch in enumerate(train_dataloader):
 
 confusion_matrix(all_labels, all_predictions)
 \end{codebox}
+
+\chapter{基于指令的监督微调}
+
+\begin{marker}
+基于指令的监督微调：Instruct SFT
+
+目标：在给定问题（Question）的前提下，使得模型产生该回答（Answer）的概率最大化。
+\end{marker}
+
+\section{基于指令的监督微调的损失函数}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\node [font=\LARGE] at (2.5,21.25) {一条训练数据};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (5.5,22.25) rectangle (6.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (7,22.25) rectangle (8.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (8.5,22.25) rectangle (9.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (10,22.25) rectangle (11.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.5,22.25) rectangle (12.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (13,22.25) rectangle (14.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.5,22.25) rectangle (15.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16,22.25) rectangle (17.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (17.5,22.25) rectangle (18.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19,22.25) rectangle (20.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,22.25) rectangle (21.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,22.25) rectangle (23.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,22.25) rectangle (24.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,22.25) rectangle (26.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,22.25) rectangle (27.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,22.25) rectangle (29.25,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (29.75,22.25) rectangle  node {\LARGE $y_1$} (31,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (31.25,22.25) rectangle  node {\LARGE $y_2$} (32.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (32.75,22.25) rectangle  node {\LARGE $.$} (34,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (34.25,22.25) rectangle  node {\LARGE $.$} (35.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (35.75,22.25) rectangle  node {\LARGE $.$} (37,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (37.25,22.25) rectangle  node {\LARGE $.$} (38.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (38.75,22.25) rectangle  node {\LARGE $y_k$} (40,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (40.25,22.25) rectangle  node {\LARGE $.$} (41.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (41.75,22.25) rectangle  node {\LARGE $.$} (43,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43.25,22.25) rectangle  node {\LARGE $.$} (44.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.75,22.25) rectangle  node {\LARGE $.$} (46,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.25,22.25) rectangle  node {\LARGE $.$} (47.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.75,22.25) rectangle  node {\LARGE $.$} (49,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,22.25) rectangle  node {\LARGE $.$} (50.5,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.75,22.25) rectangle  node {\LARGE $.$} (52,20.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52.25,22.25) rectangle  node {\LARGE $y_m$} (53.5,20.25);
+\node [font=\LARGE] at (16.75,24.5) {问题};
+\node [font=\LARGE] at (40,24.5) {答案};
+\draw [short] (5.75,19.5) -- (6.25,19);
+\draw [short] (6.25,19) -- (17,19);
+\draw [short] (17,19) -- (17.25,18.5);
+\draw [short] (17.25,18.5) -- (17.5,19);
+\draw [short] (17.5,19) -- (28.5,19);
+\draw [short] (28.5,19) -- (29,19.5);
+\draw [short] (30,19.5) -- (30.5,19);
+\draw [short] (30.5,19) -- (41.25,19);
+\draw [short] (41.25,19) -- (41.5,18.5);
+\draw [short] (41.5,18.5) -- (41.75,19);
+\draw [short] (41.75,19) -- (52.75,19);
+\draw [short] (52.75,19) -- (53.25,19.5);
+\node [font=\LARGE] at (17.25,17.75) {$x$};
+\node [font=\LARGE] at (41.25,17.75) {$y_{1\sim m}$};
+\end{circuitikz}
+}%
+\caption{基于指令的SFT}
+\label{fig:instruct-sft}
+\end{figure}
+
+\begin{equation}
+\max_\theta\pi_\theta = \max\left( \prod_{k=1}^{m}P_\theta\left( y_k|x,y_{<k} \right) \right)
+\end{equation}
+
+上面的式子等价于
+
+\begin{equation}
+\max_\theta\pi_\theta = \max\left( \prod_{k=1}^{m}P_\theta\left( y_k|x,y_{<k} \right) \right)^{\frac{1}{m}}
+\end{equation}
+
+那么如果对上面的式子两边取对数的话，有
+
+\begin{equation}
+\begin{aligned}
+\max_\theta\log\pi_\theta &= \max\log\left( \prod_{k=1}^{m}P_\theta\left( y_k|x,y_{<k} \right) \right)^{\frac{1}{m}} \\
+&= \max{\color{cyan}\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( y_k|x,y_{<k} \right)}
+\end{aligned}
+\end{equation}
+
+取负值就是我们最终要计算的损失函数。
+
+\begin{equation}
+{\color{red}\min}{\color{cyan}-\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( y_k|x,y_{<k} \right)}
+\end{equation}
+
+
 
 \end{document}
