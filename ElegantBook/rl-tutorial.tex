@@ -2192,7 +2192,7 @@ A_t &= \delta_t + \gamma\lambda A_{t+1}
 
 下面对上面的式子进行证明。
 
-\begin{equation}
+\begin{equation}\label{eq:pg-proof-expand}
 \begin{aligned}
 \nabla_\theta{J(\theta)} &= \nabla_\theta\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{G(\tau)}\right\rbrack \\
 &= \nabla_\theta\sum_\tau{\Pr(\tau|\theta)G(\tau)} \quad{\color{cyan}\text{（展开期望值）}} \\
@@ -2223,7 +2223,7 @@ log梯度技巧：$\log(f(x))'=\frac{f'(x)}{f(x)}$
 
 这就是著名的\textbf{log梯度的技巧}。是机器学习领域常用的数学式的变形形式。
 
-接下来，我们将利用以下等式进一步展开$(1)$。
+接下来，我们将利用以下等式进一步展开\ref{eq:pg-proof-expand}。
 
 \begin{equation}
 \begin{aligned}
@@ -2231,6 +2231,31 @@ log梯度技巧：$\log(f(x))'=\frac{f'(x)}{f(x)}$
 &= p(S_0)\prod_{t=0}^T\pi_\theta(A_t|S_t)p(S_{t+1}|S_t,A_t)
 \end{aligned}
 \end{equation}
+
+\begin{marker}
+轨迹是：
+\begin{equation*}
+\tau=(S_{0},A_{0},S_{1},A_{1},S_{2},A_{2},S_{3})
+\end{equation*}
+轨迹概率求解过程
+\begin{equation*}
+\begin{aligned}
+Pr(\tau) & = p(S_{0},A_{0},S_{1},A_{1},S_{2},A_{2},S_{3}) \\
+& = p(S_{3}|S_{0},A_{0},S_{1},A_{1},S_{2},A_{2})p(S_{0},A_{0},S_{1},A_{1},S_{2},A_{2}) \\
+& = p(S_{3}|S_{2},A_{2})p(S_{0},A_{0},S_{1},A_{1},S_{2},A_{2}) \\
+& = p(S_{3}|S_{2},A_{2})p(A_{2}|S_{0},A_{0},S_{1},A_{1},S_{2})p(S_{0},A_{0},S_{1},A_{1},S_{2}) \\
+& = p(S_{3}|S_{2},A_{2})p(A_{2}|S_{2})p(S_{0},A_{0},S_{1},A_{1},S_{2}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{0},A_{0},S_{1},A_{1},S_{2}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{0},A_{0},S_{1},A_{1})p(S_{0},A_{0},S_{1},A_{1}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})p(S_{0},A_{0},S_{1},A_{1}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})p(A_{1}|S_{0},A_{0},S_{1})p(S_{0},A_{0},S_{1}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})p(A_{1}|S_{1})p(S_{0},A_{0},S_{1}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{0},A_{0},S_{1}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{1}|S_{0},A_{0})p(S_{0},A_{0}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{1}|S_{0},A_{0})p(A_{0}|S_{0})p(S_{0}) \\
+\end{aligned}
+\end{equation*}
+\end{marker}
 
 这里，$p(S_0)$ 表示初始状态 $S_0$ 的概率。上面的式子表明，得到轨迹 $\tau$ 的概率可以用初始状态的概率、策略以及下一个状态的迁移概率的乘积来表示。另外，我们可以用下面的式子来表示 $\log\Pr(\tau|\theta)$ 。
 
@@ -4013,6 +4038,91 @@ show_animation(frames)
 
 \chapter{预训练的大语言模型}
 
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\node [font=\LARGE] at (2.5,21.25) {一条训练数据};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (5.5,22.25) rectangle  node {\LARGE $x_0$} (6.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (7,22.25) rectangle  node {\LARGE $x_1$} (8.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (8.5,22.25) rectangle  node {\LARGE .} (9.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (10,22.25) rectangle  node {\LARGE .} (11.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.5,22.25) rectangle  node {\LARGE .} (12.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (13,22.25) rectangle  node {\LARGE .} (14.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.5,22.25) rectangle  node {\LARGE .} (15.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16,22.25) rectangle  node {\LARGE .} (17.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (17.5,22.25) rectangle  node {\LARGE .} (18.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19,22.25) rectangle  node {\LARGE .} (20.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,22.25) rectangle  node {\LARGE .} (21.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,22.25) rectangle  node {\LARGE .} (23.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,22.25) rectangle  node {\LARGE .} (24.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,22.25) rectangle  node {\LARGE .} (26.25,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,22.25) rectangle  node {\LARGE $x_{m-1}$} (27.75,20.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,22.25) rectangle  node {\LARGE $x_m$} (29.25,20.25);
+\node [font=\LARGE] at (17.5,24) {文本};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (4,17) rectangle (5.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (5.5,17) rectangle  node {\LARGE $x_1$} (6.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (7,17) rectangle  node {\LARGE $x_2$} (8.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (8.5,17) rectangle  node {\LARGE .} (9.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (10,17) rectangle  node {\LARGE .} (11.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.5,17) rectangle  node {\LARGE .} (12.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (13,17) rectangle  node {\LARGE .} (14.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.5,17) rectangle  node {\LARGE .} (15.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16,17) rectangle  node {\LARGE .} (17.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (17.5,17) rectangle  node {\LARGE .} (18.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19,17) rectangle  node {\LARGE .} (20.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,17) rectangle  node {\LARGE .} (21.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,17) rectangle  node {\LARGE .} (23.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,17) rectangle  node {\LARGE .} (24.75,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,17) rectangle  node {\LARGE .} (26.25,15);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,17) rectangle  node {\LARGE $x_m$} (27.75,15);
+\draw [->, >=Stealth] (6,20.25) -- (6,17);
+\draw [->, >=Stealth] (7.75,20.25) -- (7.75,17);
+\draw [->, >=Stealth] (9.25,20.25) -- (9.25,17);
+\draw [->, >=Stealth] (10.75,20.25) -- (10.75,17);
+\draw [->, >=Stealth] (12.25,20.25) -- (12.25,17);
+\draw [->, >=Stealth] (13.5,20.25) -- (13.5,17);
+\draw [->, >=Stealth] (15,20.25) -- (15,17);
+\draw [->, >=Stealth] (16.5,20.25) -- (16.5,17);
+\draw [->, >=Stealth] (18.25,20.25) -- (18.25,17);
+\draw [->, >=Stealth] (19.5,20.25) -- (19.5,17);
+\draw [->, >=Stealth] (21,20.25) -- (21,17);
+\draw [->, >=Stealth] (22.75,20.25) -- (22.75,17);
+\draw [->, >=Stealth] (24.25,20.25) -- (24.25,17);
+\draw [->, >=Stealth] (25.75,20.25) -- (25.75,17);
+\draw [->, >=Stealth] (27,20.25) -- (27,17);
+\end{circuitikz}
+}%
+\caption{预训练大语言模型的原理}
+\label{fig:pretrainedllm-principle}
+\end{figure}
+
+\begin{equation}
+\max_\theta\pi_\theta = \max\left( \prod_{k=1}^{m}P_\theta\left( x_k|x_{<k} \right) \right)
+\end{equation}
+
+上面的式子等价于
+
+\begin{equation}
+\max_\theta\pi_\theta = \max\left( \prod_{k=1}^{m}P_\theta\left( x_k|x_{<k} \right) \right)^{\frac{1}{m}}
+\end{equation}
+
+那么如果对上面的式子两边取对数的话，有
+
+\begin{equation}
+\begin{aligned}
+\max_\theta\log\pi_\theta &= \max\log\left( \prod_{k=1}^{m}P_\theta\left( x_k|x_{<k} \right) \right)^{\frac{1}{m}} \\
+&= \max{\color{cyan}\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( x_k|x_{<k} \right)}
+\end{aligned}
+\end{equation}
+
+取负值就是我们最终要计算的损失函数。
+
+\begin{equation}
+{\color{red}\min}{\color{cyan}-\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( x_k|x_{<k} \right)}
+\end{equation}
+
 \section{gpt2预训练模型}
 
 \begin{marker}
@@ -4220,7 +4330,7 @@ class RewardHead(nn.Module):
         # 给出奖励
         return self.reward(hidden_states)
 
-class GPT2RewardHead(nn.Module):
+class RewardModel(nn.Module):
     def __init__(self, model_name):
         super().__init__()
         self.llm = AutoModelForCausalLM.from_pretrained(model_name)
@@ -4239,7 +4349,7 @@ class GPT2RewardHead(nn.Module):
         # sigmoid用来将奖励搞到(0,1)范围内
         return torch.sigmoid(reward)
 
-model = GPT2RewardHead(model_path)
+model = RewardModel(model_path)
 
 data_collator = DataCollatorWithPadding(tokenizer)
 
@@ -4405,6 +4515,210 @@ confusion_matrix(all_labels, all_predictions)
 {\color{red}\min}{\color{cyan}-\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( y_k|x,y_{<k} \right)}
 \end{equation}
 
-
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\node [font=\LARGE] at (2.5,27) {一条训练数据};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (5.5,28) rectangle (6.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (7,28) rectangle (8.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (8.5,28) rectangle (9.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (10,28) rectangle (11.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.5,28) rectangle (12.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (13,28) rectangle (14.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.5,28) rectangle (15.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16,28) rectangle (17.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (17.5,28) rectangle (18.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19,28) rectangle (20.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,28) rectangle (21.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,28) rectangle (23.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,28) rectangle (24.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,28) rectangle (26.25,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,28) rectangle (27.75,26);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,28) rectangle (29.25,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (29.75,28) rectangle (31,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (31.25,28) rectangle (32.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (32.75,28) rectangle (34,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (34.25,28) rectangle (35.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (35.75,28) rectangle (37,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (37.25,28) rectangle (38.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (38.75,28) rectangle (40,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (40.25,28) rectangle (41.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (41.75,28) rectangle (43,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43.25,28) rectangle (44.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.75,28) rectangle (46,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.25,28) rectangle (47.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.75,28) rectangle (49,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,28) rectangle (50.5,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.75,28) rectangle (52,26);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52.25,28) rectangle (53.5,26);
+\node [font=\LARGE] at (18,30.75) {问题$x$};
+\node [font=\LARGE] at (42,30.75) {答案$y_{1\sim m}$};
+\draw [short] (5.5,28.25) -- (6,29);
+\draw [short] (6,29) -- (17.25,29);
+\draw [short] (17.25,29) -- (17.75,29.75);
+\draw [short] (17.75,29.75) -- (18.25,29);
+\draw [short] (18.25,29) -- (28.75,29);
+\draw [short] (28.75,29) -- (29.25,28.25);
+\draw [short] (29.75,28.25) -- (30.25,29);
+\draw [short] (30.25,29) -- (41.5,29);
+\draw [short] (41.5,29) -- (42,29.75);
+\draw [short] (42,29.75) -- (42.5,29);
+\draw [short] (42.5,29) -- (53,29);
+\draw [short] (53,29) -- (53.5,28.25);
+\draw [line width=2pt, ->, >=Stealth] (16.5,25.25) -- (16.5,22.25);
+\node [font=\LARGE] at (22.5,24) {模型推理：本质上就是预测下一个token};
+\node [font=\LARGE] at (17.75,21.25) {获取问题$x$中每个token的logits以及$y$(具体是Answer[:-1])};
+\draw [line width=2pt, ->, >=Stealth] (16.5,20) -- (16.5,7.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,16.25) rectangle  node {\LARGE $x_1$} (21.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,16.25) rectangle  node {\LARGE $x_2$} (23.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,16.25) rectangle (24.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,16.25) rectangle (26.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,16.25) rectangle (27.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,16.25) rectangle (29.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.5,16.25) rectangle (30.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31,16.25) rectangle (32.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (32.5,16.25) rectangle (33.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (34,16.25) rectangle (35.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (35.5,16.25) rectangle (36.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,16.25) rectangle (38.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,16.25) rectangle (39.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,16.25) rectangle (41.25,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,16.25) rectangle (42.75,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (43,16.25) rectangle  node {\LARGE $x_n$} (44.25,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.75,16.25) rectangle  node {\LARGE $y_1$} (46,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.25,16.25) rectangle  node {\LARGE $y_2$} (47.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.75,16.25) rectangle  node {\LARGE .} (49,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,16.25) rectangle  node {\LARGE .} (50.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.75,16.25) rectangle  node {\LARGE .} (52,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52.25,16.25) rectangle  node {\LARGE $y_{k-1}$} (53.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (53.75,16.25) rectangle  node {\LARGE $y_k$} (55,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (55.25,16.25) rectangle  node {\LARGE .} (56.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.75,16.25) rectangle  node {\LARGE .} (58,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (58.25,16.25) rectangle  node {\LARGE .} (59.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.75,16.25) rectangle  node {\LARGE .} (61,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61.25,16.25) rectangle  node {\LARGE .} (62.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (62.75,16.25) rectangle  node {\LARGE .} (64,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.25,16.25) rectangle  node {\LARGE .} (65.5,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (65.75,16.25) rectangle  node {\LARGE $y_{m-1}$} (67,14.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (67.25,16.25) rectangle  node {\LARGE $y_m$} (68.5,14.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19,11.75) rectangle (20.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,11.75) rectangle  node {\LARGE $x_2$} (21.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,11.75) rectangle  node {\LARGE $x_3$} (23.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,11.75) rectangle (24.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,11.75) rectangle (26.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,11.75) rectangle (27.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,11.75) rectangle (29.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.5,11.75) rectangle (30.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31,11.75) rectangle (32.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (32.5,11.75) rectangle (33.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (34,11.75) rectangle (35.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (35.5,11.75) rectangle (36.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,11.75) rectangle (38.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,11.75) rectangle (39.75,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,11.75) rectangle (41.25,9.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,11.75) rectangle (42.75,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,11.75) rectangle  node {\LARGE $y_1$} (44.25,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.75,11.75) rectangle  node {\LARGE $y_2$} (46,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.25,11.75) rectangle  node {\LARGE .} (47.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.75,11.75) rectangle  node {\LARGE .} (49,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,11.75) rectangle  node {\LARGE .} (50.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.75,11.75) rectangle  node {\LARGE .} (52,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52.25,11.75) rectangle  node {\LARGE $y_k$} (53.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (53.75,11.75) rectangle  node {\LARGE .} (55,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (55.25,11.75) rectangle  node {\LARGE .} (56.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.75,11.75) rectangle  node {\LARGE .} (58,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (58.25,11.75) rectangle  node {\LARGE .} (59.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.75,11.75) rectangle  node {\LARGE .} (61,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61.25,11.75) rectangle  node {\LARGE .} (62.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (62.75,11.75) rectangle  node {\LARGE .} (64,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.25,11.75) rectangle  node {\LARGE .} (65.5,9.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (65.75,11.75) rectangle  node {\LARGE $y_m$} (67,9.75);
+\draw [line width=0.2pt, ->, >=Stealth] (21,14.25) -- (21,11.75);
+\draw [line width=0.2pt, ->, >=Stealth] (22.5,14.25) -- (22.5,11.75);
+\draw [line width=0.2pt, ->, >=Stealth] (43.5,14.25) -- (43.5,11.75);
+\draw [line width=0.2pt, ->, >=Stealth] (45.5,14.25) -- (45.5,11.75);
+\draw [line width=0.2pt, ->, >=Stealth] (53,14.25) -- (53,11.75);
+\draw [line width=0.2pt, ->, >=Stealth] (66.25,14.25) -- (66.25,11.75);
+\node [font=\LARGE] at (26.25,17.75) {针对每个token计算对应的$-\log P_\theta(y_k|x,y_{<k})$};
+\draw [ color={rgb,255:red,197; green,103; blue,103} , line width=2pt ] (18,17) rectangle (69.25,9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,8) rectangle  node {\LARGE $P_{x_2}$} (21.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,8) rectangle  node {\LARGE $P_{x_3}$} (23.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,8) rectangle  node {\LARGE .} (24.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,8) rectangle  node {\LARGE .} (26.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,8) rectangle  node {\LARGE .} (27.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,8) rectangle  node {\LARGE .} (29.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.5,8) rectangle  node {\LARGE .} (30.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31,8) rectangle  node {\LARGE .} (32.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (32.5,8) rectangle  node {\LARGE .} (33.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (34,8) rectangle  node {\LARGE .} (35.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (35.5,8) rectangle  node {\LARGE .} (36.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,8) rectangle  node {\LARGE .} (38.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,8) rectangle  node {\LARGE .} (39.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,8) rectangle  node {\LARGE .} (41.25,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,8) rectangle  node {\LARGE $P_{y_1}$} (42.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,8) rectangle  node {\LARGE $P_{y_2}$} (44.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,8) rectangle  node {\LARGE $.$} (45.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46,8) rectangle  node {\LARGE .} (47.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.5,8) rectangle  node {\LARGE .} (48.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49,8) rectangle  node {\LARGE .} (50.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.5,8) rectangle  node {\LARGE .} (51.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52,8) rectangle  node {\LARGE $.$} (53.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (53.5,8) rectangle  node {\LARGE .} (54.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (55,8) rectangle  node {\LARGE .} (56.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.5,8) rectangle  node {\LARGE .} (57.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (58,8) rectangle  node {\LARGE .} (59.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.5,8) rectangle  node {\LARGE .} (60.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61,8) rectangle  node {\LARGE .} (62.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (62.5,8) rectangle  node {\LARGE .} (63.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64,8) rectangle  node {\LARGE .} (65.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (65.5,8) rectangle  node {\LARGE $P_{y_m}$} (66.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (20.5,3.75) rectangle  node {\LARGE $0$} (21.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,3.75) rectangle  node {\LARGE $0$} (23.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (23.5,3.75) rectangle  node {\LARGE 0} (24.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (25,3.75) rectangle  node {\LARGE 0} (26.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.5,3.75) rectangle  node {\LARGE 0} (27.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (28,3.75) rectangle  node {\LARGE 0} (29.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.5,3.75) rectangle  node {\LARGE 0} (30.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31,3.75) rectangle  node {\LARGE 0} (32.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (32.5,3.75) rectangle  node {\LARGE 0} (33.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (34,3.75) rectangle  node {\LARGE 0} (35.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (35.5,3.75) rectangle  node {\LARGE 0} (36.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,3.75) rectangle  node {\LARGE 0} (38.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,3.75) rectangle  node {\LARGE 0} (39.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,3.75) rectangle  node {\LARGE 0} (41.25,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,3.75) rectangle  node {\LARGE 1} (42.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,3.75) rectangle  node {\LARGE $1$} (44.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,3.75) rectangle  node {\LARGE $1$} (45.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46,3.75) rectangle  node {\LARGE 1} (47.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.5,3.75) rectangle  node {\LARGE 1} (48.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49,3.75) rectangle  node {\LARGE 1} (50.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (50.5,3.75) rectangle  node {\LARGE 1} (51.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52,3.75) rectangle  node {\LARGE $1$} (53.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (53.5,3.75) rectangle  node {\LARGE 1} (54.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (55,3.75) rectangle  node {\LARGE 1} (56.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.5,3.75) rectangle  node {\LARGE 1} (57.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (58,3.75) rectangle  node {\LARGE 1} (59.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.5,3.75) rectangle  node {\LARGE 1} (60.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61,3.75) rectangle  node {\LARGE 1} (62.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (62.5,3.75) rectangle  node {\LARGE 1} (63.75,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64,3.75) rectangle  node {\LARGE 1} (65.25,1.75);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (65.5,3.75) rectangle  node {\LARGE $1$} (66.75,1.75);
+\node [font=\LARGE] at (19,7) {$-\log$};
+\node [font=\LARGE] at (18.75,2.75) {答案掩码};
+\draw [line width=2pt, ->, >=Stealth] (16.25,1) -- (16.25,-2.75);
+\node [font=\LARGE] at (21.25,-0.75) {$sum()/answer_mask.sum()$也就是};
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (14.25,-3.5) rectangle  node {\LARGE $Loss$} (18.75,-5.25);
+\draw [line width=2pt, ->, >=Stealth] (19,-4.25) -- (25.75,-4.25);
+\node [font=\LARGE] at (33.75,-4.25) {后面的交给梯度下降算法（AdamW）进行参数优化};
+\draw [ color={rgb,255:red,40; green,86; blue,226} , line width=2pt ] (43,5) circle (0.75cm);
+\draw [ color={rgb,255:red,40; green,86; blue,226}, line width=2pt, short] (42.5,5.5) -- (43.5,4.5);
+\draw [ color={rgb,255:red,40; green,86; blue,226}, line width=2pt, short] (42.5,4.5) -- (43.5,5.5);
+\end{circuitikz}
+}%
+\caption{只对答案计算损失}
+\label{fig:my_label}
+\end{figure}
 
 \end{document}

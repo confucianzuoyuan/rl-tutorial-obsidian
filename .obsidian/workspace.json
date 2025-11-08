@@ -293,12 +293,26 @@
             "id": "b4f3f42f9109ff03",
             "type": "leaf",
             "state": {
+              "type": "markdown",
+              "state": {
+                "file": "8. 使用DPO微调LLM.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "8. 使用DPO微调LLM"
+            }
+          },
+          {
+            "id": "7d6368229ec1e24a",
+            "type": "leaf",
+            "state": {
               "type": "excalidraw",
               "state": {
-                "file": "Excalidraw/sft-loss.excalidraw.md"
+                "file": "Excalidraw/ppo-loss-impl.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "sft-loss.excalidraw"
+              "title": "ppo-loss-impl.excalidraw"
             }
           },
           {
@@ -366,7 +380,7 @@
             }
           }
         ],
-        "currentTab": 22
+        "currentTab": 23
       }
     ],
     "direction": "vertical"
@@ -528,31 +542,33 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "b4f3f42f9109ff03",
+  "active": "7d6368229ec1e24a",
   "lastOpenFiles": [
-    "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "8. 使用DPO微调LLM.md",
-    "7. DPO：直接偏好优化.md",
-    "Excalidraw/sft-loss.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
-    "ElegantBook/_minted/A203C08B0C37398F9E3E43919B19BF7E.highlight.minted",
+    "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
+    "ElegantBook/rl-tutorial.run.xml",
+    "ElegantBook/_minted/_D5C7389FFB1101B4445894F493B08A58.index.minted",
+    "ElegantBook/_minted/8A5304435342C94204EA8D1BBA2B46DF.highlight.minted",
     "ElegantBook/_minted/6A4A8583973A8D77ED625E0F1F2B51C8.highlight.minted",
     "ElegantBook/_minted/32801ABE763CCF434427E0924E95AE6C.highlight.minted",
-    "未命名.md",
-    "2. 策略梯度法.md",
+    "ElegantBook/_minted/22E51F8FDB72DECC22ABFB5954FB3401.highlight.minted",
     "ElegantBook/_minted/5E30178C7EDEE45FE3352C96A831BEAB.highlight.minted",
-    "ElegantBook/_minted/1BF9802EDB3E877B192ACAC4BAFC1FCE.highlight.minted",
-    "ElegantBook/_minted/78F1140D210F03A4D84B97D15C89AA5E.highlight.minted",
-    "ElegantBook/_minted/E61972CFD7F4B38753B489A169F7156B.highlight.minted",
-    "ElegantBook/_minted/D48D2E27F0842A5C78792A66737847D3.highlight.minted",
+    "ElegantBook/_minted/09DECCD71E79CB0CD6DF14C92311FD07.highlight.minted",
+    "ElegantBook/_minted/E2165AFF3EA488F7338AE4145B810271.highlight.minted",
+    "8. 使用DPO微调LLM.md",
+    "7. DPO：直接偏好优化.md",
+    "5. 基于人类反馈的强化学习（RLHF）.md",
+    "6. 使用PPO微调LLM.md",
+    "未命名.md",
+    "Excalidraw/ppo-loss-impl.excalidraw.md",
+    "Excalidraw/sft-loss.excalidraw.md",
+    "2. 策略梯度法.md",
     "Drawing 2025-11-05 09.35.38.excalidraw.md",
     "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "ppo项目架构图.excalidraw.md",
     "3. 策略梯度法的问题以及解决方案：PPO.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
     "附录G：uv教程.md",
     "Excalidraw/5.8.excalidraw.md",
     "10. GRPO：组相对策略优化.md",
@@ -574,7 +590,6 @@
     "Excalidraw/3.2.excalidraw.md",
     "img/策略梯度法步子太大.png",
     "ElegantBook/image/策略梯度法步子太大.png",
-    "Excalidraw/2.13.excalidraw.md",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]
