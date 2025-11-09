@@ -4251,7 +4251,7 @@ class MultiHeadAttention(nn.Module):
         self.ptr_current_pos = 0
         ####################################################
 
-    def forward(self, x):
+    def forward(self, x, use_cache=False):
         b, num_tokens, d_in = x.shape
 
         keys_new = self.W_key(x) # Shape: (b, num_tokens, d_out)
@@ -4302,15 +4302,16 @@ class MultiHeadAttention(nn.Module):
         # 将注意力分数掩码为下三角矩阵
         attn_scores.masked_fill_(mask_bool, -torch.inf)
 
-        # 注意力权重：β$\text{softmax}\left( \frac{QK^T}{\sqrt{K}} \right)$β
+        # 注意力权重：β$\text{softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right)$β
         attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
         attn_weights = self.dropout(attn_weights)
 
         # Shape: (b, num_tokens, num_heads, head_dim)
+        # β$\text{Attention}(Q,K,V)=\text{softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right)V$β
         context_vec = (attn_weights @ values).transpose(1, 2)
 
         # 合并多头，self.d_out = self.num_heads * self.head_dim
-        context_vec = context_vec.reshape(b, num_tokens, self.d_out)
+        context_vec = context_vec.contiguous().view(b, num_tokens, self.d_out)
         context_vec = self.out_proj(context_vec) # 可选投影
 
         return context_vec
@@ -4427,7 +4428,7 @@ class GPTModel(nn.Module):
         self.final_norm = LayerNorm(cfg["emb_dim"])
         self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False)
 
-    def forward(self, in_idx):
+    def forward(self, in_idx, use_cache=False):
         batch_size, seq_len = in_idx.shape
         tok_embeds = self.tok_emb(in_idx)
         ####################################################
@@ -4462,27 +4463,32 @@ class GPTModel(nn.Module):
 接下来我们实现生成文本的函数。
 
 \begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-7}}{pythoncode:gpt2-8}
-def generate_text_simple(model, idx, max_new_tokens, context_size):
-    # idx shape: (B, T)
-    for _ in range(max_new_tokens):
-        # 如果当前上下文超过了模型支持的上下文长度，则裁剪上下文长度。
-        # 例如，LLM只支持5个token的上下文，而context_size为10，
-        # 那么只有最后5个token用作上下文
-        idx_cond = idx[:, -context_size:]
+def generate_text_simple(model, idx, max_new_tokens, context_size=None, use_cache=False):
+    model.eval()
+    ctx_len = context_size or model.pos_emb.num_embeddings
 
-        # 获取预测的token
-        with torch.no_grad():
-            logits = model(idx_cond)
+    with torch.no_grad():
+        if use_cache:
+            # 使用提示词初始化kv cache
+            model.reset_kv_cache()
+            # 如果当前上下文超过了模型支持的上下文长度，则裁剪上下文长度。
+            # 例如，LLM只支持5个token的上下文，而context_size为10，
+            # 那么只有最后5个token用作上下文
+            logits = model(idx[:, -ctx_len:], use_cache=True)
 
-        # 只聚焦最后一个时间步的token
-        # (batch, n_token, vocab_size) β$\rightarrow$β (batch, vocab_size)
-        logits = logits[:, -1, :]
-
-        # 获取词表大小的字典中最大logits值的索引
-        idx_next = torch.argmax(logits, dim=-1, keepdim=True) # (batch, 1)
-
-        # 将采样的索引补全到上下文
-        idx = torch.cat((idx, idx_next), dim=1) # (batch, n_tokens+1)
+            # idx shape: (B, T)
+            for _ in range(max_new_tokens):
+                # a) 选取最大的对数概率的token（贪婪采样）
+                next_idx = logits[:, -1].argmax(dim=-1, keepdim=True)
+                # b) 将采样的索引补全到上下文
+                idx = torch.cat([idx, next_idx], dim=1)
+                # c) 只喂给模型最新的token
+                logits = model(next_idx, use_cache=True)
+        else:
+            for _ in range(max_new_tokens):
+                logits = model(idx[:, -ctx_len:], use_cache=False)
+                next_idx = logits[:, -1].argmax(dim=-1, keepdim=True)
+                idx = torch.cat([idx, next_idx], dim=1)
 
     return idx
 \end{codebox}
@@ -4490,8 +4496,7 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
 接下来测试一下模型结构的输出。
 
 \begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-8}}{pythoncode:gpt2-9}
-if __name__ == "__main__":
-
+def main():
     GPT_CONFIG_124M = {
         "vocab_size": 50257,     # 词汇表大小
         "context_length": 1024,  # 上下文长度
@@ -4504,6 +4509,8 @@ if __name__ == "__main__":
 
     torch.manual_seed(123)
     model = GPTModel(GPT_CONFIG_124M)
+    device = torch.device("cuda")
+    model.to(device)
     model.eval()  # 禁用dropout
 
     start_context = "Hello, I am"
@@ -4517,18 +4524,33 @@ if __name__ == "__main__":
     print("编码后的文本：", encoded)
     print("张量形状：", encoded_tensor.shape)
 
-    out = generate_text_simple(
+    torch.cuda.synchronize()
+    start = time.time()
+
+    token_ids = generate_text_simple(
         model=model,
         idx=encoded_tensor,
-        max_new_tokens=10,
-        context_size=GPT_CONFIG_124M["context_length"]
+        max_new_tokens=200,
     )
-    decoded_text = tokenizer.decode(out.squeeze(0).tolist())
+
+    torch.cuda().synchronize()
+    total_time = time.time() - start
+
+    decoded_text = tokenizer.decode(token_ids.squeeze(0).tolist())
 
     print(f"\n\n{50*'='}\n{22*' '}输出\n{50*'='}")
-    print("\n输出：", out)
-    print("输出长度：", len(out[0]))
+    print("\n输出：", token_ids)
+    print("输出长度：", len(token_ids[0]))
     print("输出文本：", decoded_text)
+
+    print(f"\n时间：{total_time:.2f} 秒")
+    print(f"{int(len(token_ids[0])/total_time)} tokens/sec")
+    max_mem_bytes = torch.cuda.max_memory_allocated()
+    max_mem_gb = max_mem_bytes / (1024 ** 3)
+    print(f"分配的最大内存：{max_mem_gb:.2b} GB")
+
+if __name__ == "__main__":
+    main()
 \end{codebox}
 
 \subsection{训练gpt2}
