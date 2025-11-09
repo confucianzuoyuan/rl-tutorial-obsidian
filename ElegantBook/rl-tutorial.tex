@@ -4164,55 +4164,124 @@ show_animation(frames)
 {\color{red}\min}{\color{cyan}-\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( x_k|x_{<k} \right)}
 \end{equation}
 
-\section{gpt2预训练模型}
+\section{从零实现gpt2的预训练}
 
-\begin{marker}
-我们使用的是中文版gpt2：``gpt2-chinese-cluecorpussmall''。
-\end{marker}
+首先实现数据集的处理。
 
-我们测试一下预训练大模型。
+\begin{codebox}{python}{gpt2\_model.py}{pythoncode:gpt2-1}
+import tiktoken
+import torch
+import torch.nn as nn
+from torch.utils.data ipmort Dataset, DataLoader
 
-\begin{codebox}{python}{测试预训练大模型}{pythoncode:gpt2test}
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, set_seed
-from pprint import pprint
+class GPTDataset(Dataset):
+    def __init__(self, txt, tokenizer, max_length, stride):
+        self.input_ids = []
+        self.target_ids = []
 
-model_path = "./gpt2-chinese-cluecorpussmall"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path)
-print(sum(p.numel() for p in model.parameters()))
+        # 对整个文本进行分词
+        token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
 
-# 测试分词功能
+        # 使用滑动窗口构建预测下一个token的数据集
+        for i in range(0, len(token_ids) - max_length, stride):
+            input_chunk = token_ids[i:i + max_length]
+            target_chunk = token_ids[i + 1: i + max_length + 1]
+            self.input_ids.append(torch.tensor(input_chunk))
+            self.target_ids.append(torch.tensor(target_chunk))
 
-# 编码
-text = "你好，我是强化学习"
-tokens = tokenizer(text)
-print(tokens)
+        def __len__(self):
+            return len(self.input_ids)
 
-# 解码
-print(tokenizer.decode(tokens['input_ids']))
+        def __getitem__(self, idx):
+            return self.input_ids[idx], self.target_ids[idx]
 
-# 对一批数据进行编码
-texts = [
-    "我自横刀向天笑",
-    "生存还是毁灭，这是一个问题",
-    "爱是恒久忍耐，又有恩慈"
-]
-tokens_obj = tokenizer(texts)
+def create_dataloader(
+    txt, # 文本数据
+    batch_size=4, # 批次大小
+    max_length=256, 上下文长度
+    stride=128, # 步长
+    shuffle=True, # 打乱数据集
+    drop_last=True, # 扔掉最后一条数据
+    num_workers=0
+):
+    """创建数据加载器"""
+    tokenizer = tiktoken.get_encoding("gpt2") # 初始化分词器
+    dataset = GPTDataset(txt, tokenizer, max_length, stride) # 创建数据集
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        drop_last=drop_last,
+        num_workers=num_workers
+    ) # 创建数据加载器
 
-for tokens in tokens_obj["input_ids"]:
-    print(tokenizer.decode(tokens))
-
-# 给提示词，看一下gpt2的输出
-# 生成式任务
-g = pipeline("text-generation", model="./gpt2-chinese-cluecorpussmall")
-set_seed(42)
-# 给定提示词，输出完整内容
-pprint(g(
-    "你是谁？",
-    max_length=30,
-    num_return_sequences=1
-))
+    return dataloader
 \end{codebox}
+
+接下来实现多头注意力
+
+\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-1}}{pythoncode:gpt2-2}
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
+        super().__init__()
+        assert d_out % num_heads == 0, "d_out 必须能被 n_heads 整除"
+
+        self.d_out = d_out
+        self.num_heads = num_heads
+        self.head_dim = d_out // num_heads # 每个头的维度
+
+        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.out_proj = nn.Linear(d_out, d_out) # 合并头的输出
+        self.dropout = nn.Dropout(dropout)
+        # 创建一个下三角为1的掩码方阵，固定在内存中，不会被学习
+        self.register_buffer(
+            "mask",
+            torch.triu(torch.ones(context_length, context_length),
+            diagonal=1
+        ))
+
+    def forward(self, x):
+        b, num_tokens, d_in = x.shape
+
+        keys = self.W_key(x) # Shape: (b, num_tokens, d_out)
+        queries = self.W_query(x)
+        values = self.W_value(x)
+
+        # (b, num_tokens, d_out) β$\rightarrow$β (b, num_tokens, num_heads, head_dim)
+        keys = keys.view(b, num_tokens, self.num_heads, self.head_dim)
+        values = values.view(b, num_tokens, self.num_heads, self.head_dim)
+        queries = queries.view(b, num_tokens, self.num_heads, self.head_dim)
+
+        # 转置：(b, num_tokens, num_heads, head_dim) β$\rightarrow$β (b, num_heads, num_tokens, head_dim)
+        keys = keys.transpose(1, 2)
+        queries = queries.transpose(1, 2)
+        values = values.transpose(1, 2)
+
+        # 计算缩放点积注意力（自注意力）
+        # β$QK^T$β，注意力分数
+        attn_scores = queries @ keys.transpose(2, 3) # 每个头的点积
+
+        # 裁剪下三角掩码方阵为形状：(num_tokens, num_tokens)
+        mask_bool = self.mask.bool()[:num_tokens, :num_tokens]
+
+        # 将注意力分数掩码为下三角矩阵
+        attn_scores.masked_fill_(mask_bool, -torch.inf)
+
+        # 注意力权重：β$\text{softmax}\left( \frac{QK^T}{\sqrt{K}} \right)$β
+        attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
+        attn_weights = self.dropout(attn_weights)
+
+        # Shape: (b, num_tokens, num_heads, head_dim)
+        context_vec = (attn_weights @ values).transpose(1, 2)
+
+        # 合并多头，self.d_out = self.num_heads * self.head_dim
+        context_vec = context_vec.reshape(b, num_tokens, self.d_out)
+        context_vec = self.out_proj(context_vec) # 可选投影
+
+        return context_vec
+\end(codebox)
 
 \chapter{监督微调（SFT）}
 
