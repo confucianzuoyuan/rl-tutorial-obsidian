@@ -2137,10 +2137,10 @@ A_t^{\text{GAE}} &= (1-\lambda)(A_t^{(1)}+\lambda A_t^{(2)}+\lambda^2A_t^{(3)}+\
 有上面的式子，我们还可以推导出一个递推公式
 
 \begin{equation}
-A_t = \delta_t + \gamma\lambda A_{t+1}
+A_t^{\text{GAE}} = \delta_t + \gamma\lambda A_{t+1}^{\text{GAE}}
 \end{equation}
 
-下面是计算GAE的代码，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
+下面是计算GAE的过程，给定 $\gamma$ 和 $\lambda$ 以及每个时间步的 $\delta_t$ 之后，我们可以根据公式直接进行优势估计。
 
 先前向（forward）计算每一个时刻的\textbf{1步TD误差}，然后再逆向（backward）计算每一个时刻的GAE。
 
@@ -2160,15 +2160,19 @@ A_t = \delta_t + \gamma\lambda A_{t+1}
 
 \begin{equation}
 \begin{aligned}
-A_{t+n} &= \delta_{t+n} \\
-A_{t+n-1} &= \delta_{t+n-1} + \gamma\lambda A_{t+n} \\
-A_{t+n-2} &= \delta_{t+n-2} + \gamma\lambda A_{t+n-1} \\
+A_{t+n}^{\text{GAE}} &= \delta_{t+n} \\
+A_{t+n-1}^{\text{GAE}} &= \delta_{t+n-1} + \gamma\lambda A_{t+n}^{\text{GAE}} \\
+A_{t+n-2}^{\text{GAE}} &= \delta_{t+n-2} + \gamma\lambda A_{t+n-1}^{\text{GAE}} \\
 \vdots \\
-A_t &= \delta_t + \gamma\lambda A_{t+1}
+A_t^{\text{GAE}} &= \delta_t + \gamma\lambda A_{t+1}^{\text{GAE}}
 \end{aligned}
 \end{equation}
 
 这样每一个时间步的广义优势估计就计算出来了。
+
+\begin{marker}
+$\text{GAE Target} = A_t^{\text{GAE}} + V(S_t)$
+\end{marker}
 
 \begin{theorem}{GAE的Actor-Critic策略梯度定理}{}
 \begin{equation}\label{eq:gae-pg}
@@ -2253,6 +2257,7 @@ Pr(\tau) & = p(S_{0},A_{0},S_{1},A_{1},S_{2},A_{2},S_{3}) \\
 & = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{0},A_{0},S_{1}) \\
 & = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{1}|S_{0},A_{0})p(S_{0},A_{0}) \\
 & = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{1}|S_{0},A_{0})p(A_{0}|S_{0})p(S_{0}) \\
+& = p(S_{3}|S_{2},A_{2})\pi_{\theta}(A_{2}|S_{2})p(S_{2}|S_{1},A_{1})\pi_{\theta}(A_{1}|S_{1})p(S_{1}|S_{0},A_{0})\pi_\theta(A_{0}|S_{0})p(S_{0})
 \end{aligned}
 \end{equation*}
 \end{marker}
@@ -2752,9 +2757,7 @@ class Agent:
         self.optimizer_v = optim.Adam(self.v.parameters(), lr=self.lr_v)
 
     def get_action(self, state):
-        state = torch.tensor(state[np.newaxis, :])
-        probs = self.pi(state)
-        probs = probs[0]
+        probs = self.pi(torch.tensor(state).unsqueeze(0)).squeeze(0)
         m = Categorical(probs)
         action = m.sample().item()
         return action, probs
@@ -2886,24 +2889,26 @@ def compute_gae(gamma, td_delta):
 \begin{codebox}{python}{PPO训练循环}{pythoncode:trainppo}
 def train(env, agent):
     return_list = []
-    for i in range(10):
-        for episode in range(50):
-            trajectory = agent.collect_trajectory(env)
-            episode_return = sum(trajectory[4])
-            return_list.append(episode_return)
-            agent.update(trajectory)
-            if (episode + 1) % 10 == 0:
-                print(f"回合：{50 * i + episode + 1}, 回报：{np.mean(return_list[-10:])}")
-    
-    return return_list
+    episode_list = []
+    for episode in range(500):
+        trajectory = agent.collect_trajectory(env)
+        agent.update(trajectory)
+        # 统计信息
+        episode_reward = sum(trajectory[4])
+        return_list.append(episode_reward)
+        episode_list.append(episode)
+
+        if (episode + 1) % 10 == 0:
+            print(f"回合：{episode}, 回报：{episode_reward}")
+
+    return return_list, episode_list
 
 def main():
     env = gym.make("CartPole-v0")
     env.seed(0)
     torch.manual_seed(0)
     agent = Agent()
-    return_list = train(env, agent)
-    episode_list = list(range(len(return_list)))
+    return_list, episode_list = train(env, agent)
     plot_loss(episode_list, return_list, "ppo-loss.pdf")
     test_agent(agent, env)
 
@@ -3669,6 +3674,42 @@ $P(x)/Q(x)$是$x$的\textbf{重要性采样权重}
 J(\pi')-J(\pi)\geq J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}
 \end{equation}
 
+\begin{figure}[!ht]
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [line width=2pt, short] (-104.25,-12) .. controls (-84.5,23) and (-66.5,-2.75) .. (-41,11.5);
+\draw [ color={rgb,255:red,242; green,2; blue,2}, line width=2pt, short] (-102,-9.5) .. controls (-91.75,10.75) and (-81.5,3) .. (-79.25,-8.5);
+\node [font=\LARGE] at (-39.25,12) {$J(\pi')-J(\pi)$};
+\node [font=\LARGE] at (-73,-9.5) {$J_\pi^\text{CPI}(\pi') - C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}$};
+\draw [line width=2pt, dashed] (-96,5.25) -- (-95.75,-12.75);
+\draw [line width=2pt, dashed] (-88.75,9) -- (-88.25,-12.5);
+\end{circuitikz}
+}
+\caption{通过优化下界函数来优化目标函数（1）}
+\label{fig:lowerbound1}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [line width=2pt, short] (-104.25,-12) .. controls (-84.5,23) and (-66.5,-2.75) .. (-41,11.5);
+\draw [ color={rgb,255:red,242; green,2; blue,2}, line width=2pt, short] (-102,-9.5) .. controls (-91.75,10.75) and (-81.5,3) .. (-79.25,-8.5);
+\draw [line width=2pt, dashed] (-96,5.25) -- (-95.75,-12.75);
+\draw [line width=2pt, dashed] (-88.75,9) -- (-88.25,-12.5);
+\draw [line width=2pt, dashed] (-39.25,12) -- (-39.25,12);
+\draw [line width=2pt, dashed] (-122.25,-21.5) -- (-122.25,-21.5);
+\draw [line width=2pt, dashed] (-60,6.75) -- (-60,6.75);
+\draw [ color={rgb,255:red,242; green,2; blue,2}, line width=2pt, short] (-98.5,-6.75) .. controls (-88.25,13.5) and (-78,5.75) .. (-75.75,-5.75);
+\draw [line width=2pt, dashed] (-85,-12) -- (-85.5,9.75);
+\end{circuitikz}
+}%
+\caption{通过优化下界函数来优化目标函数（2）}
+\label{fig:lowerbound2}
+\end{figure}
+
 现在，让我们看看策略迭代某一步中的最坏情况。考虑对新策略 $\pi'$ 的所有选择，其中也包含旧策略 $\pi$（参数更新幅度为 0）。如果没有候选策略表现更好，就直接设定 $\pi'=\pi$，并在该次迭代中不进行更新。在这种情况下，式\ref{eq:cpi}告诉我们$J_\pi^\text{CPI}(\pi)=\mathbb{E}_{\tau\sim\pi}\left[\sum_{t\geq 0}A^\pi(a_t|s_t)\frac{\pi(a_t|s_t)}{\pi(a_t|s_t)}\right]=0$，因为一个策略相对于自身没有期望优势。根据恒等式，KL 散度满足 $KL(\pi||\pi)=0$。
 
 为了接受策略的变更，式\ref{eq:lower-bound}表明，估计的策略改进 $J_\pi^\text{CPI}(\pi')$ 必须大于最大误差 $C\sqrt{\mathbb{E}_t[KL\left(\pi'(a_t|s_t)||\pi(a_t|s_t)\right)]}$。
@@ -4200,9 +4241,9 @@ def tokenize(batch):
     return tokenizer(batch["review"])
 
 map_kwargs = {
-    'batched': True,
-    'batch_size': 512,
-    'remove_columns': ["cat", "label", "review"]
+    "batched": True,
+    "batch_size": 512,
+    "remove_columns": ["cat", "label", "review"]
 }
 
 tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
@@ -4217,8 +4258,8 @@ data_collator = DataCollatorForLanguageModeling(
 )
 
 dataloader_params = {
-    'batch_size': 2, # 6G显存正好够用
-    'collate_fn': data_collator
+    "batch_size": 2, # 6G显存正好够用
+    "collate_fn": data_collator
 }
 
 train_dataloader = DataLoader(
@@ -4246,11 +4287,11 @@ for epoch in range(num_epochs):
         if i % 100 == 0:
             print(f"Step: {i}, Loss: {loss.item()}")
 
-model.save_pretrained('./gpt2-sft')
-tokenizer.save_pretrained('./gpt2-sft')
+model.save_pretrained("./gpt2-sft")
+tokenizer.save_pretrained("./gpt2-sft")
 
 # 测试微调后的模型
-g = pipeline('text-generation', model='./gpt2-sft')
+g = pipeline("text-generation", model="./gpt2-sft")
 set_seed(42)
 pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
 \end{codebox}
@@ -4720,5 +4761,104 @@ confusion_matrix(all_labels, all_predictions)
 \caption{只对答案计算损失}
 \label{fig:my_label}
 \end{figure}
+
+\appendix
+
+\chapter{反向传播算法}
+
+\section{损失函数}
+
+\begin{equation}
+\sigma(x) = \frac{1}{1+e^{-x}}
+\end{equation}
+
+\begin{equation}
+\sigma'(x)=\sigma(x)(1-\sigma(x))
+\end{equation}
+
+\begin{equation}
+y = \sigma(wx+b)
+\end{equation}
+
+\begin{equation}
+\mathcal{L}=(y-\hat{y})^2
+\end{equation}
+
+
+求导
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial w} = ?
+\end{equation}
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial b} = ?
+\end{equation}
+
+训练数据：$(1,2)$ 和 $(2,3)$
+
+初始化了一个神经网络的参数 $w=2.0, b=3.0$ 。
+
+\section{前向传播}
+
+中间结果：$m_{0} = wx = 2.0 \times 1.0 = 2.0$
+
+中间结果：$m_{1} = m_{0}+b=2.0 + 3.0 = 5.0$
+
+中间结果：$m_{2} = \sigma (m_{1}) = 0.9933071490757268$
+
+中间结果：$m_{3} = m_{2}-2.0=0.9933071490757268-2.0=-1.0066928509242732$
+
+最终结果：$\mathcal{L}=m_{3}^2$
+
+\section{反向传播}
+
+\begin{equation}
+\begin{aligned}
+\frac{\partial \mathcal{L}}{\partial w}
+&= \frac{\partial\mathcal{L}}{\partial m_{3}}\frac{\partial m_{3}}{\partial m_{2}}\frac{\partial m_{2}}{\partial m_{1}}\frac{\partial m_{1}}{\partial m_{0}} \\
+&= 2\times m_{3}\times 1 \times m_2(1-m_{2})\times 1 \times x \\
+&= 2\times(-1.0066928509242732)\times 0.9933071490757268\times(1-0.9933071490757268)\times 1.0 \\
+&= -0.013385102246024565
+\end{aligned}
+\end{equation}
+
+$\alpha = 50$
+
+$w = 2.0 - 50 * -0.013385102246024565$
+
+\section{代码实现}
+
+\begin{codebox}{python}{反向传播的pytorch实现}{pythoncode:backpropexample}
+import torch
+import torch.nn as nn
+
+x = torch.tensor([1.0])            # 形状 [N, 1]，每行一个标量输入
+# w = torch.randn(1, 1, requires_grad=True)  # 标量权重（等价于单个参数）
+w = torch.tensor([2.0], requires_grad=True)
+# b = torch.randn(1, requires_grad=True)     # 标量偏置
+b = torch.tensor([3.0], requires_grad=True)
+
+# 前向：y = sigmoid(w*x + b)
+y = torch.sigmoid(x @ w + b)     # 结果形状 [N, 1]
+# 构造标量损失以便反向传播
+target = torch.tensor([2.0])
+loss = nn.MSELoss()(y, target)
+
+# 反向传播
+loss.backward()
+
+print("loss:", loss.item())
+print("w:", w.item(), "b:", b.item())
+print("w.grad:", w.grad.item(), "b.grad:", b.grad.item())
+
+# 可选：一步手动更新
+lr = 0.1
+with torch.no_grad():
+    w -= lr * w.grad
+    b -= lr * b.grad
+    w.grad.zero_()
+    b.grad.zero_()
+\end{codebox}
 
 \end{document}

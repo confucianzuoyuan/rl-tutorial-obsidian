@@ -29,4 +29,4 @@ if __name__ == "__main__":
         tokenizer_file_path=tokenizer_file_path, apply_chat_template=False
     )
     
-    generate_and_print_sample(model, tokenizer, device, ["巴蜀，历来有天府之国的美誉，", "唐三和小舞，"])
+    generate_and_print_sample(model, tokenizer, device, "巴蜀，历来有天府之国的美誉，")
