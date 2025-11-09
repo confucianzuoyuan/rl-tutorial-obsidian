@@ -4460,6 +4460,385 @@ class KVCache:
             self.cache[i] = None
 \end{codebox}
 
+\subsection{分词器tokenizer的编写}
+
+\begin{codebox}{python}{qwne3\_tokenizer.py}{qwen3-tokenizer}
+import re
+from tokenizers import Tokenizer
+
+class Qwen3Tokenizer:
+    _SPECIALS = [
+        "<|endoftext|>",
+        "<|im_start|>", "<|im_end|>",
+        "<|object_ref_start|>", "<|object_ref_end|>",
+        "<|box_start|>", "<|box_end|>",
+        "<|quad_start|>", "<|quad_end|>",
+        "<|vision_start|>", "<|vision_end|>",
+        "<|vision_pad|>", "<|image_pad|>", "<|video_pad|>",
+        "<think>", "</think>"
+    ]
+    _SPLIT_RE = re.compile(r"(<\|[^>]+?\|>|<think>|</think>)")
+
+    def __init__(self, tokenizer_file_path="tokenizer.json", repo_id=None,
+                 apply_chat_template=True, add_generation_prompt=False, add_thinking=False):
+
+        self.apply_chat_template = apply_chat_template
+        self.add_generation_prompt = add_generation_prompt
+        self.add_thinking = add_thinking
+
+        tok_file = Path(tokenizer_file_path)
+        self._tok = Tokenizer.from_file(str(tok_file))
+        self._special_to_id = {}
+        for t in self._SPECIALS:
+            tid = self._tok.token_to_id(t)
+            if tid is not None:
+                self._special_to_id[t] = tid
+
+        self.pad_token_id = self._special_to_id["<|endoftext|>"]
+        self.eos_token_id = self.pad_token_id
+
+        if repo_id and "Base" not in repo_id:
+            eos_token = "<|im_end|>"
+        else:
+            eos_token = "<|endoftext|>"
+        if eos_token in self._special_to_id:
+            self.eos_token_id = self._special_to_id[eos_token]
+
+    def encode(self, text, chat_wrapped=None):
+        if chat_wrapped is None:
+            chat_wrapped = self.apply_chat_template
+
+        stripped = text.strip()
+        if stripped in self._special_to_id and "\n" not in stripped:
+            return [self._special_to_id[stripped]]
+
+        if chat_wrapped:
+            text = self._wrap_chat(text)
+
+        ids = []
+        for part in filter(None, self._SPLIT_RE.split(text)):
+            if part in self._special_to_id:
+                ids.append(self._special_to_id[part])
+            else:
+                ids.extend(self._tok.encode(part).ids)
+        return ids
+
+    def decode(self, ids):
+        return self._tok.decode(ids, skip_special_tokens=False)
+
+    def _wrap_chat(self, user_msg):
+        s = f"<|im_start|>user\n{user_msg}<|im_end|>\n"
+        if self.add_generation_prompt:
+            s += "<|im_start|>assistant"
+            if self.add_thinking:
+                s += "\n"
+            else:
+                s += "\n<think>\n\n</think>\n\n"
+        return s
+\end{codebox}
+
+\subsection{数据集的处理}
+
+\begin{codebox}{python}{data\_utils.py}{qwen3-data}
+import torch
+from torch.utils.data import Dataset, DataLoader
+from qwen3_tokenizer import Qwen3Tokenizer
+
+tokenizer_file_path = "tokenizer.json"
+
+class Qwen3DataSet(Dataset):
+    def __init__(self, txt, tokenizer, max_length, stride):
+        self.input_ids = []
+        self.target_ids = []
+
+        token_ids = tokenizer.encode(txt)
+
+        for i in range(0, len(token_ids) - max_length, stride):
+            input_chunk = token_ids[i: i + max_length]
+            target_chunk = token_ids[i + 1: i + max_length + 1]
+            self.input_ids.append(torch.tensor(input_chunk))
+            self.target_ids.append(torch.tensor(target_chunk))
+
+    def __len__(self):
+        return len(self.input_ids)
+
+    def __getitem__(self, idx):
+        return self.input_ids[idx], self.target_ids[idx]
+
+def create_dataloader(
+    txt,
+    batch_size=4,
+    max_length=256,
+    stride=128,
+    shuffle=True,
+    drop_last=True,
+    num_workers=0,
+):
+    tokenizer = Qwen3Tokenizer(
+        tokenizer_file_path=tokenizer_file_path, apply_chat_template=False
+    )
+
+    dataset = Qwen3DataSet(txt, tokenizer, max_length, stride)
+
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        drop_last=drop_last,
+        num_workers=num_workers,
+    )
+
+    return dataloader
+\end{codebox}
+
+\subsection{模型的训练}
+
+\begin{codebox}{python}{qwen3\_train.py}{qwen3-train-1}
+import matplotlib.pyplot as plt
+import torch
+
+from qwen3_model import Qwen3Model
+from qwen3_tokenizer import Qwen3Tokenizer
+from data_utils import create_dataloader
+
+def text_to_token_ids(text, tokenizer):
+    encoded = tokenizer.encode(text)
+    encoded_tensor = torch.tensor(encoded).unsqueeze(0)  # 添加批次维度
+    return encoded_tensor
+
+def token_ids_to_text(token_ids, tokenizer):
+    flat = token_ids.squeeze(0)  # 去掉批次维度
+    return tokenizer.decode(flat.tolist())
+
+def calc_loss_batch(input_batch, target_batch, model, device):
+    input_batch, target_batch = input_batch.to(device), target_batch.to(device)
+    logits = model(input_batch)
+    loss = torch.nn.functional.cross_entropy(
+        logits.flatten(0, 1), target_batch.flatten()
+    )
+    return loss
+
+def calc_loss_loader(data_loader, model, device, num_batches=None):
+    total_loss = 0.0
+    if len(data_loader) == 0:
+        return float("nan")
+    elif num_batches is None:
+        num_batches = len(data_loader)
+    else:
+        num_batches = min(num_batches, len(data_loader))
+    for i, (input_batch, target_batch) in enumerate(data_loader):
+        if i < num_batches:
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            total_loss += loss.item()
+        else:
+            break
+    return total_loss / num_batches
+
+def evaluate_model(model, train_loader, val_loader, device, eval_iter):
+    model.eval()
+    with torch.no_grad():
+        train_loss = calc_loss_loader(
+            train_loader, model, device, num_batches=eval_iter
+        )
+        val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
+    model.train()
+    return train_loss, val_loss
+
+def generate_text_basic_stream(model, token_ids, max_new_tokens, eos_token_id=None, context_size=None):
+    model.eval()
+
+    with torch.no_grad():
+        cache = KVCache(n_layers=model.cfg["n_layers"])
+        model.reset_kv_cache()
+
+        # Prime the cache with the initial context
+        logits = model(token_ids, cache=cache)
+
+        for _ in range(max_new_tokens):
+            next_token = torch.argmax(logits[:, -1], dim=-1, keepdim=True)
+
+            if eos_token_id is not None and torch.all(next_token == eos_token_id):
+                break
+
+            yield next_token
+
+            token_ids = torch.cat([token_ids, next_token], dim=1)
+
+            # Feed only the new token to the model; cache handles history
+            logits = model(next_token, cache=cache)
+
+def generate_and_print_sample(model, tokenizer, device, start_context):
+    input_token_ids = text_to_token_ids(start_context, tokenizer).to(device)
+    input_token_ids_tensor = torch.tensor(input_token_ids, device=device).unsqueeze(0)
+    for token in generate_text_basic_stream(
+        model=model,
+        token_ids=input_token_ids_tensor,
+        max_new_tokens=500,
+        eos_token_id=tokenizer.eos_token_id
+    ):
+        token_id = token.squeeze(0).tolist()
+        print(
+            tokenizer.decode(token_id),
+            end="",
+            flush=True
+        )
+    model.train()
+
+def train_model_simple(
+    model,
+    train_loader,
+    val_loader,
+    optimizer,
+    device,
+    num_epochs,
+    eval_freq,
+    eval_iter,
+    start_context,
+    tokenizer,
+):
+    train_losses, val_losses, track_tokens_seen = [], [], []
+    tokens_seen = 0
+    global_step = -1
+
+    # 主训练循环
+    for epoch in range(num_epochs):
+        model.train()
+
+        for input_batch, target_batch in train_loader:
+            optimizer.zero_grad()
+            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            loss.backward()
+            optimizer.step()
+            tokens_seen += input_batch.numel()
+            global_step += 1
+
+            if global_step % eval_freq == 0:
+                train_loss, val_loss = evaluate_model(
+                    model, train_loader, val_loader, device, eval_iter
+                )
+                train_losses.append(train_loss)
+                val_losses.append(val_loss)
+                track_tokens_seen.append(tokens_seen)
+                print(
+                    f"Epoch {epoch + 1} (Step {global_step:06d}): "
+                    f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}"
+                )
+
+        generate_and_print_sample(model, tokenizer, device, start_context)
+
+    return train_losses, val_losses, track_tokens_seen
+
+def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
+    fig, ax1 = plt.subplots()
+
+    # Plot training and validation loss against epochs
+    ax1.plot(epochs_seen, train_losses, label="Training loss")
+    ax1.plot(epochs_seen, val_losses, linestyle="-.", label="Validation loss")
+    ax1.set_xlabel("Epochs")
+    ax1.set_ylabel("Loss")
+    ax1.legend(loc="upper right")
+
+    # Create a second x-axis for tokens seen
+    ax2 = ax1.twiny()  # Create a second x-axis that shares the same y-axis
+    ax2.plot(tokens_seen, train_losses, alpha=0)  # Invisible plot for aligning ticks
+    ax2.set_xlabel("Tokens seen")
+
+    fig.tight_layout()  # Adjust layout to make room
+    # plt.show()
+
+def main(qwen3_config, settings):
+    torch.manual_seed(123)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    file_path = "data.txt"
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        text_data = file.read()
+
+    model = Qwen3Model(qwen3_config)
+    model.to(device)
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=settings["learning_rate"],
+        weight_decay=settings["weight_decay"],
+    )
+
+    train_ratio = 0.90
+    split_idx = int(train_ratio * len(text_data))
+
+    train_loader = create_dataloader_v1(
+        text_data[:split_idx],
+        batch_size=settings["batch_size"],
+        max_length=qwen3_config["context_length"],
+        stride=qwen3_config["context_length"],
+        drop_last=True,
+        shuffle=True,
+        num_workers=0,
+    )
+
+    val_loader = create_dataloader_v1(
+        text_data[split_idx:],
+        batch_size=settings["batch_size"],
+        max_length=qwen3_config["context_length"],
+        stride=qwen3_config["context_length"],
+        drop_last=False,
+        shuffle=False,
+        num_workers=0,
+    )
+
+    tokenizer_file_path = "tokenizer.json"
+
+    tokenizer = Qwen3Tokenizer(
+        tokenizer_file_path=tokenizer_file_path, apply_chat_template=False
+    )
+
+    train_losses, val_losses, tokens_seen = train_model_simple(
+        model,
+        train_loader,
+        val_loader,
+        optimizer,
+        device,
+        num_epochs=settings["num_epochs"],
+        eval_freq=5,
+        eval_iter=1,
+        start_context="唐门所在是一个神秘的地方",
+        tokenizer=tokenizer,
+    )
+
+    return train_losses, val_losses, tokens_seen, model
+
+if __name__ == "__main__":
+    QWEN3_CONFIG = {
+        "vocab_size": 151_936,  # Vocabulary size
+        "context_length": 256,  # Context length that was used to train the model
+        "emb_dim": 768,  # Embedding dimension
+        "n_heads": 16,  # Number of attention heads
+        "n_layers": 12,  # Number of layers
+        "hidden_dim": 3072,  # Size of the intermediate dimension in FeedForward
+        "head_dim": 128,  # Size of the heads in GQA
+        "qk_norm": True,  # Whether to normalize queries and keys in GQA
+        "n_kv_groups": 8,  # Key-Value groups for grouped-query attention
+        "rope_base": 1_000_000.0,  # The base in RoPE's "theta"
+        "dtype": torch.bfloat16,  # Lower-precision dtype to reduce memory usage
+    }
+
+    OTHER_SETTINGS = {
+        "learning_rate": 5e-4,
+        "num_epochs": 10,
+        "batch_size": 4,
+        "weight_decay": 0.1,
+    }
+
+    train_losses, val_losses, tokens_seen, model = main(QWEN3_CONFIG, OTHER_SETTINGS)
+
+    epochs_tensor = torch.linspace(0, OTHER_SETTINGS["num_epochs"], len(train_losses))
+    plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
+    plt.savefig("loss.pdf")
+
+    torch.save(model.state_dict(), "model.pth")
+    model = Qwen3Model(QWEN3_CONFIG)
+    model.load_state_dict(torch.load("model.pth", weights_only=True))
+\end{codebox}
+
 \chapter{监督微调（SFT）}
 
 \section{gpt2的监督微调}
