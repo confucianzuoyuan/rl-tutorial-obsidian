@@ -4164,625 +4164,300 @@ show_animation(frames)
 {\color{red}\min}{\color{cyan}-\frac{1}{m}\sum_{k=1}^{m}\log P_\theta\left( x_k|x_{<k} \right)}
 \end{equation}
 
-\section{从零实现gpt2的预训练}
+\section{从零实现qwen3的预训练}
 
-\subsection{gpt2的模型结构}
+\subsection{qwen3的模型结构}
 
-首先实现数据集的处理。
-
-\begin{codebox}{python}{gpt2\_model.py}{pythoncode:gpt2-1}
-import tiktoken
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-1}
 import torch
 import torch.nn as nn
-from torch.utils.data ipmort Dataset, DataLoader
 
-class GPTDataset(Dataset):
-    def __init__(self, txt, tokenizer, max_length, stride):
-        self.input_ids = []
-        self.target_ids = []
+# 通过标志位选择使用的模型，只有一个可以是True
 
-        # 对整个文本进行分词
-        token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
+USE_BASE_MODEL = False
+USE_REASONING_MODEL = True 
+USE_INSTRUCT_MODEL = False
 
-        # 使用滑动窗口构建预测下一个token的数据集
-        for i in range(0, len(token_ids) - max_length, stride):
-            input_chunk = token_ids[i:i + max_length]
-            target_chunk = token_ids[i + 1: i + max_length + 1]
-            self.input_ids.append(torch.tensor(input_chunk))
-            self.target_ids.append(torch.tensor(target_chunk))
-
-        def __len__(self):
-            return len(self.input_ids)
-
-        def __getitem__(self, idx):
-            return self.input_ids[idx], self.target_ids[idx]
-
-def create_dataloader(
-    txt, # 文本数据
-    batch_size=4, # 批次大小
-    max_length=256, 上下文长度
-    stride=128, # 步长
-    shuffle=True, # 打乱数据集
-    drop_last=True, # 扔掉最后一条数据
-    num_workers=0
-):
-    """创建数据加载器"""
-    tokenizer = tiktoken.get_encoding("gpt2") # 初始化分词器
-    dataset = GPTDataset(txt, tokenizer, max_length, stride) # 创建数据集
-    dataloader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=shuffle,
-        drop_last=drop_last,
-        num_workers=num_workers
-    ) # 创建数据加载器
-
-    return dataloader
+if (USE_BASE_MODEL + USE_REASONING_MODEL + USE_INSTRUCT_MODEL) != 1:
+    raise AttributeError("只有一个标志位可以是True.")
 \end{codebox}
 
-接下来实现多头注意力
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-1}}{pythoncode:gpt2-2}
-class MultiHeadAttention(nn.Module):
-    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
-        super().__init__()
-        assert d_out % num_heads == 0, "d_out 必须能被 n_heads 整除"
-
-        self.d_out = d_out
-        self.num_heads = num_heads
-        self.head_dim = d_out // num_heads # 每个头的维度
-
-        self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
-        self.out_proj = nn.Linear(d_out, d_out) # 合并头的输出
-        self.dropout = nn.Dropout(dropout)
-        # 创建一个下三角为1的掩码方阵，固定在内存中，不会被学习
-        self.register_buffer(
-            "mask",
-            torch.triu(torch.ones(context_length, context_length), diagonal=1),
-            persistent=False
-        )
-
-        ####################################################
-        # KV Cache 相关代码
-        self.register_buffer("cache_k", None, persistent=False)
-        self.register_buffer("cache_v", None, persistent=False)
-        self.ptr_current_pos = 0
-        ####################################################
-
-    def forward(self, x, use_cache=False):
-        b, num_tokens, d_in = x.shape
-
-        keys_new = self.W_key(x) # Shape: (b, num_tokens, d_out)
-        values_new = self.W_value(x)
-        queries = self.W_query(x)
-
-        # (b, num_tokens, d_out) β$\rightarrow$β (b, num_tokens, num_heads, head_dim)
-        keys_new = keys_new.view(b, num_tokens, self.num_heads, self.head_dim)
-        values_new = values_new.view(b, num_tokens, self.num_heads, self.head_dim)
-        queries = queries.view(b, num_tokens, self.num_heads, self.head_dim)
-
-        ####################################################
-        # KV Cache 相关代码
-        if use_cache:
-            if self.cache_k is None:
-                self.cache_k, self.cache_v = keys_new, values_new
-            else:
-                self.cache_k = torch.cat([self.cache_k, keys_new], dim=1)
-                self.cache_v = torch.cat([self.cache_v, values_new], dim=1)
-            keys, values = self.cache_k, self.cache_v
-        else:
-            keys, values = keys_new, values_new
-        ####################################################
-
-        # 转置：(b, num_tokens, num_heads, head_dim) β$\rightarrow$β (b, num_heads, num_tokens, head_dim)
-        keys = keys.transpose(1, 2)
-        queries = queries.transpose(1, 2)
-        values = values.transpose(1, 2)
-
-        # 计算缩放点积注意力（自注意力）
-        # β$QK^T$β，注意力分数
-        attn_scores = queries @ keys.transpose(2, 3) # 每个头的点积
-
-        ####################################################
-        # KV Cache 相关代码
-        num_tokens_Q = queries.shape[-2]
-        num_tokens_K = keys.shape[-2]
-        if use_cache:
-            mask_bool = self.mask.bool()[
-                self.ptr_current_pos:self.ptr_current_pos + num_tokens_Q, :num_tokens_K
-            ]
-            self.ptr_current_pos += num_tokens_Q
-        ####################################################
-        # 裁剪下三角掩码方阵为形状：(num_tokens, num_tokens)
-        else:
-            mask_bool = self.mask.bool()[:num_tokens_Q, :num_tokens_Q]
-
-        # 将注意力分数掩码为下三角矩阵
-        attn_scores.masked_fill_(mask_bool, -torch.inf)
-
-        # 注意力权重：β$\text{softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right)$β
-        attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
-        attn_weights = self.dropout(attn_weights)
-
-        # Shape: (b, num_tokens, num_heads, head_dim)
-        # β$\text{Attention}(Q,K,V)=\text{softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right)V$β
-        context_vec = (attn_weights @ values).transpose(1, 2)
-
-        # 合并多头，self.d_out = self.num_heads * self.head_dim
-        context_vec = context_vec.contiguous().view(b, num_tokens, self.d_out)
-        context_vec = self.out_proj(context_vec) # 可选投影
-
-        return context_vec
-
-    ####################################################
-    # KV Cache 相关代码
-    def reset_cache(self):
-        self.cache_k, self.cache_v = None, None
-        self.ptr_current_pos = 0
-    ####################################################
-\end{codebox}
-
-接下来实现层归一化（LayerNorm）。
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-2}}{pythoncode:gpt2-3}
-class LayerNorm(nn.Module):
-    def __init__(self, emb_dim):
-        super().__init__()
-        self.eps = 1e-5
-        self.scale = nn.Parameter(torch.ones(emb_dim))
-        self.shift = nn.Parameter(torch.zeros(emb_dim))
-
-    def forward(self, x):
-        mean = x.mean(dim=-1, keepdim=True)
-        var = x.var(dim=-1, keepdim=True, unbiased=False)
-        norm_x = (x - mean) / torch.sqrt(var + self.eps)
-        return self.scale * norm_x + self.shift
-\end{codebox}
-
-接下来实现gelu激活函数。
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-3}}{pythoncode:gpt2-4}
-class GELU(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, x):
-        return 0.5 * x * (1 + torch.tanh(
-            torch.sqrt(torch.tensor(2.0 / torch.pi)) *
-            (x + 0.044715 * torch.pow(x, 3))
-        ))
-\end{codebox}
-
-实现MLP。
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-4}}{pythoncode:gpt2-5}
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-2}
 class FeedForward(nn.Module):
     def __init__(self, cfg):
         super().__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(cfg["emb_dim"], 4 * cfg["emb_dim"]),
-            GELU(),
-            nn.Linear(4 * cfg["emb_dim"], cfg["emb_dim"]),
-        )
+        self.fc1 = nn.Linear(cfg["emb_dim"], cfg["hidden_dim"], dtype=cfg["dtype"], bias=False)
+        self.fc2 = nn.Linear(cfg["emb_dim"], cfg["hidden_dim"], dtype=cfg["dtype"], bias=False)
+        self.fc3 = nn.Linear(cfg["hidden_dim"], cfg["emb_dim"], dtype=cfg["dtype"], bias=False)
 
     def forward(self, x):
-        return self.layers(x)
+        x_fc1 = self.fc1(x)
+        x_fc2 = self.fc2(x)
+        x = nn.functional.silu(x_fc1) * x_fc2
+        return self.fc3(x)
 \end{codebox}
 
-实现TransformerBlock。
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-3}
+class RMSNorm(nn.Module):
+    def __init__(self, emb_dim, eps=1e-6, bias=False, qwen3_compatible=True):
+        super().__init__()
+        self.eps = eps
+        self.qwen3_compatible = qwen3_compatible
+        self.scale = nn.Parameter(torch.ones(emb_dim))
+        self.shift = nn.Parameter(torch.zeros(emb_dim)) if bias else None
 
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-5}}{pythoncode:gpt2-6}
+    def forward(self, x):
+        input_dtype = x.dtype
+
+        if self.qwen3_compatible:
+            x = x.to(torch.float32)
+
+        variance = x.pow(2).mean(dim=-1, keepdim=True)
+        norm_x = x * torch.rsqrt(variance + self.eps)
+        norm_x = norm_x * self.scale
+
+        if self.shift is not None:
+            norm_x = norm_x + self.shift
+
+        return norm_x.to(input_dtype)
+\end{codebox}
+
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-4}
+def compute_rope_params(head_dim, theta_base=10_000, context_length=4096, dtype=torch.float32):
+    assert head_dim % 2 == 0, "嵌入维度必须是偶数"
+
+    # Compute the inverse frequencies
+    inv_freq = 1.0 / (theta_base ** (torch.arange(0, head_dim, 2, dtype=dtype)[: (head_dim // 2)].float() / head_dim))
+
+    # Generate position indices
+    positions = torch.arange(context_length, dtype=dtype)
+
+    # Compute the angles
+    angles = positions.unsqueeze(1) * inv_freq.unsqueeze(0)  # Shape: (context_length, head_dim // 2)
+
+    # Expand angles to match the head_dim
+    angles = torch.cat([angles, angles], dim=1)  # Shape: (context_length, head_dim)
+
+    # Precompute sine and cosine
+    cos = torch.cos(angles)
+    sin = torch.sin(angles)
+
+    return cos, sin
+
+
+def apply_rope(x, cos, sin, offset=0):
+    # x: (batch_size, num_heads, seq_len, head_dim)
+    batch_size, num_heads, seq_len, head_dim = x.shape
+    assert head_dim % 2 == 0, "Head dimension must be even"
+
+    # Split x into first half and second half
+    x1 = x[..., : head_dim // 2]  # First half
+    x2 = x[..., head_dim // 2:]  # Second half
+
+    # Adjust sin and cos shapes
+    cos = cos[offset:offset + seq_len, :].unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, seq_len, head_dim)
+    sin = sin[offset:offset + seq_len, :].unsqueeze(0).unsqueeze(0)
+
+    # Apply the rotary transformation
+    rotated = torch.cat((-x2, x1), dim=-1)
+    x_rotated = (x * cos) + (rotated * sin)
+
+    # It's ok to use lower-precision after applying cos and sin rotation
+    return x_rotated.to(dtype=x.dtype)
+\end{codebox}
+
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-5}
+class GroupedQueryAttention(nn.Module):
+    def __init__(
+        self, d_in, num_heads, num_kv_groups, head_dim=None, qk_norm=False, dtype=None
+    ):
+        super().__init__()
+        assert num_heads % num_kv_groups == 0, "num_heads must be divisible by num_kv_groups"
+
+        self.num_heads = num_heads
+        self.num_kv_groups = num_kv_groups
+        self.group_size = num_heads // num_kv_groups
+
+        if head_dim is None:
+            assert d_in % num_heads == 0, "`d_in` must be divisible by `num_heads` if `head_dim` is not set"
+            head_dim = d_in // num_heads
+
+        self.head_dim = head_dim
+        self.d_out = num_heads * head_dim
+
+        self.W_query = nn.Linear(d_in, self.d_out, bias=False, dtype=dtype)
+        self.W_key = nn.Linear(d_in, num_kv_groups * head_dim, bias=False, dtype=dtype)
+        self.W_value = nn.Linear(d_in, num_kv_groups * head_dim, bias=False, dtype=dtype)
+
+        self.out_proj = nn.Linear(self.d_out, d_in, bias=False, dtype=dtype)
+
+        if qk_norm:
+            self.q_norm = RMSNorm(head_dim, eps=1e-6)
+            self.k_norm = RMSNorm(head_dim, eps=1e-6)
+        else:
+            self.q_norm = self.k_norm = None
+
+    def forward(self, x, mask, cos, sin, start_pos=0, cache=None):
+        b, num_tokens, _ = x.shape
+
+        # Apply projections
+        queries = self.W_query(x)  # (b, num_tokens, num_heads * head_dim)
+        keys = self.W_key(x)       # (b, num_tokens, num_kv_groups * head_dim)
+        values = self.W_value(x)   # (b, num_tokens, num_kv_groups * head_dim)
+
+        # Reshape
+        queries = queries.view(b, num_tokens, self.num_heads, self.head_dim).transpose(1, 2)
+        keys_new = keys.view(b, num_tokens, self.num_kv_groups, self.head_dim).transpose(1, 2)
+        values_new = values.view(b, num_tokens, self.num_kv_groups, self.head_dim).transpose(1, 2)
+
+        # Optional normalization
+        if self.q_norm:
+            queries = self.q_norm(queries)
+        if self.k_norm:
+            keys_new = self.k_norm(keys_new)
+
+        # Apply RoPE
+        queries = apply_rope(queries, cos, sin, offset=start_pos)
+        keys_new = apply_rope(keys_new, cos, sin, offset=start_pos)
+
+        if cache is not None:
+            prev_k, prev_v = cache
+            keys = torch.cat([prev_k, keys_new], dim=2)
+            values = torch.cat([prev_v, values_new], dim=2)
+            next_cache = (keys, values)
+        else:
+            start_pos = 0  # reset RoPE
+            keys, values = keys_new, values_new
+            next_cache = (keys, values)
+
+        # Expand K and V to match number of heads
+        keys = keys.repeat_interleave(self.group_size, dim=1)
+        values = values.repeat_interleave(self.group_size, dim=1)
+
+        # Attention
+        attn_scores = queries @ keys.transpose(2, 3)
+        attn_scores = attn_scores.masked_fill(mask, -torch.inf)
+        attn_weights = torch.softmax(attn_scores / self.head_dim**0.5, dim=-1)
+
+        context = (attn_weights @ values).transpose(1, 2).reshape(b, num_tokens, self.d_out)
+        return self.out_proj(context), next_cache
+\end{codebox}
+
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-6}
 class TransformerBlock(nn.Module):
     def __init__(self, cfg):
         super().__init__()
-        self.att = MultiHeadAttention(
+        self.att = GroupedQueryAttention(
             d_in=cfg["emb_dim"],
-            d_out=cfg["emb_dim"],
-            context_length=cfg["context_length"],
             num_heads=cfg["n_heads"],
-            dropout=cfg["drop_rate"],
-            qkv_bias=cfg["qkv_bias"],
+            head_dim=cfg["head_dim"],
+            num_kv_groups=cfg["n_kv_groups"],
+            qk_norm=cfg["qk_norm"],
+            dtype=cfg["dtype"]
         )
         self.ff = FeedForward(cfg)
-        self.norm1 = LayerNorm(cfg["emb_dim"])
-        self.norm2 = LayerNorm(cfg["emb_dim"])
-        self.drop_shortcut = nn.Dropout(cfg["drop_rate"])
+        self.norm1 = RMSNorm(cfg["emb_dim"], eps=1e-6)
+        self.norm2 = RMSNorm(cfg["emb_dim"], eps=1e-6)
 
-    def forward(self, x, use_cache=False):
-        # 残差连接
+    def forward(self, x, mask, cos, sin, start_pos=0, cache=None):
+        # Shortcut connection for attention block
         shortcut = x
         x = self.norm1(x)
-        x = self.att(x, use_cache=use_cache) # Shape (batch_size, num_tokens, emb_size)
-        x = self.drop_shortcut(x)
-        x = x + shortcut # 将原始输入传过来
+        x, next_cache = self.att(x, mask, cos, sin, start_pos=start_pos, cache=cache)  # Shape [batch_size, num_tokens, emb_size]
+        x = x + shortcut  # Add the original input back
 
-        # 残差连接
+        # Shortcut connection for feed-forward block
         shortcut = x
         x = self.norm2(x)
         x = self.ff(x)
-        x = self.drop_shortcut(x)
-        x = x + shortcut # 将原始输入传过来
+        x = x + shortcut  # Add the original input back
 
-        return x
+        return x, next_cache
 \end{codebox}
 
-将上面的组件拼成GPT2Model模型。
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-6}}{pythoncode:gpt2-7}
-class GPTModel(nn.Module):
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-7}
+class Qwen3Model(nn.Module):
     def __init__(self, cfg):
         super().__init__()
-        self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
-        self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
-        self.drop_emb = nn.Dropout(cfg["drop_rate"])
 
-        # 堆叠TransformerBlock
-        self.trf_blocks = nn.ModuleList(
+        # Main model parameters
+        self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"], dtype=cfg["dtype"])
+
+        self.trf_blocks = nn.ModuleList(  # ModuleList since Sequential can only accept one input, and we need `x, mask, cos, sin`
             [TransformerBlock(cfg) for _ in range(cfg["n_layers"])]
         )
+        self.final_norm = RMSNorm(cfg["emb_dim"])
+        self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False, dtype=cfg["dtype"])
 
-        self.current_pos = 0
-
-        self.final_norm = LayerNorm(cfg["emb_dim"])
-        self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False)
-
-    def forward(self, in_idx, use_cache=False):
-        batch_size, seq_len = in_idx.shape
-        tok_embeds = self.tok_emb(in_idx)
-        ####################################################
-        # KV Cache 相关
-        if use_cache:
-            pos_ids = torch.arange(self.current_pos, self.current_pos + seq_len, device=in_idx.device, dtype=torch.long)
-            self.current_pos += seq_len
+        # Reusable utilities
+        if cfg["head_dim"] is None:
+            head_dim = cfg["emb_dim"] // cfg["n_heads"]
         else:
-            pos_ids = torch.arange(0, seq_len, device=in_idx.device, dtype=torch.long)
-        pos_embeds = self.pos_emb(pos_ids).unsqueeze(0)
-        ####################################################
-        x = tok_embeds + pos_embeds # Shape (batch_size, num_tokens, emb_size)
-        x = self.drop_emb(x)
-        ####################################################
-        # KV Cache 相关
-        for blk in self.trf_blocks:
-            x = blk(x, use_cache=use_cache)
-        ####################################################
+            head_dim = cfg["head_dim"]
+        cos, sin = compute_rope_params(
+            head_dim=head_dim,
+            theta_base=cfg["rope_base"],
+            context_length=cfg["context_length"]
+        )
+        self.register_buffer("cos", cos, persistent=False)
+        self.register_buffer("sin", sin, persistent=False)
+        self.cfg = cfg
+        self.current_pos = 0  # Track current position in KV cache
+
+    def forward(self, in_idx, cache=None):
+        # Forward pass
+        tok_embeds = self.tok_emb(in_idx)
+        x = tok_embeds
+
+        num_tokens = x.shape[1]
+        if cache is not None:
+            pos_start = self.current_pos
+            pos_end = pos_start + num_tokens
+            self.current_pos = pos_end
+            mask = torch.triu(
+                torch.ones(pos_end, pos_end, device=x.device, dtype=torch.bool), diagonal=1
+            )[pos_start:pos_end, :pos_end]
+        else:
+            pos_start = 0  # Not strictly necessary but helps torch.compile
+            mask = torch.triu(
+                torch.ones(num_tokens, num_tokens, device=x.device, dtype=torch.bool), diagonal=1
+            )
+        # Shape (1, 1, num_tokens, num_tokens) to broadcast across batch and heads
+        mask = mask[None, None, :, :]
+
+        for i, block in enumerate(self.trf_blocks):
+            blk_cache = cache.get(i) if cache else None
+            x, new_blk_cache = block(x, mask, self.cos, self.sin,
+                                     start_pos=pos_start,
+                                     cache=blk_cache)
+            if cache is not None:
+                cache.update(i, new_blk_cache)
+
         x = self.final_norm(x)
-        logits = self.out_head(x)
+        logits = self.out_head(x.to(self.cfg["dtype"]))
         return logits
 
-    ####################################################
-    # KV Cache 相关
     def reset_kv_cache(self):
-        for blk in self.trf_blocks:
-            blk.att.reset_cache()
         self.current_pos = 0
-    ####################################################
 \end{codebox}
 
-接下来我们实现生成文本的函数。
+\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-8}
+class KVCache:
+    def __init__(self, n_layers):
+        self.cache = [None] * n_layers
 
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-7}}{pythoncode:gpt2-8}
-def generate_text_simple(model, idx, max_new_tokens, context_size=None, use_cache=False):
-    model.eval()
-    ctx_len = context_size or model.pos_emb.num_embeddings
+    def get(self, layer_idx):
+        return self.cache[layer_idx]
 
-    with torch.no_grad():
-        if use_cache:
-            # 使用提示词初始化kv cache
-            model.reset_kv_cache()
-            # 如果当前上下文超过了模型支持的上下文长度，则裁剪上下文长度。
-            # 例如，LLM只支持5个token的上下文，而context_size为10，
-            # 那么只有最后5个token用作上下文
-            logits = model(idx[:, -ctx_len:], use_cache=True)
+    def update(self, layer_idx, value):
+        self.cache[layer_idx] = value
 
-            # idx shape: (B, T)
-            for _ in range(max_new_tokens):
-                # a) 选取最大的对数概率的token（贪婪采样）
-                next_idx = logits[:, -1].argmax(dim=-1, keepdim=True)
-                # b) 将采样的索引补全到上下文
-                idx = torch.cat([idx, next_idx], dim=1)
-                # c) 只喂给模型最新的token
-                logits = model(next_idx, use_cache=True)
-        else:
-            for _ in range(max_new_tokens):
-                logits = model(idx[:, -ctx_len:], use_cache=False)
-                next_idx = logits[:, -1].argmax(dim=-1, keepdim=True)
-                idx = torch.cat([idx, next_idx], dim=1)
+    def get_all(self):
+        return self.cache
 
-    return idx
-\end{codebox}
-
-接下来测试一下模型结构的输出。
-
-\begin{codebox}{python}{gpt2\_model.py，接代码\ref{pythoncode:gpt2-8}}{pythoncode:gpt2-9}
-def main():
-    GPT_CONFIG_124M = {
-        "vocab_size": 50257,     # 词汇表大小
-        "context_length": 1024,  # 上下文长度
-        "emb_dim": 768,          # 词嵌入维度
-        "n_heads": 12,           # 头的数量
-        "n_layers": 12,          # 层数
-        "drop_rate": 0.1,        # Dropout比例
-        "qkv_bias": False        # Query-Key-Value 偏置
-    }
-
-    torch.manual_seed(123)
-    model = GPTModel(GPT_CONFIG_124M)
-    device = torch.device("cuda")
-    model.to(device)
-    model.eval()  # 禁用dropout
-
-    start_context = "Hello, I am"
-
-    tokenizer = tiktoken.get_encoding("gpt2")
-    encoded = tokenizer.encode(start_context)
-    encoded_tensor = torch.tensor(encoded).unsqueeze(0)
-
-    print(f"\n{50*'='}\n{22*' '}IN\n{50*'='}")
-    print("\n输入文本：", start_context)
-    print("编码后的文本：", encoded)
-    print("张量形状：", encoded_tensor.shape)
-
-    torch.cuda.synchronize()
-    start = time.time()
-
-    token_ids = generate_text_simple(
-        model=model,
-        idx=encoded_tensor,
-        max_new_tokens=200,
-    )
-
-    torch.cuda().synchronize()
-    total_time = time.time() - start
-
-    decoded_text = tokenizer.decode(token_ids.squeeze(0).tolist())
-
-    print(f"\n\n{50*'='}\n{22*' '}输出\n{50*'='}")
-    print("\n输出：", token_ids)
-    print("输出长度：", len(token_ids[0]))
-    print("输出文本：", decoded_text)
-
-    print(f"\n时间：{total_time:.2f} 秒")
-    print(f"{int(len(token_ids[0])/total_time)} tokens/sec")
-    max_mem_bytes = torch.cuda.max_memory_allocated()
-    max_mem_gb = max_mem_bytes / (1024 ** 3)
-    print(f"分配的最大内存：{max_mem_gb:.2b} GB")
-
-if __name__ == "__main__":
-    main()
-\end{codebox}
-
-\subsection{训练gpt2}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-1}
-import matplotlib.pyplot as plt
-import torch
-import tiktoken
-
-from gpt2_model import GPTModel, create_dataloader, generate_text_simple
-
-def text_to_token_ids(text, tokenizer):
-    encoded = tokenizer.encode(text)
-    encoded_tensor = torch.tensor(encoded).unsqueeze(0) # 添加批次维度
-    return encoded_tensor
-
-def token_ids_to_text(token_ids, tokenizer):
-    flat = token_ids.squeeze(0) # 去掉批次维度
-    return tokenizer.decode(flat.tolist())
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-2}
-def calc_loss_batch(input_batch, target_batch, model, device):
-    input_batch, target_batch = input_batch.to(device), target_batch.to(device)
-    logits = model(input_batch)
-    loss = torch.nn.functional.cross_entropy(logits.flatten(0, 1), target_batch.flatten())
-    return loss
-
-def calc_loss_loader(data_loader, model, device, num_batches=None):
-    total_loss = 0.0
-    if len(data_loader) == 0:
-        return float("nan")
-    elif num_batches is None:
-        num_batches = len(data_loader)
-    else:
-        num_batches = min(num_batches, len(data_loader))
-    for i, (input_batch, target_batch) in enumerate(data_loader):
-        if i < num_batches:
-            loss = calc_loss_batch(input_batch, target_batch, model, device)
-            total_loss += loss.item()
-        else:
-            break
-    return total_loss / num_batches
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-3}
-def evaluate_model(model, train_loader, val_loader, device, eval_iter):
-    model.eval()
-    with torch.no_grad():
-        train_loss = calc_loss_loader(train_loader, model, device, num_batches=eval_iter)
-        val_loss = calc_loss_loader(val_loader, model, device, num_batches=eval_iter)
-    model.train()
-    return train_loss, val_loss
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-4}
-def generate_and_print_sample(model, tokenizer, device, start_context):
-    model.eval()
-    context_size = model.pos_emb.weight.shape[0]
-    encoded = text_to_token_ids(start_context, tokenizer).to(device)
-    with torch.no_grad():
-        token_ids = generate_text_simple(
-            model=model,
-            idx=encoded,
-            max_new_tokens=50,
-            context_size=context_size,
-        )
-        decoded_text = token_ids_to_text(token_ids, tokenizer)
-        print(decoded_text.replace("\n", " ")) # 压缩打印的格式
-    model.train()
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-5}
-def train_model_simple(
-    model,
-    train_loader,
-    val_loader,
-    optimizer,
-    device,
-    num_epochs,
-    eval_freq,
-    eval_iter,
-    start_context,
-    tokenizer
-):
-    # 记录统计信息的列表
-    train_losses, val_losses, track_tokens_seen = [], [], []
-    tokens_seen = 0
-    global_step = -1
-
-    # 主训练循环
-    for epoch in range(num_epochs):
-        model.train() # 将模型设置为训练模式
-
-        for input_batch, target_batch in train_loader:
-            optimizer.zero_grad()
-            loss = calc_loss_batch(input_batch, target_batch, model, device)
-            loss.backward()
-            optimizer.step()
-            tokens_seen += input_batch.numel()
-            global_step += 1
-        
-            # 评估（可选）
-            if global_step % eval_freq == 0:
-                train_loss, val_loss = evaluate_model(
-                    model,
-                    train_loader,
-                    val_loader,
-                    device,
-                    eval_iter
-                )
-                train_losses.append(train_loss)
-                val_losses.append(val_loss)
-                track_tokens_seen.append(tokens_seen)
-                print(f"Ep {epoch+1} (Step {global_step:06d}): "
-                      f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
-
-        # 每个epoch之后输出一个文本
-        generate_and_print_sample(
-            model, tokenizer, device, start_context
-        )
-    
-    return train_losses, val_losses, track_tokens_seen
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-6}
-def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
-    flg, ax1 = plt.subplots()
-
-    # 绘制每个epoch的训练和验证损失
-    ax1.plot(epochs_seen, train_losses, label="Training loss")
-    ax1.plot(epochs_seen, val_losses, linestyle="-.", label="Validation loss")
-    ax1.set_xlabel("Epochs")
-    ax1.set_ylabel("Loss")
-    ax1.legend(loc="upper right")
-
-    # 创建第二个x轴用来绘制看过的token数量
-    ax2 = ax1.twiny()  # 创建第二个x轴，共享同一个y轴
-    ax2.plot(tokens_seen, train_losses, alpha=0)
-    ax2.set_xlabel("Tokens seen")
-
-    fig.tight_layout()
-\end{codebox}
-
-\begin{codebox}{python}{gpt2\_train.py}{pythoncode:traingpt2-7}
-def main(gpt_config, settings):
-    torch.manual_seed(123)
-    device = torch.device("cuda")
-
-    file_path = "data.txt"
-    with open(file_path, "r", encoding="utf-8") as file:
-        text_data = file.read()
-    
-    model = GPTModel(gpt_config)
-    model.to(device)
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=settings["learning_rate"],
-        weight_decay=settings["weight_decay"]
-    )
-
-    train_ratio = 0.90
-    split_idx = int(train_ratio * len(text_data))
-
-    train_loader = create_dataloader(
-        text_data[:split_idx],
-        batch_size=settings["batch_size"],
-        max_length=gpt_config["context_length"],
-        stride=gpt_config["context_length"],
-        drop_last=True,
-        shuffle=True,
-        num_workers=0
-    )
-
-    val_loader = create_dataloader(
-        text_data[split_idx:],
-        batch_size=settings["batch_size"],
-        max_length=gpt_config["context_length"],
-        stride=gpt_config["context_length"],
-        drop_last=False,
-        shuffle=False,
-        num_workers=0
-    )
-
-    tokenizer = tiktoken.get_encoding("gpt2")
-
-    train_losses, val_losses, tokens_seen = train_model_simple(
-        model, train_loader, val_loader, optimizer, device,
-        num_epochs=settings["num_epochs"], eval_freq=5, eval_iter=1,
-        start_context="Every effort moves you", tokenizer=tokenizer
-    )
-
-    return train_losses, val_losses, tokens_seen, model
-
-if __name__ == "__main__":
-
-    GPT_CONFIG_124M = {
-        "vocab_size": 50257,    # 词汇表大小
-        "context_length": 256,  # 缩小的上下文长度 (原来的: 1024)
-        "emb_dim": 768,         # 词嵌入维度
-        "n_heads": 12,          # 头数
-        "n_layers": 12,         # 层数
-        "drop_rate": 0.1,       # Dropout比例
-        "qkv_bias": False       # Query-key-value 偏置
-    }
-
-    OTHER_SETTINGS = {
-        "learning_rate": 5e-4,
-        "num_epochs": 10,
-        "batch_size": 2,
-        "weight_decay": 0.1
-    }
-
-    ###########################
-    # 初始化训练
-    ###########################
-
-    train_losses, val_losses, tokens_seen, model = main(GPT_CONFIG_124M, OTHER_SETTINGS)
-
-    ###########################
-    # 训练完成后
-    ###########################
-
-    # 绘制结果
-    epochs_tensor = torch.linspace(0, OTHER_SETTINGS["num_epochs"], len(train_losses))
-    plot_losses(epochs_tensor, tokens_seen, train_losses, val_losses)
-    plt.savefig("loss.pdf")
-
-    # 保存和加载模型
-    torch.save(model.state_dict(), "model.pth")
-    model = GPTModel(GPT_CONFIG_124M)
-    model.load_state_dict(torch.load("model.pth", weights_only=True))
+    def reset(self):
+        for i in range(len(self.cache)):
+            self.cache[i] = None
 \end{codebox}
 
 \chapter{监督微调（SFT）}
