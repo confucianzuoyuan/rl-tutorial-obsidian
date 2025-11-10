@@ -3968,9 +3968,9 @@ def calc_advantages_with_grpo(trajectories):
     rewards = [r for o, l, a, r in trajectories]
     # 一组轨迹的归一化奖励的均值
     mean_reward = sum(rewards) / len(rewards)
-    # 一组轨迹的归一化奖励的方差
+    # 一组轨迹的归一化奖励的标准差
     std_reward = np.std(rewards)  + 1e-8
-    # β$[A_{\tau_0},A_{\tau_0},\dots,A_{\tau_G}]$β
+    # β$[A_{\tau_0},A_{\tau_1},\dots,A_{\tau_G}]$β
     advantages = [(r - mean_reward) / std_reward for r in rewards]  
     
     return advantages
@@ -4077,6 +4077,184 @@ show_animation(frames)
 
 \part{基于人类反馈的强化学习（RLHF）}
 
+\chapter{大语言模型的训练概述}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ rounded corners = 12.0] (6.5,21.75) rectangle  node {\LARGE 预训练模型} (10.25,20);
+\draw [ rounded corners = 12.0, dashed] (13.5,24) rectangle  (31,12.5);
+\draw [ rounded corners = 12.0] (15.75,21.75) rectangle  node {\LARGE SFT} (19.5,20);
+\draw [ rounded corners = 12.0] (25,21.75) rectangle  node {\LARGE RLHF} (28.75,20);
+\draw [->, >=Stealth] (10.25,21) -- (15.75,21);
+\draw [->, >=Stealth] (19.5,21) -- (25,21);
+\draw [ rounded corners = 12.0] (15.75,16.25) rectangle  node {\LARGE 示例数据集} (19.5,14.5);
+\draw [ rounded corners = 12.0] (24.25,16.5) rectangle  node {\LARGE 人类反馈数据集} (29.25,14);
+\draw [->, >=Stealth] (17.75,16.25) -- (17.75,20);
+\draw [->, >=Stealth] (26.75,16.5) -- (26.75,20);
+\draw [ rounded corners = 12.0] (36.5,22) rectangle  node {\LARGE 用户} (40.25,20.25);
+\draw [->, >=Stealth] (28.75,21) -- (36.5,21);
+\draw [short] (33,21) -- (33,10);
+\draw [short] (33,10) -- (17.75,10);
+\draw [->, >=Stealth] (17.75,10) -- (17.75,14.5);
+\draw [->, >=Stealth] (27,10) -- (27,14);
+\draw  (22.25,18) circle (1.5cm) node {\LARGE 数据飞轮} ;
+\draw [->, >=Stealth] (22.25,19.5) -- (22.5,19.5);
+\draw [->, >=Stealth] (22.25,16.5) -- (22,16.5);
+\end{circuitikz}
+}%
+\caption{大语言模型的训练流程}
+\label{fig:rlhf}
+\end{figure}
+
+监督微调（Supervised Fine-Tuning，SFT）通常也是采用``预测下一个词''（predict next token）的训练方式。
+
+\begin{itemize}
+\item 基础模型训练：大多数语言模型（如GPT系列）本身就是通过自回归方式训练的，即在给定上下文的情况下预测下一个词（token）。
+\item 监督微调（SFT）：在微调阶段，模型通常会使用带有标签的输入-输出对进行训练，比如对话数据、问答对等。训练目标依然是让模型在给定输入（上下文）的条件下，预测正确的下一个词。
+\end{itemize}
+
+换句话说，SFT通过\textbf{有监督的数据}指导模型生成更符合特定任务或风格的输出，但训练目标仍然是最大化正确预测下一个词的概率。
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\rowcolor[HTML]{96FFFB} 
+训练阶段 & 训练方式        & 目标              \\ \hline
+预训练  & 自回归预测下一个词   & 学习语言的通用统计规律     \\ \hline
+监督微调 & 给定输入，预测下一个词 & 让模型生成更符合特定任务的输出 \\ \hline
+\end{tabular}
+\caption{预训练和监督微调}
+\label{tbl:pretrained-sft}
+\end{table}
+
+所以通过SFT微调基础模型，可以让大模型输出我们喜欢的回答。
+
+\begin{marker}
+但是SFT无法让大模型\textbf{不输出我们不喜欢的回答}。
+\end{marker}
+
+因为SFT的训练目标是``预测下一个token''，它本质上是拟合训练数据中的分布。如果训练数据中存在不理想的回答，模型可能仍然学到这些模式。
+
+所以我们要使用 ``强化学习'' 来对大语言模型进行微调，这就是``基于人类反馈的强化学习''。
+
+\begin{marker}
+RLHF: \textbf{R}einforcement \textbf{L}earning From \textbf{H}uman \textbf{F}eedback
+\end{marker}
+
+当我们谈论大语言模型（LLM）的强化学习时，我们进入了一个完全不同的世界。我们不再训练智能体在倒立摆环境中的表现，而是对预训练好的大语言模型进行微调，使其符合人类的偏好。该模型不会与外部环境交互——它本质上是在探索自身的输出空间。
+
+正如OpenAI和其他科研人员所发现的，这种方法对于将原始语言模型转化为辅助系统至关重要。正如IBM研究人员指出的那样，``RLHF特别适合于目标复杂、定义不明确或难以指定的任务。''毕竟，如何用数学来定义``乐于助人''或``诚实''这样的概念呢？
+
+这里的根本转变是：
+
+\begin{enumerate}
+\item 我们正在优化大语言模型以适应人类的偏好，而不是对环境的掌控
+\item 我们的数据来自人类的判断，而不是环境互动
+\item 我们需要在奖励最大化与保持接近原始预训练行为之间取得平衡
+\end{enumerate}
+
+这种平衡行为使得 LLM 强化学习特别棘手，但也特别令人着迷！
+
+\begin{marker}
+别看上面的话很抽象，其实微调大语言模型和训练倒立摆环境中的推车的原理是一样的！
+\end{marker}
+
+\section{RLHF的关键技术}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw  (-5.5,38.75) rectangle  node {\LARGE 预训练LLM} (0.75,35.5);
+\draw  (12.5,47.25) rectangle  node {\LARGE 近端策略优化（PPO）} (25.25,44.25);
+\draw  (12.5,38.75) rectangle  node {\LARGE 直接偏好优化（DPO）} (25.25,35.75);
+\draw  (12.5,30.25) rectangle  node {\LARGE 组相对策略优化（GRPO）} (25.25,27.25);
+\draw  (36.75,39) rectangle  node {\LARGE 对齐后的LLM} (49.5,36);
+\draw [->, >=Stealth] (0.75,37.25) -- (12.5,45.5);
+\draw [->, >=Stealth] (1,37.25) -- (12.5,37.25);
+\draw [->, >=Stealth] (1,37.25) -- (12.5,28.5);
+\draw [->, >=Stealth] (25.25,45.75) -- (36.75,37.5);
+\draw [->, >=Stealth] (25.25,37.5) -- (36.75,37.5);
+\draw [->, >=Stealth] (25.5,28.75) -- (36.75,37.5);
+\end{circuitikz}
+}%
+\caption{PPO, DPO, GRPO}
+\label{fig:ppo-dpo-grpo}
+\end{figure}
+
+\subsection{近端策略优化}
+
+PPO 是 LLM 强化学习对齐技术的\textbf{重量级冠军}，因 OpenAI 开发的 InstructGPT 和 ChatGPT 而闻名。PPO 于 2017 年开发，解决了强化学习中的一个关键挑战：如何在不破坏训练稳定性的情况下进行有意义的更新。
+
+PPO 成功的秘诀在于其``近端''特性——它对策略进行保守更新，防止模型在单次迭代中发生过大变化。这是通过其目标函数中巧妙的裁剪机制实现的：
+
+\begin{equation}
+J_{\text{PPO}}(\theta)=\mathbb{E}\left[{\min\left({\frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)}}A,\text{clip}\left({\frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)},1-\epsilon,1+\epsilon}\right)A\right)}\right]
+\end{equation}
+
+通过限制新旧策略之间的比例（通常在 $1\pm 0.2$ 以内），PPO 可以确保模型在训练过程中不会偏离目标。
+
+PPO 一直是实现人类反馈强化学习 (RLHF) 的首选算法，该算法遵循以下三个步骤：
+
+\begin{enumerate}
+\item 从预训练模型开始
+\item 根据人类偏好训练奖励模型
+\item 使用PPO微调LLM，来最大化奖励，同时保持接近原来的LLM。
+\end{enumerate}
+
+\subsection{直接偏好优化}
+
+\begin{figure}[!ht]
+\centering
+\bigskip
+\bigskip
+\bigskip
+\begin{equation}
+\begin{aligned}
+\eqnmarkbox[NavyBlue]{dpo1}{\mathcal{L}_{\text{DPO}}}(\eqnmarkbox[NavyBlue]{dpo2}{\pi_\theta};\eqnmarkbox[NavyBlue]{dpo3}{\pi_{\text{ref}}}) 
+&= \eqnmarkbox[NavyBlue]{dpo4}{-}\mathbb{E}_{(y_w,y_l,x)\sim \eqnmarkbox[NavyBlue]{dpo5}{\mathcal{D}}}\left[\log\left(\eqnmarkbox[NavyBlue]{dpo6}{\sigma}\left(\eqnmarkbox[NavyBlue]{dpo10}{\beta}\left(\log{\frac{\pi_\theta(\eqnmarkbox[NavyBlue]{dpo7}{y_w}|\eqnmarkbox[NavyBlue]{dpo8}{x})}{\pi_\theta(\eqnmarkbox[NavyBlue]{dpo9}{y_l}|x)}} - \log{\frac{\pi_{\text{ref}}(y_w|x)}{\pi_{\text{ref}}(y_l|x)}}\right)\right)\right)\right]
+\end{aligned}
+\end{equation}
+\annotate[yshift=-1em]{below,left}{dpo1}{DPO目标函数}
+\annotate[yshift=1em]{above,left}{dpo2}{待优化的LLM（策略）}
+\annotate[yshift=3em]{above,left}{dpo3}{冻结的参考模型}
+\annotate[yshift=-3em]{below,left}{dpo4}{期望取负值}
+\annotate[yshift=3em]{above,left}{dpo5}{偏好数据集}
+\annotate[yshift=-1em]{below,left}{dpo6}{Sigmoid函数}
+\annotate[yshift=2em]{above,left}{dpo7}{人类喜欢的回答}
+\annotate[yshift=2em]{above,right}{dpo8}{提示词}
+\annotate[yshift=-2em]{below,right}{dpo9}{人类讨厌的回答}
+\annotate[yshift=-2em]{below,right}{dpo10}{超参数}
+\bigskip
+\bigskip
+\caption{DPO的目标函数}
+\label{fig:dpo-annotated}
+\end{figure}
+
+\begin{marker}
+DPO的目标是让$\frac{\pi_\theta(y_w|x)}{\pi_{\theta}(y_l|x)}$越大越好！
+\end{marker}
+
+如果说 PPO 是一位谨慎的外科医生，能够精准地进行手术，那么 DPO 则是一位效率专家，他找到了通往同一目标的捷径。DPO 于 2023 年在一篇题为《直接偏好优化：你的语言模型其实是一个奖励模型》的论文中首次提出，它彻底消除了对单独奖励模型的需求。
+
+DPO 的精妙之处在于其数学洞察力：奖励函数与最优策略之间存在直接映射。通过利用这种关系，DPO 将强化学习问题转化为基于人类偏好数据的更简单的分类问题。
+
+与传统的三步 RLHF 流程不同，DPO 只需一个训练阶段即可实现相同的目标。这就像跳过中间环节，直接到达源头。
+
+DPO 对从业者特别有吸引力的原因是：
+
+\begin{enumerate}
+\item 简单：无需训练单独的奖励模型
+\item 效率：无需在训练期间进行昂贵的采样
+\item 稳定性：组件越少，出错的可能性就越小
+\item 性能：在控制输出属性方面，通常与PPO-RLHF相当或超过PPO-RLHF
+\end{enumerate}
+
 \chapter{预训练的大语言模型}
 
 \begin{figure}[!ht]
@@ -4168,20 +4346,6 @@ show_animation(frames)
 
 \subsection{qwen3的模型结构}
 
-\begin{codebox}{python}{qwen3\_model.py}{qwen3-model-1}
-import torch
-import torch.nn as nn
-
-# 通过标志位选择使用的模型，只有一个可以是True
-
-USE_BASE_MODEL = False
-USE_REASONING_MODEL = True 
-USE_INSTRUCT_MODEL = False
-
-if (USE_BASE_MODEL + USE_REASONING_MODEL + USE_INSTRUCT_MODEL) != 1:
-    raise AttributeError("只有一个标志位可以是True.")
-\end{codebox}
-
 \begin{codebox}{python}{qwen3\_model.py}{qwen3-model-2}
 class FeedForward(nn.Module):
     def __init__(self, cfg):
@@ -4196,6 +4360,12 @@ class FeedForward(nn.Module):
         x = nn.functional.silu(x_fc1) * x_fc2
         return self.fc3(x)
 \end{codebox}
+
+rms归一化公式如下：
+
+\begin{equation}
+y_i = \frac{x_i}{\text{RMS}(x)} * \gamma_i, \quad\quad\text{其中}\quad\text{RMS}(x)=\sqrt{\epsilon+\frac{1}{n}\sum_{i=1}^{n}x_i^2}
+\end{equation}
 
 \begin{codebox}{python}{qwen3\_model.py}{qwen3-model-3}
 class RMSNorm(nn.Module):
@@ -4226,19 +4396,19 @@ class RMSNorm(nn.Module):
 def compute_rope_params(head_dim, theta_base=10_000, context_length=4096, dtype=torch.float32):
     assert head_dim % 2 == 0, "嵌入维度必须是偶数"
 
-    # Compute the inverse frequencies
+    # 计算频率的倒数
     inv_freq = 1.0 / (theta_base ** (torch.arange(0, head_dim, 2, dtype=dtype)[: (head_dim // 2)].float() / head_dim))
 
-    # Generate position indices
+    # 生成位置的索引
     positions = torch.arange(context_length, dtype=dtype)
 
-    # Compute the angles
+    # 计算角度
     angles = positions.unsqueeze(1) * inv_freq.unsqueeze(0)  # Shape: (context_length, head_dim // 2)
 
-    # Expand angles to match the head_dim
+    # 扩展角度，使得角度的形状和head_dim相同
     angles = torch.cat([angles, angles], dim=1)  # Shape: (context_length, head_dim)
 
-    # Precompute sine and cosine
+    # 预先计算好正弦和余弦
     cos = torch.cos(angles)
     sin = torch.sin(angles)
 
@@ -4248,21 +4418,21 @@ def compute_rope_params(head_dim, theta_base=10_000, context_length=4096, dtype=
 def apply_rope(x, cos, sin, offset=0):
     # x: (batch_size, num_heads, seq_len, head_dim)
     batch_size, num_heads, seq_len, head_dim = x.shape
-    assert head_dim % 2 == 0, "Head dimension must be even"
+    assert head_dim % 2 == 0, "头的维度必须是偶数"
 
-    # Split x into first half and second half
-    x1 = x[..., : head_dim // 2]  # First half
-    x2 = x[..., head_dim // 2:]  # Second half
+    # 将x切分成两半
+    x1 = x[..., : head_dim // 2]  # 前一半
+    x2 = x[..., head_dim // 2:]  # 后一半
 
-    # Adjust sin and cos shapes
+    # 调整正弦和余弦的形状
     cos = cos[offset:offset + seq_len, :].unsqueeze(0).unsqueeze(0)  # Shape: (1, 1, seq_len, head_dim)
     sin = sin[offset:offset + seq_len, :].unsqueeze(0).unsqueeze(0)
 
-    # Apply the rotary transformation
+    # 旋转变换
     rotated = torch.cat((-x2, x1), dim=-1)
     x_rotated = (x * cos) + (rotated * sin)
 
-    # It's ok to use lower-precision after applying cos and sin rotation
+    # 旋转之后，可以使用低精度的数据
     return x_rotated.to(dtype=x.dtype)
 \end{codebox}
 
@@ -4272,14 +4442,14 @@ class GroupedQueryAttention(nn.Module):
         self, d_in, num_heads, num_kv_groups, head_dim=None, qk_norm=False, dtype=None
     ):
         super().__init__()
-        assert num_heads % num_kv_groups == 0, "num_heads must be divisible by num_kv_groups"
+        assert num_heads % num_kv_groups == 0, "num_heads 必须能被 num_kv_groups 整除"
 
         self.num_heads = num_heads
         self.num_kv_groups = num_kv_groups
         self.group_size = num_heads // num_kv_groups
 
         if head_dim is None:
-            assert d_in % num_heads == 0, "`d_in` must be divisible by `num_heads` if `head_dim` is not set"
+            assert d_in % num_heads == 0, "如果`head_dim`没有设置，`d_in` 必须能被 `num_heads` 整除"
             head_dim = d_in // num_heads
 
         self.head_dim = head_dim
@@ -4300,41 +4470,41 @@ class GroupedQueryAttention(nn.Module):
     def forward(self, x, mask, cos, sin, start_pos=0, cache=None):
         b, num_tokens, _ = x.shape
 
-        # Apply projections
         queries = self.W_query(x)  # (b, num_tokens, num_heads * head_dim)
         keys = self.W_key(x)       # (b, num_tokens, num_kv_groups * head_dim)
         values = self.W_value(x)   # (b, num_tokens, num_kv_groups * head_dim)
 
-        # Reshape
+        # 形状变换
         queries = queries.view(b, num_tokens, self.num_heads, self.head_dim).transpose(1, 2)
         keys_new = keys.view(b, num_tokens, self.num_kv_groups, self.head_dim).transpose(1, 2)
         values_new = values.view(b, num_tokens, self.num_kv_groups, self.head_dim).transpose(1, 2)
 
-        # Optional normalization
+        # 可选归一化
         if self.q_norm:
             queries = self.q_norm(queries)
         if self.k_norm:
             keys_new = self.k_norm(keys_new)
 
-        # Apply RoPE
+        # 旋转位置编码的计算
         queries = apply_rope(queries, cos, sin, offset=start_pos)
         keys_new = apply_rope(keys_new, cos, sin, offset=start_pos)
 
+        # KV Cache 部分
         if cache is not None:
             prev_k, prev_v = cache
             keys = torch.cat([prev_k, keys_new], dim=2)
             values = torch.cat([prev_v, values_new], dim=2)
             next_cache = (keys, values)
         else:
-            start_pos = 0  # reset RoPE
+            start_pos = 0  # 重置RoPE
             keys, values = keys_new, values_new
             next_cache = (keys, values)
 
-        # Expand K and V to match number of heads
+        # 扩展 K 和 V 的形状来匹配头的数量
         keys = keys.repeat_interleave(self.group_size, dim=1)
         values = values.repeat_interleave(self.group_size, dim=1)
 
-        # Attention
+        # 注意力
         attn_scores = queries @ keys.transpose(2, 3)
         attn_scores = attn_scores.masked_fill(mask, -torch.inf)
         attn_weights = torch.softmax(attn_scores / self.head_dim**0.5, dim=-1)
@@ -4360,17 +4530,17 @@ class TransformerBlock(nn.Module):
         self.norm2 = RMSNorm(cfg["emb_dim"], eps=1e-6)
 
     def forward(self, x, mask, cos, sin, start_pos=0, cache=None):
-        # Shortcut connection for attention block
+        # 残差连接
         shortcut = x
         x = self.norm1(x)
         x, next_cache = self.att(x, mask, cos, sin, start_pos=start_pos, cache=cache)  # Shape [batch_size, num_tokens, emb_size]
-        x = x + shortcut  # Add the original input back
+        x = x + shortcut
 
-        # Shortcut connection for feed-forward block
+        # 残差连接
         shortcut = x
         x = self.norm2(x)
         x = self.ff(x)
-        x = x + shortcut  # Add the original input back
+        x = x + shortcut
 
         return x, next_cache
 \end{codebox}
@@ -4380,16 +4550,15 @@ class Qwen3Model(nn.Module):
     def __init__(self, cfg):
         super().__init__()
 
-        # Main model parameters
+        # 模型的主要参数
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"], dtype=cfg["dtype"])
 
-        self.trf_blocks = nn.ModuleList(  # ModuleList since Sequential can only accept one input, and we need `x, mask, cos, sin`
+        self.trf_blocks = nn.ModuleList(  # 使用 ModuleList 因为 Sequential 接收一个输入, 但我们需要的输入是 `x, mask, cos, sin`
             [TransformerBlock(cfg) for _ in range(cfg["n_layers"])]
         )
         self.final_norm = RMSNorm(cfg["emb_dim"])
         self.out_head = nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False, dtype=cfg["dtype"])
 
-        # Reusable utilities
         if cfg["head_dim"] is None:
             head_dim = cfg["emb_dim"] // cfg["n_heads"]
         else:
@@ -4402,10 +4571,10 @@ class Qwen3Model(nn.Module):
         self.register_buffer("cos", cos, persistent=False)
         self.register_buffer("sin", sin, persistent=False)
         self.cfg = cfg
-        self.current_pos = 0  # Track current position in KV cache
+        self.current_pos = 0  # 在 KV cache 中追踪当前的位置
 
     def forward(self, in_idx, cache=None):
-        # Forward pass
+        # 前向传播
         tok_embeds = self.tok_emb(in_idx)
         x = tok_embeds
 
@@ -4418,11 +4587,11 @@ class Qwen3Model(nn.Module):
                 torch.ones(pos_end, pos_end, device=x.device, dtype=torch.bool), diagonal=1
             )[pos_start:pos_end, :pos_end]
         else:
-            pos_start = 0  # Not strictly necessary but helps torch.compile
+            pos_start = 0  # 不是必须的，但是对 torch.compile 友好
             mask = torch.triu(
                 torch.ones(num_tokens, num_tokens, device=x.device, dtype=torch.bool), diagonal=1
             )
-        # Shape (1, 1, num_tokens, num_tokens) to broadcast across batch and heads
+        # Shape (1, 1, num_tokens, num_tokens) ，在批次和头这两个维度广播
         mask = mask[None, None, :, :]
 
         for i, block in enumerate(self.trf_blocks):
@@ -4544,8 +4713,6 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from qwen3_tokenizer import Qwen3Tokenizer
 
-tokenizer_file_path = "tokenizer.json"
-
 class Qwen3DataSet(Dataset):
     def __init__(self, txt, tokenizer, max_length, stride):
         self.input_ids = []
@@ -4651,20 +4818,21 @@ def generate_text_basic_stream(model, token_ids, max_new_tokens, eos_token_id=No
         cache = KVCache(n_layers=model.cfg["n_layers"])
         model.reset_kv_cache()
 
-        # Prime the cache with the initial context
+        # 将提示词的KV Cache先保存起来，Prefill
         logits = model(token_ids, cache=cache)
 
         for _ in range(max_new_tokens):
+            # 贪婪策略，取logits最大的token作为下一个token
             next_token = torch.argmax(logits[:, -1], dim=-1, keepdim=True)
-
+            # 如果next_token是eos_token，则结束生成。
             if eos_token_id is not None and torch.all(next_token == eos_token_id):
                 break
-
+            # 输出下一个token
             yield next_token
-
+            # 将next_token补全到上下文中
             token_ids = torch.cat([token_ids, next_token], dim=1)
 
-            # Feed only the new token to the model; cache handles history
+            # 只喂给模型最新的一个token；kv cache保存了历史token的kv
             logits = model(next_token, cache=cache)
 
 def generate_and_print_sample(model, tokenizer, device, start_context):
@@ -4738,18 +4906,18 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
     ax1.set_ylabel("Loss")
     ax1.legend(loc="upper right")
 
-    # Create a second x-axis for tokens seen
-    ax2 = ax1.twiny()  # Create a second x-axis that shares the same y-axis
-    ax2.plot(tokens_seen, train_losses, alpha=0)  # Invisible plot for aligning ticks
+    # 绘制看过的token数量的统计信息
+    ax2 = ax1.twiny()
+    ax2.plot(tokens_seen, train_losses, alpha=0)
     ax2.set_xlabel("Tokens seen")
 
-    fig.tight_layout()  # Adjust layout to make room
+    fig.tight_layout()
     # plt.show()
 
 def main(qwen3_config, settings):
     torch.manual_seed(123)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    file_path = "data.txt"
+    device = torch.device("cuda")
+    file_path = "data.txt" # 训练数据集的路径
 
     with open(file_path, "r", encoding="utf-8") as file:
         text_data = file.read()
@@ -4765,7 +4933,7 @@ def main(qwen3_config, settings):
     train_ratio = 0.90
     split_idx = int(train_ratio * len(text_data))
 
-    train_loader = create_dataloader_v1(
+    train_loader = create_dataloader(
         text_data[:split_idx],
         batch_size=settings["batch_size"],
         max_length=qwen3_config["context_length"],
@@ -4775,7 +4943,7 @@ def main(qwen3_config, settings):
         num_workers=0,
     )
 
-    val_loader = create_dataloader_v1(
+    val_loader = create_dataloader(
         text_data[split_idx:],
         batch_size=settings["batch_size"],
         max_length=qwen3_config["context_length"],
@@ -4785,7 +4953,7 @@ def main(qwen3_config, settings):
         num_workers=0,
     )
 
-    tokenizer_file_path = "tokenizer.json"
+    tokenizer_file_path = "tokenizer.json" # 分词文件的路径
 
     tokenizer = Qwen3Tokenizer(
         tokenizer_file_path=tokenizer_file_path, apply_chat_template=False
@@ -4808,17 +4976,17 @@ def main(qwen3_config, settings):
 
 if __name__ == "__main__":
     QWEN3_CONFIG = {
-        "vocab_size": 151_936,  # Vocabulary size
-        "context_length": 256,  # Context length that was used to train the model
-        "emb_dim": 768,  # Embedding dimension
-        "n_heads": 16,  # Number of attention heads
-        "n_layers": 12,  # Number of layers
-        "hidden_dim": 3072,  # Size of the intermediate dimension in FeedForward
-        "head_dim": 128,  # Size of the heads in GQA
-        "qk_norm": True,  # Whether to normalize queries and keys in GQA
-        "n_kv_groups": 8,  # Key-Value groups for grouped-query attention
-        "rope_base": 1_000_000.0,  # The base in RoPE's "theta"
-        "dtype": torch.bfloat16,  # Lower-precision dtype to reduce memory usage
+        "vocab_size": 151_936,  # 词汇表大小
+        "context_length": 256,  # 上下文长度
+        "emb_dim": 768,  # 词嵌入维度
+        "n_heads": 16,  # 注意力头的数量
+        "n_layers": 12,  # 层数
+        "hidden_dim": 3072,  # 前馈网络中隐藏层的神经元数量
+        "head_dim": 128,  # GQA中头的维度
+        "qk_norm": True,  # GQA中是否归一化Q和K
+        "n_kv_groups": 8,  # GQA中的KV组数
+        "rope_base": 1_000_000.0,  # RoPE 的 "theta" 参数
+        "dtype": torch.bfloat16,  # 低精度数据类型，节省内存
     }
 
     OTHER_SETTINGS = {
@@ -4841,102 +5009,98 @@ if __name__ == "__main__":
 
 \section{加载训练好的qwen3模型权重}
 
+\begin{codebox}{python}{qwen3\_config.py}{qwen3-config}
+# 0.6 billion parameters
+QWEN_CONFIG_06_B = {
+    "vocab_size": 151_936,           # Vocabulary size
+    "context_length": 40_960,        # Context length that was used to train the model
+    "emb_dim": 1024,                 # Embedding dimension
+    "n_heads": 16,                   # Number of attention heads
+    "n_layers": 28,                  # Number of layers
+    "hidden_dim": 3072,              # Size of the intermediate dimension in FeedForward
+    "head_dim": 128,                 # Size of the heads in GQA
+    "qk_norm": True,                 # Whether to normalize queries and keys in GQA
+    "n_kv_groups": 8,                # Key-Value groups for grouped-query attention
+    "rope_base": 1_000_000.0,        # The base in RoPE's "theta"
+    "dtype": torch.bfloat16,         # Lower-precision dtype to reduce memory usage
+}
+
+# 1.7 billion parameters
+QWEN3_CONFIG_1_7B = {
+    "vocab_size": 151_936,
+    "context_length": 40_960,
+    "emb_dim": 2048,                 # 2x larger than above
+    "n_heads": 16,
+    "n_layers": 28,
+    "hidden_dim": 6144,              # 2x larger than above
+    "head_dim": 128,
+    "qk_norm": True,
+    "n_kv_groups": 8,
+    "rope_base": 1_000_000.0,
+    "dtype": torch.bfloat16,
+}
+
+# 4 billion parameters
+QWEN3_CONFIG_4B = {
+    "vocab_size": 151_936,
+    "context_length": 40_960,
+    "emb_dim": 2560,                 # 25% larger than above
+    "n_heads": 32,                   # 2x larger than above
+    "n_layers": 36,                  # 29% larger than above
+    "hidden_dim": 9728,              # ~3x larger than above
+    "head_dim": 128,
+    "qk_norm": True,
+    "n_kv_groups": 8,
+    "rope_base": 1_000_000.0,
+    "dtype": torch.bfloat16,
+}
+
+# 8 billion parameters
+QWEN3_CONFIG_8B = {
+    "vocab_size": 151_936,
+    "context_length": 40_960,
+    "emb_dim": 4096,                 # 60% larger than above
+    "n_heads": 32,
+    "n_layers": 36,
+    "hidden_dim": 12288,             # 26% larger than above
+    "head_dim": 128,
+    "qk_norm": True,
+    "n_kv_groups": 8,
+    "rope_base": 1_000_000.0,
+    "dtype": torch.bfloat16,
+}
+
+# 14 billion parameters
+QWEN3_CONFIG_14B = {
+    "vocab_size": 151_936,
+    "context_length": 40_960,
+    "emb_dim": 5120,                 # 25% larger than above
+    "n_heads": 40,                   # 25% larger than above
+    "n_layers": 40,                  # 11% larger than above
+    "hidden_dim": 17408,             # 42% larger than above
+    "head_dim": 128,
+    "qk_norm": True,
+    "n_kv_groups": 8,
+    "rope_base": 1_000_000.0,
+    "dtype": torch.bfloat16,
+}
+
+QWEN3_CONFIG_32B = {
+    "vocab_size": 151_936,
+    "context_length": 40_960,
+    "emb_dim": 5120,
+    "n_heads": 64,                   # 60% larger than above
+    "n_layers": 64,                  # 60% larger than above
+    "hidden_dim": 25600,             # 47% larger than above
+    "head_dim": 128,
+    "qk_norm": True,
+    "n_kv_groups": 8,
+    "rope_base": 1_000_000.0,
+    "dtype": torch.bfloat16,
+}
+\end{codebox}
+
 \begin{codebox}{python}{model\_utils.py}{qwen3-load-model}
-CHOOSE_MODEL = "0.6B"
-
-if CHOOSE_MODEL == "0.6B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,           # Vocabulary size
-        "context_length": 40_960,        # Context length that was used to train the model
-        "emb_dim": 1024,                 # Embedding dimension
-        "n_heads": 16,                   # Number of attention heads
-        "n_layers": 28,                  # Number of layers
-        "hidden_dim": 3072,              # Size of the intermediate dimension in FeedForward
-        "head_dim": 128,                 # Size of the heads in GQA
-        "qk_norm": True,                 # Whether to normalize queries and keys in GQA
-        "n_kv_groups": 8,                # Key-Value groups for grouped-query attention
-        "rope_base": 1_000_000.0,        # The base in RoPE's "theta"
-        "dtype": torch.bfloat16,         # Lower-precision dtype to reduce memory usage
-    }
-
-elif CHOOSE_MODEL == "1.7B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,
-        "context_length": 40_960,
-        "emb_dim": 2048,                 # 2x larger than above
-        "n_heads": 16,
-        "n_layers": 28,
-        "hidden_dim": 6144,              # 2x larger than above
-        "head_dim": 128,
-        "qk_norm": True,
-        "n_kv_groups": 8,
-        "rope_base": 1_000_000.0,
-        "dtype": torch.bfloat16,
-    }   
-
-elif CHOOSE_MODEL == "4B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,
-        "context_length": 40_960,
-        "emb_dim": 2560,                 # 25% larger than above
-        "n_heads": 32,                   # 2x larger than above
-        "n_layers": 36,                  # 29% larger than above
-        "hidden_dim": 9728,              # ~3x larger than above
-        "head_dim": 128,
-        "qk_norm": True,
-        "n_kv_groups": 8,
-        "rope_base": 1_000_000.0,
-        "dtype": torch.bfloat16,
-    }  
-
-elif CHOOSE_MODEL == "8B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,
-        "context_length": 40_960,
-        "emb_dim": 4096,                 # 60% larger than above
-        "n_heads": 32,
-        "n_layers": 36,                  # 26% larger than above
-        "hidden_dim": 12288,
-        "head_dim": 128,
-        "qk_norm": True,
-        "n_kv_groups": 8,
-        "rope_base": 1_000_000.0,
-        "dtype": torch.bfloat16,
-    } 
-
-elif CHOOSE_MODEL == "14B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,
-        "context_length": 40_960,
-        "emb_dim": 5120,                 # 25% larger than above
-        "n_heads": 40,                   # 25% larger than above
-        "n_layers": 40,                  # 11% larger than above
-        "hidden_dim": 17408,             # 42% larger than above
-        "head_dim": 128,
-        "qk_norm": True,
-        "n_kv_groups": 8,
-        "rope_base": 1_000_000.0,
-        "dtype": torch.bfloat16,
-    } 
-
-elif CHOOSE_MODEL == "32B":
-    QWEN3_CONFIG = {
-        "vocab_size": 151_936,
-        "context_length": 40_960,
-        "emb_dim": 5120,                
-        "n_heads": 64,                   # 60% larger than above
-        "n_layers": 64,                  # 60% larger than above
-        "hidden_dim": 25600,             # 47% larger than above
-        "head_dim": 128,
-        "qk_norm": True,
-        "n_kv_groups": 8,
-        "rope_base": 1_000_000.0,
-        "dtype": torch.bfloat16,
-    } 
-
-else:
-    raise ValueError(f"{CHOOSE_MODEL} is not supported.")
-
 def load_weights_into_qwen(model, param_config, params):
     def assign(left, right, tensor_name="unknown"):
         if left.shape != right.shape:
@@ -5079,11 +5243,6 @@ del weights_dict
 \subsection{单轮对话界面}
 
 \begin{codebox}{python}{qwen3-chat-interface.py}{qwen3-chat-interface}
-# Copyright (c) Sebastian Raschka under Apache License 2.0 (see LICENSE.txt).
-# Source for "Build a Large Language Model From Scratch"
-#   - https://www.manning.com/books/build-a-large-language-model-from-scratch
-# Code: https://github.com/rasbt/LLMs-from-scratch
-
 import torch
 import chainlit
 
@@ -5138,20 +5297,7 @@ def build_repo_and_local(model_name, reasoning, local_dir_arg):
 
 
 def get_device(name):
-    if name == "auto":
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        elif torch.backends.mps.is_available():
-            return torch.device("mps")
-        else:
-            return torch.device("cpu")
-    elif name == "cuda":
-        return torch.device("cuda")
-    elif name == "mps":
-        return torch.device("mps")
-    else:
-        return torch.device("cpu")
-
+    return torch.device("cuda")
 
 def get_model_and_tokenizer(qwen3_config, repo_id, local_dir, device, use_reasoning):
     model = Qwen3Model(qwen3_config)
@@ -5221,11 +5367,6 @@ async def main(message: chainlit.Message):
 \subsection{多轮对话界面}
 
 \begin{codebox}{python}{qwen3-chat-interface-multiturn.py}{qwen3-chat-interface-multiturn}
-# Copyright (c) Sebastian Raschka under Apache License 2.0 (see LICENSE.txt).
-# Source for "Build a Large Language Model From Scratch"
-#   - https://www.manning.com/books/build-a-large-language-model-from-scratch
-# Code: https://github.com/rasbt/LLMs-from-scratch
-
 import torch
 import chainlit
 
@@ -5281,20 +5422,7 @@ def build_repo_and_local(model_name, reasoning, local_dir_arg):
 
 
 def get_device(name):
-    if name == "auto":
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        elif torch.backends.mps.is_available():
-            return torch.device("mps")
-        else:
-            return torch.device("cpu")
-    elif name == "cuda":
-        return torch.device("cuda")
-    elif name == "mps":
-        return torch.device("mps")
-    else:
-        return torch.device("cpu")
-
+    return torch.device("cuda")
 
 def get_model_and_tokenizer(qwen3_config, repo_id, local_dir, device, use_reasoning):
     model = Qwen3Model(qwen3_config)
@@ -5944,6 +6072,478 @@ confusion_matrix(all_labels, all_predictions)
 \label{fig:my_label}
 \end{figure}
 
+\section{基于指令的监督微调代码实践}
+
+首先导入需要的依赖。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-1}
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+import numpy as np
+import os
+from dataclasses import dataclass
+import datasets
+import time
+\end{codebox}
+
+接下来我们导入模型和分词器。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-2}
+device = "cuda"
+model_path = "./Qwen3-0.6B-Base"
+
+model = AutoModelForCausalLM.from_pretrained(model_path, dtype="auto", device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+\end{codebox}
+
+然后我们设置一下生成文本的参数。保证测试的一致性。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-3}
+model.generation_config.do_sample = True
+model.generation_config.eos_token_id = [151645, 151643]
+model.generation_config.pad_token_id = 151643
+model.generation_config.temperature = 0.7
+model.generation_config.top_p = 0.8
+model.generation_config.top_k = 20
+model.generation_config.repetition_penalty = 1.05
+\end{codebox}
+
+然后我们定义一下SFT阶段的训练超参数。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-4}
+@dataclass
+class SFTConfig:
+    max_length = 2500
+    batch_size = 2
+    gradient_accumulation_steps = 8
+    log_iter = 400
+    max_lr = 2e-5
+    min_lr = 2e-6
+    warmup_steps = 1000
+\end{codebox}
+
+接下来我们导入训练数据并将训练数据转换成\py{input_ids}。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-5}
+ultrachat_200k_data = datasets.load_dataset("./ultrachat_200k")
+
+def tokenize_and_format(data):
+    """使用模型自带的聊天模板格式化训练数据"""
+    input_ids = tokenizer.apply_chat_template(
+        data,
+        tokenize = True,
+        add_generation_prompt = False,
+        truncation = True,
+        max_length = 2500,
+    )
+    
+    return input_ids
+
+## 生成训练数据的input_ids
+train_data = []
+i = 0
+while True:
+    data = ultrachat_200k_data["train_sft"][i]["messages"]
+    # 添加系统提示词
+    data.insert(
+        0,
+        {"content": "You are a helpful assistant", "role": "system"}
+    )
+    input_ids = tokenize_and_format(data)
+    train_data.append(input_ids)
+    i += 1
+    if i % 1000 == 0:
+        print(f"已处理{i}条数据")
+    if i == 50000:
+        break
+\end{codebox}
+
+接下来我们编写一下学习率的线性预热和余弦衰减的函数。
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-6}
+def linear_warmup(current_step, warmup_steps, max_lr):
+    if current_step < warmup_steps:
+        return max_lr * current_step / warmup_steps
+    else:
+        return max_lr
+
+def cosine_decay(current_step, warmup_steps, total_steps, max_lr, min_lr):
+    if current_step < warmup_steps:
+        return linear_warmup(current_step, warmup_steps, max_lr)
+    else:
+        progress = (current_step - warmup_steps) / (total_steps - warmup_steps)
+        decay = 0.5 * (1 + np.cos(np.pi * progress))
+        return (max_lr - min_lr) * decay + min_lr
+\end{codebox}
+
+\begin{marker}
+基于指令SFT的掩码设置
+\begin{itemize}
+\item SFT和预训练的区别核心就是掩码掉``问题''部分的损失，而只看``回答''部分的损失，并仅基于回答部分的损失进行优化
+\item 实现方式：构造损失掩码，仅针对每轮对话（含多轮）的模型``输出''部分（也就是回答部分）进行损失计算
+\end{itemize}
+\end{marker}
+
+假设我们的多轮对话数据是
+
+\begin{codebox}{text}{多轮对话数据示例}{multiturn-dialogue}
+data = [
+    {
+        "content": "你是谁？",
+        "role": "user"
+    },
+    {
+        "content": "我是左元。",
+        "role": "assistant"
+    },
+    {
+        "content": "你会强化学习吗？",
+        "role": "user"
+    },
+    {
+        "content": "略知一二。",
+        "role": "assistant"
+    }
+]
+\end{codebox}
+
+经过模型的对话模板格式化之后是
+
+\begin{codebox}{text}{格式化后的多轮对话，针对红色部分计算损失}{multiturn-format}
+<|im_start|>system
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+你是谁？<|im_end|>
+<|im_start|>assistant
+β{\color{red}我是左元。}β<|im_end|>
+<|im_start|>user
+你会强化学习吗？<|im_end|>
+<|im_start|>assistant
+β{\color{red}<think></think>略知一二。}β<|im_end|>
+\end{codebox}
+
+代码如下：
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-7}
+def create_answer_mask(input_ids, tokenizer):
+    """
+    创建仅对助手回答部分计算损失的掩码
+    
+    Args:
+        input_ids: 输入token序列 [batch_size, seq_len]
+        tokenizer: 分词器
+    
+    Returns:
+        answer_mask: 助手回答部分为1，其他部分为0的掩码
+    """
+    batch_size, seq_len = input_ids.shape
+    answer_mask = torch.zeros_like(input_ids)
+    
+    # 获取结束标记的token id
+    eos_token_id = tokenizer.encode('<|im_end|>')[0]
+    
+    for batch_idx in range(batch_size):
+        # 找到所有 <|im_end|> 的位置
+        eos_positions = torch.where(
+            input_ids[batch_idx] == eos_token_id
+        )[0].tolist()
+        
+        if len(eos_positions) < 2:  # 至少需要user和assistant各一个结束标记
+            continue
+            
+        # 解析对话轮次
+        user_ends, assistant_ends = \
+            _parse_conversation_turns(eos_positions)
+        
+        # 为每个助手回答设置掩码
+        _set_answer_masks(
+            answer_mask[batch_idx],
+            user_ends,
+            assistant_ends,
+            seq_len
+        )
+    
+    return answer_mask
+
+
+def _parse_conversation_turns(eos_positions):
+    """
+    解析对话轮次，分离用户和助手的结束位置
+    
+    对话格式：
+    <|im_start|>user\n{user_msg}<|im_end|>\n<|im_start|>assistant\n{assistant_msg}<|im_end|>\n
+    
+    eos_positions[0]: system结束 (如果有)
+    eos_positions[1]: 第1轮user结束
+    eos_positions[2]: 第1轮assistant结束
+    eos_positions[3]: 第2轮user结束
+    eos_positions[4]: 第2轮assistant结束
+    ...
+    """
+    # 跳过system系统提示词部分，从第一个user开始
+    conversation_eos = eos_positions[1:]  # 去掉system的<im_end>
+    
+    # 偶数索引：user结束位置，奇数索引：assistant结束位置
+    user_ends = [pos + 1 for pos in conversation_eos[::2]] # 每隔2个取一个，从0开始
+    assistant_ends = [pos + 1 for pos in conversation_eos[1::2]] # 每隔2个取一个，从1开始
+    
+    return user_ends, assistant_ends
+
+
+def _set_answer_masks(mask, user_ends, assistant_ends, seq_len):
+    """
+    为助手回答部分设置掩码
+    
+    Args:
+        mask: 当前样本的掩码 [seq_len]
+        user_ends: 用户消息结束位置列表
+        assistant_ends: 助手消息结束位置列表
+        seq_len: 序列长度
+    """
+    num_user_turns = len(user_ends)
+    num_assistant_turns = len(assistant_ends)
+    
+    if num_user_turns == num_assistant_turns:
+        # 完整对话：每轮都有用户问题和助手回答
+        for user_end, assistant_end in zip(user_ends, assistant_ends):
+            answer_start = user_end + 3  # 跳过 <|im_start|>assistant\n
+            answer_end = assistant_end - 1  # 不包含 <|im_end|>
+            mask[answer_start:answer_end] = 1
+            
+    elif num_user_turns == num_assistant_turns + 1:
+        # 未完成对话：最后一轮助手回答被截断
+        
+        # 处理完整的对话轮次
+        for user_end, assistant_end in zip(user_ends[:-1], assistant_ends):
+            answer_start = user_end + 3
+            answer_end = assistant_end - 1
+            mask[answer_start:answer_end] = 1
+        
+        # 处理最后一轮被截断的助手回答
+        last_user_end = user_ends[-1]
+        last_answer_start = last_user_end + 3
+        mask[last_answer_start:] = 1  # 到序列结尾
+\end{codebox}
+
+设置模型的训练超参数：
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-8}
+batch_size = SFTConfig.batch_size
+gradient_accumulation_steps = SFTConfig.gradient_accumulation_steps
+log_iter = SFTConfig.log_iter
+max_lr = SFTConfig.max_lr
+min_lr = SFTConfig.min_lr
+warmup_steps = SFTConfig.warmup_steps
+total_steps = len(train_data) // batch_size
+optimizer = torch.optim.AdamW(model.parameters(), lr=max_lr)
+\end{codebox}
+
+编写日志记录函数
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-9}
+with open(f"log.txt", "a") as my_file:
+    my_file.write(f" \
+        time:{time.strftime("%Y-%m-%d, %H:%M:%S")}, \
+        batch_size:{batch_size}, \
+        warmup_steps:{warmup_steps}, \
+        max_lr:{max_lr}, \
+        min_lr:{min_lr}\n")
+
+#定义一个日志记录函数
+def log_call(iters, iters_average_loss):
+    with open(f"log.txt", "a") as my_file:
+        my_file.write(f" \
+            time:{time.strftime("%Y-%m-%d, %H:%M:%S")}, \
+            iters:{iters+1}, \
+            iters_average_Loss:{iters_average_loss:.4f}\n")
+\end{codebox}
+
+主训练循环如下
+
+\begin{codebox}{python}{qwen3-0.6b-base-sft.py}{qwen3-0.6b-base-sft-10}
+model.train()
+training_losses = []
+model.zero_grad()  # 训练开始时清空梯度
+skipped_batches_count = 0
+
+total_batches = len(train_data) // batch_size
+
+for batch_idx in range(total_batches):
+    ## ==================== 数据准备阶段 ====================
+    
+    # 获取当前批次的原始数据
+    current_batch_sequences = train_data[
+        batch_idx * batch_size : (batch_idx + 1) * batch_size
+    ]
+    
+    # 计算当前批次的最大序列长度，用于padding对齐
+    max_sequence_length = max([len(sequence) for sequence in current_batch_sequences])
+    
+    ### 对批次数据进行右填充，使所有序列长度一致以便并行计算
+    padded_sequences_list = []
+    pad_token_id = model.generation_config.eos_token_id[-1]
+    
+    for seq_idx in range(batch_size):
+        # 原始的一条训练数据
+        original_sequence = current_batch_sequences[seq_idx]
+        # 要填充的长度
+        padding_length = max_sequence_length - len(original_sequence)
+        
+        # 使用EOS token进行右填充
+        padded_sequence = torch.nn.functional.pad(
+            torch.tensor(original_sequence),
+            (0, padding_length),
+            mode='constant',
+            value=pad_token_id
+        ).tolist()
+        
+        padded_sequences_list.append(padded_sequence)
+    
+    # 转换为张量
+    batch_input_tensor = torch.tensor(padded_sequences_list)
+
+    ## ==================== 构建输入输出对 ====================
+    
+    # 构建因果语言模型的输入输出对：x->y（下一个词预测）
+    model_inputs = batch_input_tensor[:, :-1].to(device)    # 输入：前n-1个token
+    target_labels = batch_input_tensor[:, 1:].to(device)    # 标签：后n-1个token
+
+    ## ==================== 构建训练掩码 ====================
+    
+    # 构建掩码矩阵来控制损失计算范围
+    # 1. padding_mask：标识哪些位置是填充token（不计算损失）
+    # 2. answer_mask：标识哪些位置是助手回答部分（只对回答计算损失）
+    
+    ### 【填充掩码】：非填充token为1，填充token为0
+    ### padding_mask中的问题部分的掩码也是1
+    padding_mask = torch.where(target_labels == pad_token_id, 0, 1)
+    
+    ### 【回答掩码】：只有助手回答部分为1，其他部分为0
+    assistant_answer_mask = create_answer_mask(model_inputs, tokenizer)
+    
+    ### 【组合掩码】：同时满足"非填充"且"是回答部分"的token才计算损失
+    ### 取出交集，就是真正要计算的回答部分
+    final_loss_mask = (assistant_answer_mask & padding_mask)
+
+    ## ==================== 批次有效性检查 ====================
+    
+    # 检查当前批次是否有效：如果某个样本的回答部分完全为空，则跳过该批次
+    # 这种情况通常发生在问题过长导致回答部分被截断时
+    tokens_per_sample = final_loss_mask.sum(dim=-1)  # 每个样本的有效回答token数
+    min_answer_tokens = tokens_per_sample.min().item()  # 最少的有效token数
+    
+    if min_answer_tokens == 0:
+        print(f"跳过第{batch_idx + 1}批次：回答部分数据不足")
+        skipped_batches_count += 1
+        continue  # 跳过当前批次
+
+    ## ==================== 模型前向传播 ====================
+    
+    # 执行前向传播，获取模型预测的logits
+    # [batch_size, seq_length, vocab_size]
+    model_logits = model(model_inputs).logits
+    
+    ## ==================== 损失计算 ====================
+    
+    # 计算带掩码的交叉熵损失
+    # 步骤：logits -> softmax -> log -> gather -> 负对数似然 -> 掩码过滤 -> 平均
+    
+    # 1. 计算每个token的负对数似然损失，
+    # 形状：[batch_size, seq_len, vocab_size]
+    log_probabilities = torch.log(torch.softmax(model_logits, dim=-1))
+    # 使用真正的目标token取出vocab_size长度的数组中token对应的对数概率
+    # 形状：[batch_size, seq_len]
+    gathered_log_probs = torch.gather(
+        log_probabilities,
+        dim=-1,
+        index=target_labels.unsqueeze(2)
+    )
+    negative_log_likelihood = gathered_log_probs * (-1)  # 负对数似然
+    token_losses = negative_log_likelihood.squeeze(2)
+    
+    # 2. 应用掩码并计算每个样本的平均损失
+    masked_token_losses = torch.mul(token_losses, final_loss_mask)
+    sample_losses = masked_token_losses.sum(dim=-1) \
+                  / final_loss_mask.sum(dim=-1)
+    
+    # 3. 计算批次平均损失并应用梯度累积
+    batch_average_loss = torch.nanmean(sample_losses) \
+                       / gradient_accumulation_steps
+
+    ## ==================== 反向传播和优化 ====================
+    
+    # 反向传播计算梯度
+    batch_average_loss.backward()
+
+    # 动态调整学习率（余弦衰减 + 预热）
+    current_learning_rate = cosine_decay(
+        batch_idx,
+        warmup_steps,
+        total_steps,
+        max_lr,
+        min_lr
+    )
+    
+    # 更新优化器的学习率
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = current_learning_rate
+
+    # 梯度累积：只在累积步数达到或最后一个批次时更新权重
+    is_accumulation_step = (batch_idx + 1) \
+                         % gradient_accumulation_steps == 0
+    is_final_batch = (batch_idx + 1) == total_batches
+    
+    if is_accumulation_step or is_final_batch:
+        optimizer.step()        # 更新模型权重
+        optimizer.zero_grad()   # 清空梯度缓存
+
+    ## ==================== 训练日志记录 ====================
+    
+    # 记录当前批次的损失（还原梯度累积的缩放）
+    actual_batch_loss =                   \
+        batch_average_loss.item()         \
+        *                                 \
+        gradient_accumulation_steps
+    training_losses.append(actual_batch_loss)
+
+    # 定期输出训练进度
+    should_log = (batch_idx + 1) % log_iter == 0 or is_final_batch
+    
+    if should_log:
+        # 计算最近几个批次的平均损失
+        recent_losses = training_losses[-log_iter:]
+        recent_average_loss = np.nanmean(recent_losses)
+        
+        # 输出训练状态
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"时间: {current_time} | "
+              f"批次: {batch_idx + 1}/{total_batches} | "
+              f"最近{len(recent_losses)}批次平均损失: {recent_average_loss:.4f} | "
+              f"学习率: {current_learning_rate:.2e}")
+        
+        # 调用外部日志记录函数
+        log_call(batch_idx, recent_average_loss)
+
+## ==================== 训练完成总结 ====================
+
+print("训练完成!")
+print(f'训练统计:')
+print(f'   - 总批次数: {total_batches}')
+print(f'   - 跳过批次数: {skipped_batches_count}')
+print(f'   - 有效批次数: {total_batches - skipped_batches_count}')
+print(f'   - 最终平均损失: {np.nanmean(training_losses[-100:]):.4f}')
+
+if skipped_batches_count > 0:
+    skip_ratio = skipped_batches_count / total_batches * 100
+    print(f'跳过批次占比: {skip_ratio:.2f}%')
+    if skip_ratio > 10:
+        print('建议: 跳过批次过多，考虑增加最大序列长度或优化数据预处理')
+
+model.save_pretrained("./Qwen3-0.6B-SFT/")
+tokenizer.save_pretrained("./Qwen3-0.6B-SFT/")
+\end{codebox}
+
+\part{附录}
 \appendix
 
 \chapter{反向传播算法}

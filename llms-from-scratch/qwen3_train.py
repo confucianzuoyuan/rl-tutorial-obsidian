@@ -4,21 +4,24 @@ import torch
 from qwen3 import Qwen3Model, Qwen3Tokenizer, generate_text_simple
 from data import create_dataloader_v1
 
-
+# 将文本转换成input_ids
 def text_to_token_ids(text, tokenizer):
     encoded = tokenizer.encode(text)
-    encoded_tensor = torch.tensor(encoded).unsqueeze(0)  # add batch dimension
+    encoded_tensor = torch.tensor(encoded).unsqueeze(0)  # 添加批次的维度
     return encoded_tensor
 
-
+# 将input_ids转换成文本
 def token_ids_to_text(token_ids, tokenizer):
-    flat = token_ids.squeeze(0)  # remove batch dimension
+    flat = token_ids.squeeze(0)  # 删除批次的维度
     return tokenizer.decode(flat.tolist())
 
 
 def calc_loss_batch(input_batch, target_batch, model, device):
+    """计算一个批次的损失"""
     input_batch, target_batch = input_batch.to(device), target_batch.to(device)
+    # 输入的批次数据的预测出的数据
     logits = model(input_batch)
+    # 预测的logits和目标值计算交叉熵
     loss = torch.nn.functional.cross_entropy(
         logits.flatten(0, 1), target_batch.flatten()
     )
@@ -132,13 +135,13 @@ def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses):
 
 def main(qwen3_config, settings):
     torch.manual_seed(123)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    file_path = "dl.txt"
+    device = torch.device("cuda")
+    file_path = "the-verdict.txt"
 
     with open(file_path, "r", encoding="utf-8") as file:
         text_data = file.read()
 
-    model = Qwen3Model(qwen3_config)
+    model = Qwen3Model(qwen3_config) # 随机权重
     model.to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -169,7 +172,7 @@ def main(qwen3_config, settings):
         num_workers=0,
     )
 
-    tokenizer_file_path = "Qwen3-0.6B-Base/tokenizer.json"
+    tokenizer_file_path = "tokenizer.json"
 
     tokenizer = Qwen3Tokenizer(
         tokenizer_file_path=tokenizer_file_path, apply_chat_template=False
@@ -184,7 +187,7 @@ def main(qwen3_config, settings):
         num_epochs=settings["num_epochs"],
         eval_freq=5,
         eval_iter=1,
-        start_context="唐门所在是一个神秘的地方",
+        start_context="I like to fancy that",
         tokenizer=tokenizer,
     )
 
