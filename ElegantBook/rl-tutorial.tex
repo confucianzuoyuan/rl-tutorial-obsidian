@@ -7554,7 +7554,344 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=max_lr)
 
 将回答部分进行掩码的代码，参见\ref{qwen3-0.6b-base-sft-7}。
 
+计算平均对数概率
 
+\begin{codebox}{python}{计算平均对数概率}{pythoncode:dpocalaveragelogs}
+def _compute_average_log_probability(logits, target_labels, mask):
+    """
+    计算带掩码的平均对数概率
+    
+    Args:
+        logits: 模型输出 [batch_size, seq_len, vocab_size]
+        target_labels: 目标标签 [batch_size, seq_len]
+        mask: 计算掩码 [batch_size, seq_len]
+    
+    Returns:
+        average_log_prob: 每个样本的平均对数概率 [batch_size]
+    """
+    # 计算softmax概率分布
+    probabilities = torch.softmax(logits, dim=-1)
+    
+    # 计算对数概率
+    log_probabilities = torch.log(probabilities)
+    
+    # 获取目标token的对数概率β$[\log\pi(y_0|x),\log\pi(y_1|x,y_0),\log\pi(y_2|x,y_{<2}),\dots]$β
+    gathered_log_probs = torch.gather(
+        log_probabilities, 
+        dim=-1, 
+        index=target_labels.unsqueeze(2)
+    ).squeeze(2)
+    
+    # 应用掩码并计算平均值
+    masked_log_probs = torch.mul(gathered_log_probs, mask)
+    average_log_prob = masked_log_probs.sum(dim=-1) / mask.sum(dim=-1)
+    
+    return average_log_prob
+\end{codebox}
+
+\begin{codebox}{python}{DPO训练循环}{dpotrainloop}
+model.train()
+
+# ==================== 训练指标记录列表 ====================
+training_losses = []
+# 偏好的回答的概率
+preferred_log_probabilities = []
+# 讨厌的回答的概率
+rejected_log_probabilities = []
+# 偏好的回答的奖励
+preferred_rewards = []
+# 讨厌的回答的奖励
+rejected_rewards = []
+reward_margins = []
+
+model.zero_grad()  # 训练开始时清空梯度
+skipped_batches_count = 0
+total_batches = len(chosen_input_ids_list) // batch_size
+
+for batch_idx in range(total_batches):
+    ## ==================== 获取批次数据 ====================
+    
+    # 获取当前批次的偏好对数据
+    preferred_batch_sequences = chosen_input_ids_list[
+        batch_idx * batch_size:(batch_idx + 1) * batch_size
+    ]
+    rejected_batch_sequences = rejected_input_ids_list[
+        batch_idx * batch_size:(batch_idx + 1) * batch_size
+    ]
+
+    ## ==================== 数据填充对齐 ====================
+    
+    # 计算各自批次的最大序列长度
+    preferred_max_length = max([len(sequence) for sequence in preferred_batch_sequences])
+    rejected_max_length = max([len(sequence) for sequence in rejected_batch_sequences])
+    # 使用eos token作为pad token
+    pad_token_id = model.generation_config.eos_token_id[-1]
+    
+    ### 偏好数据填充处理
+    preferred_padded_sequences = []
+    for seq_idx in range(batch_size):
+        original_sequence = preferred_batch_sequences[seq_idx]
+        # 计算要填充多少个pad
+        padding_length = preferred_max_length - len(original_sequence)
+        # 在训练数据的末尾填充pad
+        padded_sequence = torch.nn.functional.pad(
+            torch.tensor(original_sequence), 
+            (0, padding_length), 
+            mode='constant', 
+            value=pad_token_id
+        ).tolist()
+        # 将填充过的数据放入列表
+        preferred_padded_sequences.append(padded_sequence)
+    
+    preferred_batch_tensor = torch.tensor(preferred_padded_sequences)
+    
+    ### 拒绝数据填充处理
+    rejected_padded_sequences = []
+    for seq_idx in range(batch_size):
+        original_sequence = rejected_batch_sequences[seq_idx]
+        padding_length = rejected_max_length - len(original_sequence)
+        
+        padded_sequence = torch.nn.functional.pad(
+            torch.tensor(original_sequence), 
+            (0, padding_length), 
+            mode='constant', 
+            value=pad_token_id
+        ).tolist()
+        
+        rejected_padded_sequences.append(padded_sequence)
+    
+    rejected_batch_tensor = torch.tensor(rejected_padded_sequences)
+
+    ## ==================== 构建输入输出对 ====================
+    
+    # 构建因果语言模型的输入输出对：x->y（下一个词预测）
+    # 模型的输入：偏好的回答
+    preferred_model_inputs = preferred_batch_tensor[:, :-1].to(device)
+    # 真实的标签
+    preferred_target_labels = preferred_batch_tensor[:, 1:].to(device)
+    
+    rejected_model_inputs = rejected_batch_tensor[:, :-1].to(device)
+    rejected_target_labels = rejected_batch_tensor[:, 1:].to(device)
+
+    ## ==================== 构建训练掩码 ====================
+    
+    # 构建掩码矩阵：padding_mask（忽略填充token）+ answer_mask（只关注回答部分）
+    
+    # pad_token_id 对应的置为 0 ，其它置为 1 。
+    preferred_padding_mask = torch.where(
+        preferred_target_labels == pad_token_id,
+        0,
+        1
+    )
+    rejected_padding_mask = torch.where(
+        rejected_target_labels == pad_token_id,
+        0,
+        1
+    )
+    
+    # 助手回答的掩码：将助手回答的部分掩码为 1 。其它都是 0 。
+    preferred_answer_mask = create_answer_mask(
+        preferred_model_inputs,
+        tokenizer
+    )
+    rejected_answer_mask = create_answer_mask(
+        rejected_model_inputs,
+        tokenizer
+    )
+    
+    # 最终掩码：取交集
+    preferred_final_mask = (preferred_answer_mask & preferred_padding_mask)
+    rejected_final_mask = (rejected_answer_mask & rejected_padding_mask)
+
+    ## ==================== 批次有效性检查 ====================
+    
+    # 检查偏好对数据是否都有有效的回答部分
+    preferred_min_tokens = preferred_final_mask.sum(dim=-1).min().item()
+    rejected_min_tokens = rejected_final_mask.sum(dim=-1).min().item()
+    
+    if preferred_min_tokens == 0 or rejected_min_tokens == 0:
+        print(f"跳过第{batch_idx + 1}批次：偏好对数据回答部分不足")
+        skipped_batches_count += 1
+        continue  # 跳过当前批次
+
+    ## ==================== 模型前向传播 ====================
+    
+    # 训练模型对偏好数据的前向传播
+    preferred_logits = model(preferred_model_inputs).logits
+    torch.cuda.empty_cache()  # 清理GPU显存
+    torch.cuda.ipc_collect()
+
+    # 训练模型对拒绝数据的前向传播
+    rejected_logits = model(rejected_model_inputs).logits
+    torch.cuda.empty_cache()  # 清理GPU显存
+    torch.cuda.ipc_collect()
+
+    # 参考模型的前向传播（不计算梯度）
+    with torch.no_grad():
+        reference_preferred_logits = ref_model(preferred_model_inputs) \
+            .logits                                                    \
+            .detach()
+        reference_rejected_logits = ref_model(rejected_model_inputs)   \
+            .logits                                                    \
+            .detach()
+
+    ## ==================== DPO损失计算 ====================
+    """
+    DPO (Direct Preference Optimization) 论文: https://arxiv.org/pdf/2305.18290.pdf
+    核心思想：通过偏好对比学习，无需显式奖励模型
+    """
+    
+    # 计算平均对数概率 (average_log_prob = True)
+    # 参考: https://github.com/huggingface/trl/blob/main/trl/trainer/dpo_trainer.py#L924
+    
+    ### 训练模型的对数概率
+    ### 正在微调的模型，接收到正例的logits，计算对数概率
+    preferred_log_prob = _compute_average_log_probability(
+        preferred_logits,
+        preferred_target_labels,
+        preferred_final_mask
+    )
+    rejected_log_prob = _compute_average_log_probability(
+        rejected_logits,
+        rejected_target_labels,
+        rejected_final_mask
+    )
+    
+    ### 参考模型的对数概率
+    reference_preferred_log_prob = _compute_average_log_probability(
+        reference_preferred_logits,
+        preferred_target_labels,
+        preferred_final_mask
+    )
+    reference_rejected_log_prob = _compute_average_log_probability(
+        reference_rejected_logits,
+        rejected_target_labels,
+        rejected_final_mask
+    )
+
+    ## ==================== 奖励和边际计算 ====================
+    
+    # 计算隐式奖励 (基于KL散度)
+    preferred_implicit_reward =                              \
+        beta *                                               \
+        (preferred_log_prob - reference_preferred_log_prob)
+    rejected_implicit_reward =                               \
+        beta *                                               \
+        (rejected_log_prob - reference_rejected_log_prob)
+    
+    # 计算奖励边际 (偏好数据应该有更高的奖励)
+    reward_margin = preferred_implicit_reward - rejected_implicit_reward
+    
+    # DPO损失：-log(sigmoid(margin))
+    preference_probability = torch.nn.functional.sigmoid(reward_margin)
+    sample_losses = -torch.log(preference_probability)
+    
+    # 批次平均损失 + 梯度累积
+    batch_average_loss =                          \
+        torch.nanmean(sample_losses) /            \
+        gradient_accumulation_steps
+
+    ## ==================== 反向传播和优化 ====================
+    
+    batch_average_loss.backward()
+
+    # 动态学习率调整
+    current_learning_rate = cosine_decay(
+        batch_idx,
+        warmup_steps,
+        total_steps,
+        max_lr,
+        min_lr
+    )
+    
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = current_learning_rate
+
+    # 梯度累积和权重更新
+    is_accumulation_step = (batch_idx + 1) % gradient_accumulation_steps == 0
+    is_final_batch = (batch_idx + 1) == total_batches
+    
+    if is_accumulation_step or is_final_batch:
+        optimizer.step()        # 更新权重
+        optimizer.zero_grad()   # 清空梯度
+
+    ## ==================== 训练指标记录 ====================
+    
+    # 记录各项训练指标（detach避免梯度追踪）
+    training_losses.append(
+        batch_average_loss.detach().item() * gradient_accumulation_steps)
+    preferred_log_probabilities.append(
+        torch.nanmean(preferred_log_prob.detach()).item())
+    rejected_log_probabilities.append(
+        torch.nanmean(rejected_log_prob.detach()).item())
+    preferred_rewards.append(
+        torch.nanmean(preferred_implicit_reward.detach()).item())
+    rejected_rewards.append(torch.nanmean(
+        rejected_implicit_reward.detach()).item())
+    reward_margins.append(
+        torch.nanmean(reward_margin.detach()).item())
+
+    ## ==================== 训练日志输出 ====================
+    
+    should_log = (batch_idx + 1) % log_iter == 0 or is_final_batch
+    
+    if should_log:
+        # 计算最近批次的平均指标
+        recent_loss = np.nanmean(training_losses[-log_iter:])
+        recent_preferred_logprob = np.nanmean(
+            preferred_log_probabilities[-log_iter:])
+        recent_rejected_logprob = np.nanmean(
+            rejected_log_probabilities[-log_iter:])
+        recent_preferred_reward = np.nanmean(preferred_rewards[-log_iter:])
+        recent_rejected_reward = np.nanmean(rejected_rewards[-log_iter:])
+        recent_margin = np.nanmean(reward_margins[-log_iter:])
+        
+        # 格式化输出训练状态
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"时间: {current_time}")
+        print(f"批次: {batch_idx + 1}/{total_batches}")
+        print(f"最近{log_iter}批次指标：")
+        print(f'   - 平均损失: {recent_loss:.4f}')
+        print(f'   - 偏好对数概率: {recent_preferred_logprob:.4f}')
+        print(f'   - 拒绝对数概率: {recent_rejected_logprob:.4f}')
+        print(f'   - 偏好奖励: {recent_preferred_reward:.4f}')
+        print(f'   - 拒绝奖励: {recent_rejected_reward:.4f}')
+        print(f'   - 奖励边际: {recent_margin:.4f}')
+        print(f"学习率: {current_learning_rate:.2e}")
+        print('-' * 80)
+        
+        # 调用外部日志记录
+        log_call(batch_idx, recent_loss)
+
+## ==================== 训练完成总结 ====================
+
+print("DPO训练完成！")
+print(f"训练统计：")
+print(f'   - 总批次数: {total_batches}')
+print(f'   - 跳过批次数: {skipped_batches_count}')
+print(f'   - 有效批次数: {total_batches - skipped_batches_count}')
+
+# 输出最终训练指标
+if training_losses:
+    final_metrics = {
+        'loss': np.nanmean(training_losses[-100:]),
+        'preferred_logprob': np.nanmean(preferred_log_probabilities[-100:]),
+        'rejected_logprob': np.nanmean(rejected_log_probabilities[-100:]),
+        'preferred_reward': np.nanmean(preferred_rewards[-100:]),
+        'rejected_reward': np.nanmean(rejected_rewards[-100:]),
+        'margin': np.nanmean(reward_margins[-100:])
+    }
+    
+    print(f"最终指标 (最近100批次平均)：")
+    for metric_name, metric_value in final_metrics.items():
+        print(f"   - {metric_name}: {metric_value:.4f}")
+
+if skipped_batches_count > 0:
+    skip_ratio = skipped_batches_count / total_batches * 100
+    print(f"跳过批次占比: {skip_ratio:.2f}%")
+    if skip_ratio > 10:
+        print("建议: 跳过批次过多，考虑增加最大序列长度或优化数据预处理")
+\end{codebox}
 
 \part{附录}
 \appendix
