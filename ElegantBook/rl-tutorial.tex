@@ -6139,6 +6139,10 @@ async def main(message: chainlit.Message):
 
 \section{gpt2的监督微调}
 
+我们的目标是训练一个可以写电商评论的大语言模型。所以我们对gpt2进行微调，让它可以写电商评论。
+
+由于我们使用的文本，既有正向情感的文本，也有负向情感的文本，所以训练出来的模型，在给定提示词（例如：``这本书''）时，可能写出正向情感的评论也可能写出负向情感的评论。
+
 \begin{marker}
 我们使用的底座模型是中文版gpt2：``gpt2-chinese-cluecorpussmall''。
 \end{marker}
@@ -6214,12 +6218,59 @@ tokenizer.save_pretrained("./gpt2-sft")
 # 测试微调后的模型
 g = pipeline("text-generation", model="./gpt2-sft")
 set_seed(42)
-pprint(g("这个房间真是", max_length=30, num_return_sequences=10))
+pprint(g("这本书真是", max_length=30, num_return_sequences=10))
 \end{codebox}
 
 \chapter{基于分类的微调}
 
-\section{将gpt2预训练模型微调成一个分类模型}
+\section{将gpt2预训练模型微调成一个分类模型（奖励模型）}
+
+\begin{marker}
+我们要训练一个模型作为奖励模型，也就是给模型输入文本，模型可以给一个评分出来。
+\end{marker}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{0.3\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw  (-121,48) rectangle  node {\LARGE 这} (-119.75,46.75);
+\draw  (-120.5,47.25) rectangle (-120.5,47.25);
+\draw  (-120.5,46.75) rectangle (-120.5,46.75);
+\draw  (-119.75,48) rectangle  node {\LARGE 本} (-118.5,46.75);
+\draw  (-118.5,48) rectangle  node {\LARGE 书} (-117.25,46.75);
+\draw  (-117.25,48) rectangle  node {\LARGE 真} (-116,46.75);
+\draw  (-116,48) rectangle  node {\LARGE 好} (-114.75,46.75);
+\draw  (-114.75,48) rectangle  node {\LARGE $reward\_token$} (-110.25,46.75);
+\draw  (-120.5,43.75) rectangle  node {\LARGE $GPT2$} (-111.25,39);
+\draw  (-115.25,41) rectangle (-115.25,41);
+\draw [->, >=Stealth] (-116,46.5) -- (-116,44);
+\draw [short] (-116,38.75) -- (-116,36);
+\node [font=\LARGE] at (-116,35.5) {$last\_hidden\_state$};
+\draw [->, >=Stealth] (-116,34.75) -- (-122,31.75);
+\draw  (-124,31.5) rectangle  node {\LARGE $out\_head$} (-119.75,30.25);
+\draw [->, >=Stealth] (-121.75,30) -- (-121.75,27.5);
+\node [font=\LARGE] at (-122,26.75) {$logits$};
+\draw [->, >=Stealth] (-115.75,34.75) -- (-111.75,31.75);
+\draw  (-113.5,31.75) rectangle  node {\LARGE $reward\_head$} (-109.75,30.5);
+\draw [->, >=Stealth] (-111.75,30.25) -- (-111.75,28);
+\node [font=\LARGE] at (-111.75,27.5) {$Sigmoid$};
+\draw [->, >=Stealth] (-111.75,26.75) -- (-111.75,25.25);
+\draw  (-114.75,25.25) rectangle (-114,24.5);
+\draw  (-114,25.25) rectangle (-113.25,24.5);
+\draw  (-113.25,25.25) rectangle (-112.5,24.5);
+\draw  (-112.5,25.25) rectangle (-111.75,24.5);
+\draw  (-111.75,25.25) rectangle (-111,24.5);
+\draw [ fill={rgb,255:red,193; green,37; blue,37} ] (-111,25.25) rectangle (-110.25,24.5);
+\draw  (-108,24.75) circle (0.75cm) node {\LARGE $1$} ;
+\draw [->, >=Stealth] (-110.75,24.5) -- (-109.75,21);
+\draw [->, >=Stealth] (-108,24) -- (-109.5,21);
+\node [font=\LARGE] at (-109.75,20.25) {$BCELoss$};
+\end{circuitikz}
+}%
+\caption{奖励模型的训练}
+\label{fig:gpt2-classifier-pipeline}
+\end{figure}
 
 \begin{codebox}{python}{奖励模型}{pythoncode:gpt2-reward-model}
 from datasets import load_dataset
@@ -6379,7 +6430,15 @@ for i, batch in enumerate(train_dataloader):
     all_predictions.extend(predictions.cpu().numpy())
     all_labels.extend(target.cpu().numpy())
 
-confusion_matrix(all_labels, all_predictions)
+print(confusion_matrix(all_labels, all_predictions))
+\end{codebox}
+
+输出结果
+
+\begin{codebox}{text}{奖励模型的输出结果}{text:rm-outputs}
+困惑矩阵:
+[[364,  60],   # 第一行：真实标签为0的情况：364个预测正确，60个预测错误
+ [ 31, 412]]   # 第二行：真实标签为1的情况：31个预测错误，412个预测正确
 \end{codebox}
 
 \chapter{基于指令的监督微调}
@@ -6900,7 +6959,7 @@ confusion_matrix(all_labels, all_predictions)
 \label{fig:batch-size-loss}
 \end{figure}
 
-\section{基于指令的监督微调代码实践}
+\section{基于指令的监督微调代码实践}\label{section:instruct-sft}
 
 首先导入需要的依赖。
 
@@ -7370,6 +7429,132 @@ if skipped_batches_count > 0:
 model.save_pretrained("./Qwen3-0.6B-SFT/")
 tokenizer.save_pretrained("./Qwen3-0.6B-SFT/")
 \end{codebox}
+
+\chapter{使用DPO进行RLHF}
+
+\begin{marker}
+我们使用DPO算法要微调的模型是第\ref{section:instruct-sft}节中保存的``Qwen3-0.6B-SFT''。
+\end{marker}
+
+加载我们要微调的模型。
+
+\begin{codebox}{python}{加载模型}{pythoncode:dpo-load-model}
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from dataclasses import dataclass
+import datasets
+import torch
+import numpy as np
+import os
+
+device = "cuda"
+model_path = "./Qwen3-0.6B-SFT"
+
+# 加载模型
+model = AutoModelForCausalLM.from_pretrained(model_path, dtype="auto", device_map="auto")
+# 冻结的参考模型
+ref_model = AutoModelForCausalLM.from_pretrained(model_path, dtype="auto", device_map="auto")
+# 加载分词器
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+\end{codebox}
+
+生成回答的配置和SFT时相同，见代码\ref{qwen3-0.6b-base-sft-3}。
+
+定义模型训练的超参数。
+
+\begin{codebox}{python}{DPO使用的训练超参数}{pythoncode:dpo-superparameter}
+@dataclass
+class DPOConfig:
+    max_length = 1700
+    batch_size = 2
+    gradient_accumulation_steps = 8
+    beta = 0.5 # β$\beta$β是DPO目标函数中的超参数
+    log_iter = 100
+    max_lr = 1e-6
+    min_lr = 1e-7
+    warmup_steps:int = 300
+\end{codebox}
+
+接下来导入正负例数据集。
+
+\begin{codebox}{python}{DPO使用的正负例数据集}{pythoncode:dpo-data}
+binarized_data = datasets.load_dataset("./ultrafeedback_binarized")
+\end{codebox}
+
+处理数据集
+
+\begin{codebox}{python}{将正负例数据集转换为input\_ids}{pythoncode:dpo-data-input-ids}
+def tokenize_and_format(data):
+    input_ids = tokenizer.apply_chat_template(
+        data,
+        tokenize = True,
+        add_generation_prompt = False,
+        truncation = True,
+        max_length = DPOConfig.max_length,
+    )
+
+    return input_ids
+
+## 生成偏好数据的input_ids
+chosen_input_ids_list = []
+i = 0
+while True:
+    data = binarized_data["train_sft"][i]["chosen"]
+    data.insert(
+        0,
+        {"content": "You are a helpful assistant", "role": "system"}
+    )
+    input_ids = tokenize_and_format(data)
+    chosen_input_ids_list.append(input_ids)
+    i += 1
+    if i % 10000 == 0 or i == len(binarized_data['train_sft']):
+        print(f"偏好数据已处理{i}条数据")
+    if i == 30000:
+        break
+print('-' * 70)
+
+#############################################################################
+## 生成不偏好数据的input_ids
+rejected_input_ids_list = []
+i = 0
+while True:
+    data = binarized_data["train_sft"][i]["rejected"]
+    data.insert(
+        0,
+        {"content": "You are a helpful assistant", "role": "system"}
+    )
+    input_ids = tokenize_and_format(data)
+    rejected_input_ids_list.append(input_ids)
+    i += 1
+    if i % 10000 == 0 or i == len(binarized_data['train_sft']):
+        print(f"非偏好数据已处理{i}条数据")
+    if i == 30000:
+        break
+
+## 确保数据条数一致
+assert len(chosen_input_ids_list) == len(rejected_input_ids_list)
+\end{codebox}
+
+设置一下训练的超参数
+
+\begin{codebox}{python}{训练用的超参数}{pythoncode:dposuperparams}
+beta = DPOConfig.beta # β$\beta$β超参数
+batch_size = DPOConfig.batch_size
+gradient_accumulation_steps = DPOConfig.gradient_accumulation_steps
+log_iter = DPOConfig.log_iter
+max_lr = DPOConfig.max_lr
+min_lr = DPOConfig.min_lr
+warmup_steps = DPOConfig.warmup_steps
+total_steps = len(chosen_input_ids_list) // batch_size
+optimizer = torch.optim.AdamW(model.parameters(), lr=max_lr)
+\end{codebox}
+
+配置logging日志记录模型训练过程参见代码\ref{qwen3-0.6b-base-sft-9}。
+
+复用SFT阶段设置的余弦衰减学习率曲线，参见代码\ref{qwen3-0.6b-base-sft-6}。
+
+将回答部分进行掩码的代码，参见\ref{qwen3-0.6b-base-sft-7}。
+
+
 
 \part{附录}
 \appendix
