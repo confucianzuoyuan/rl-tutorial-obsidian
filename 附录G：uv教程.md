@@ -39,3 +39,13 @@ $ git clone https://hf-mirror.com/Qwen/Qwen2.5-0.5B
 $ git clone https://hf-mirror.com/Qwen/Qwen2.5-3B-Instruct
 ```
 
+
+
+
+```bash
+pip install modelscope
+pip install addict
+pip install datasets==2.21.0
+
+modelscope download --model Qwen/Qwen3-0.6B-Base
+```

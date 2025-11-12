@@ -4170,20 +4170,22 @@ RLHF: \textbf{R}einforcement \textbf{L}earning From \textbf{H}uman \textbf{F}eed
 \resizebox{1\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
-\draw  (-5.5,38.75) rectangle  node {\LARGE 预训练LLM} (0.75,35.5);
-\draw  (12.5,47.25) rectangle  node {\LARGE 近端策略优化（PPO）} (25.25,44.25);
-\draw  (12.5,38.75) rectangle  node {\LARGE 直接偏好优化（DPO）} (25.25,35.75);
-\draw  (12.5,30.25) rectangle  node {\LARGE 组相对策略优化（GRPO）} (25.25,27.25);
-\draw  (36.75,39) rectangle  node {\LARGE 对齐后的LLM} (49.5,36);
-\draw [->, >=Stealth] (0.75,37.25) -- (12.5,45.5);
-\draw [->, >=Stealth] (1,37.25) -- (12.5,37.25);
-\draw [->, >=Stealth] (1,37.25) -- (12.5,28.5);
-\draw [->, >=Stealth] (25.25,45.75) -- (36.75,37.5);
-\draw [->, >=Stealth] (25.25,37.5) -- (36.75,37.5);
-\draw [->, >=Stealth] (25.5,28.75) -- (36.75,37.5);
+\draw  (-117.5,49.75) rectangle  node {\LARGE 预训练LLM} (-111.75,47.75);
+\draw [ fill={rgb,255:red,179; green,162; blue,226} ] (-109.25,49.75) rectangle  node {\LARGE 基于指令的SFT} (-103.5,47.75);
+\draw [ fill={rgb,255:red,217; green,217; blue,217} ] (-101.25,54) rectangle  node {\LARGE 近端策略优化（PPO）} (-92.75,52);
+\draw [ fill={rgb,255:red,217; green,217; blue,217} ] (-101.25,49.75) rectangle  node {\LARGE 直接偏好优化（DPO）} (-92.75,47.75);
+\draw [ fill={rgb,255:red,217; green,217; blue,217} ] (-101,45.75) rectangle  node {\LARGE 组相对策略优化（GRPO）} (-92.75,44);
+\draw [ fill={rgb,255:red,187; green,234; blue,57} ] (-86.25,50) rectangle  node {\LARGE 对齐后的LLM} (-77.75,48);
+\draw [->, >=Stealth] (-111.75,48.75) -- (-109.25,48.75);
+\draw [->, >=Stealth] (-103.5,49) -- (-101.25,52.75);
+\draw [->, >=Stealth] (-103.5,49) -- (-101.25,49);
+\draw [->, >=Stealth] (-103.5,49) -- (-101,45);
+\draw [->, >=Stealth] (-92.75,53.25) -- (-86.25,49.25);
+\draw [->, >=Stealth] (-92.75,49) -- (-86.25,49);
+\draw [->, >=Stealth] (-92.75,45) -- (-86.25,48.75);
 \end{circuitikz}
 }%
-\caption{PPO, DPO, GRPO}
+\caption{RLHF关键技术}
 \label{fig:ppo-dpo-grpo}
 \end{figure}
 
@@ -4254,6 +4256,615 @@ DPO 对从业者特别有吸引力的原因是：
 \item 稳定性：组件越少，出错的可能性就越小
 \item 性能：在控制输出属性方面，通常与PPO-RLHF相当或超过PPO-RLHF
 \end{enumerate}
+
+\subsection{组相对策略优化}
+
+
+
+\begin{figure}[!ht]
+\centering
+\bigskip
+\bigskip
+\bigskip
+\begin{equation}
+\eqnmarkbox[NavyBlue]{grpo1}{\mathcal{J}_{\text{GRPO}}(\theta)}=\mathbb{E}_{\eqnmarkbox[NavyBlue]{grpo2}{q\sim P(Q)},\eqnmarkbox[NavyBlue]{grpo3}{\{o_i\}^G_{i=1}\sim\pi_{\theta_{\text{old}}}(O|q)}}\left[\eqnmarkbox[NavyBlue]{grpo4}{{\mathcal{L}_{\text{GRPO}}}(\theta)}\right]
+\end{equation}
+\annotate[yshift=-1em]{below,left}{grpo1}{GRPO目标函数}
+\annotate[yshift=2em]{above,left}{grpo2}{
+\begin{tabular}{ll}
+从分布$P(Q)$中采样一些问题$q$。\\
+$P(Q)$表示用来训练模型的问题数据集
+\end{tabular}
+}
+\annotate[yshift=-2em]{below,right}{grpo3}{
+\begin{tabular}{ll}
+针对每个采样出来的问题$q$。\\
+使用旧策略生成$G$个不同的回答 \\
+$\left\{ o_1, o_2, \dots, o_G \right\}$
+\end{tabular}
+}
+\annotate[yshift=1em]{above,right}{grpo4}{替代损失函数}
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\caption{GRPO的目标函数}
+\label{fig:grpo-annotated}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\bigskip
+\bigskip
+\bigskip
+\begin{equation}
+\mathcal{L}_{\text{GRPO}}(\theta)=\eqnmarkbox[NavyBlue]{grpoloss1}{\frac{1}{G}\sum_{i=1}^G} \eqnmarkbox[pink]{grpoloss2}{\frac{1}{|o_{i}|} \sum_{t=1}^{|o_{i}|}}\min\left[ \frac{\pi_{\theta}(o_{i,t}|q,o_{i,<t})}{\pi_{\theta_{\text{old}}}(o_{i,t}|q,o_{i,<t})}\eqnmarkbox[orange]{grpoloss3}{\hat{A}_{i,t}}, \text{clip}\left( \frac{\pi_{\theta}(o_{i,t}|q,o_{i,<t})}{\pi_{\theta_{\text{old}}}(o_{i,t}|q,o_{i,<t})}, 1-\epsilon,1+\epsilon \right)\hat{A}_{i,t}  \right] - \beta D_{\text{KL}}\left[ \pi_{\theta}||\pi_{\text{ref}} \right]
+\end{equation}
+\annotate[yshift=5em]{above,right}{grpoloss1}{
+裁剪替代损失的token平均损失
+\begin{tabular}{ll}
+$\bullet\quad$ 遍历 $G$ 个采样的回答，并将每个回答的token平均损失相加 \\
+$\bullet\quad$ 除以 $G$ ，来获得所有采样的回答的平均值。这样保证了每个回答 $o_i$ 的贡献的单位都一样。
+\end{tabular}
+}
+\annotate[yshift=2em]{above,right}{grpoloss2}{
+某个回答的每个token都计算损失，并取平均值
+\begin{tabular}{ll}
+$\bullet\quad$ 将回答$o_i$的所有token都计算一遍损失，然后相加 \\
+$\bullet\quad$ 除以token的数量：$|o_i|=\text{len}(o_i)$，每个回答都有相同单位的贡献
+\end{tabular}
+}
+\annotate[yshift=-2em]{below,right}{grpoloss3}{组相对优势}
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\caption{GRPO的替代损失函数}
+\label{fig:grpo-loss-annotated}
+\end{figure}
+
+现在，如果我们能将 PPO 的可靠性与更高的效率以及对推理能力提升的专注结合起来，会怎么样呢？GRPO 应运而生，它是强化学习领域的最新成果之一，由 DeepSeek 开发，并用于训练其令人印象深刻的 DeepSeek-Math 和 DeepSeek-R1 模型。
+
+GRPO 建立在 PPO 的基础上，但引入了几项巧妙的修改：
+
+\begin{enumerate}
+\item GRPO去掉了价值函数模型，减少了内存开销。
+\item GRPO评估输出的一组回答而不是单个token。
+\item GRPO直接将KL散度纳入损失函数。
+\end{enumerate}
+
+这种基于组（Group）的方法尤其巧妙。GRPO 不是单独评估每个token，而是将完整的答案作为一个整体来看待 ⟶ 这是一种评估推理能力更自然的方式，其中整个解答过程都很重要，而不仅仅是单个步骤。
+
+用 AWS 社区文章的话来说，``GRPO 用于计算优势的组相对方式与奖励模型的比较性质非常吻合，因为奖励模型通常是在同一问题的输出比较数据集上进行训练的。''
+
+\subsection{总结}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\node [font=\LARGE] at (-103.5,54.75) {第一代};
+\draw  (-99.5,56) rectangle  node {\LARGE 原始策略梯度法} (-94.5,53.5);
+\draw  (-91.5,56) rectangle  node {\LARGE REINFORCE} (-86.5,53.5);
+\draw  (-83.75,56) rectangle  node {\LARGE Actor-Critic} (-78.75,53.5);
+\draw [->, >=Stealth] (-94.5,54.75) -- (-91.5,54.75);
+\draw [->, >=Stealth] (-86.5,54.75) -- (-83.75,54.75);
+\draw  (-99.25,49.75) rectangle  node {\LARGE TRPO} (-94.75,47.25);
+\draw  (-91.5,49.75) rectangle  node {\LARGE PPO} (-87,47.25);
+\draw [->, >=Stealth] (-94.75,48.5) -- (-91.5,48.5);
+\draw [short] (-81.25,53.5) -- (-81.25,51.5);
+\draw [short] (-81.25,51.5) -- (-97,51.5);
+\draw [->, >=Stealth] (-97,51.5) -- (-97,49.75);
+\node [font=\LARGE] at (-103.5,48.75) {第二代};
+\draw  (-99.25,44) rectangle  node {\LARGE DPO} (-94.75,41.5);
+\draw  (-91.5,44) rectangle  node {\LARGE GRPO} (-87,41.5);
+\draw [short] (-89.25,47.25) -- (-89.25,46);
+\draw [short] (-89.25,46) -- (-97,46);
+\draw [->, >=Stealth] (-97,46) -- (-97,44);
+\node [font=\LARGE] at (-103.25,42.75) {第三代};
+\draw  (-100.5,39.5) rectangle  node {\LARGE KTO} (-97.25,38.25);
+\draw  (-96.75,39.5) rectangle  node {\LARGE SimPO} (-93.75,38.25);
+\draw [->, >=Stealth] (-97.25,41.5) -- (-99,39.5);
+\draw [->, >=Stealth] (-97.25,41.5) -- (-95.25,39.5);
+\draw  (-92.5,39.5) rectangle  node {\LARGE DAPO} (-89.25,38.25);
+\draw  (-88.75,39.5) rectangle  node {\LARGE GSPO} (-85.5,38.25);
+\draw [->, >=Stealth] (-89.5,41.5) -- (-90.25,39.5);
+\draw [->, >=Stealth] (-88.75,41.5) -- (-87.75,39.5);
+\draw [ dashed] (-101.5,45) rectangle  (-93,37);
+\draw [short] (-97,37) -- (-97,32.75);
+\draw [short] (-97,32.75) -- (-91.5,32.75);
+\draw [->, >=Stealth] (-91.5,32.75) -- (-91.5,29.75);
+\draw [ dashed] (-95.75,29.75) rectangle  node {\LARGE 我觉得不是强化学习，因为不能玩倒立摆}  (-83.25,27.5);
+\end{circuitikz}
+}%
+\caption{强化学习算法发展史}
+\label{fig:all-rl-algorithms-in-llm}
+\end{figure}
+
+\section{DPO：直接偏好优化}
+
+\begin{marker}
+DPO：Direct Preference Optimization
+
+直接偏好优化：你的大语言模型实际上是一个奖励模型
+\end{marker}
+
+DPO，是基于人类反馈的强化学习（RLHF）的一种方法，它避免了真正的强化学习。
+
+\subsection{使用偏好数据集微调LLM}
+
+为我们希望 LLM 模仿的行为创建高质量的示例数据集是一项艰巨而耗时的工作。聘请标注员来帮助我们创建此类数据的成本也相当高昂。然而，一旦我们拥有一个能够``足够好''地展示所需行为的模型，我们就可以全力以赴了。给定一个提示，我们可以通过注入少量随机性，从 LLM 中采样两种不同的响应。
+
+\begin{marker}
+使用相同的提示词，让 LLM 输出不同的回答。可以通过控制温度参数的方式来做到这一点。可以看一下这个\href{https://blog.lukesalamone.com/posts/what-is-temperature/}{https://blog.lukesalamone.com/posts/what-is-temperature/} 理解一下温度的作用。
+\end{marker}
+
+然后，让标注员表达对两种回答之一的偏好既便宜又容易。
+
+在使用 ChatGPT 或 Gemini 时，你可能注意到，偶尔会被要求在两个相似的答案中选择一个来继续对话。这个偏好会被记录下来，并用于在未来的偏好调整中改进模型。同样，Chatbot Arena 也会收集偏好数据，以便根据人工评估对 LLM 进行评级：
+
+有许多公开可用的偏好数据集，例如 LMSys 的 Chatbot Arena Conversations 数据集、OpenAI 的 WebGPT Compares 数据集和 Anthropic 的 Helpfulness-Harmlessness RLHF 数据集（露骨/冒犯性内容警告）。
+
+如果使用数学符号，那么这些数据集可以表示成
+
+
+\begin{equation}
+\mathcal{D}=\{x^{(i)}, y_w^{(i)}, y_l^{(i)}\}^N_{i=1}
+\end{equation}
+
+其中$x$是上下文或者提示词，$y_w$是人类喜欢的回答，而$y_l$是人类不喜欢的回答。
+
+\subsection{Bradley-Terry 模型}
+
+那么，我们该如何处理这些偏好数据呢？我们希望利用这些数据来微调我们的LLM，使其输出更符合偏好的响应。首先，让我们探索一个简单的概率模型：
+
+\begin{equation}
+p^*(i \succ j) = \frac{s_i}{s_i+s_j}
+\end{equation}
+
+这是 Bradley-Terry 模型，用于对成对比较的结果进行建模。用通俗的话说，它就是``我们模拟真实的当 $i$ 的得分高于 $i$ 和 $j$ 的总得分时，结果 $i$ 优于结果 $j$ 的概率''。
+
+\begin{marker}
+$p^*$中``星号''的含义：表示我们正在建模人类偏好的真实潜在分布。同样，我们很快就会看到$r^*$，它表示对大模型输出的回答进行评分的真实潜在奖励函数；以及$\pi^*$，它表示我们希望 LLM 模仿的最优策略。
+\end{marker}
+
+Bradley-Terry 模型与 Elo 评分系统相关，该评分系统在国际象棋和其他竞技游戏中非常流行。Bradley-Terry 模型是 Elo 评分系统的推广，其中玩家 A 击败玩家 B 的概率为 $p(A\succ B) = \frac{1}{1+10^{(R_B-R_A)/400}}=\frac{s_A}{s_A+s_B}$ 。 这里 $R$ 表示一个玩家的评分，$s=10^{R/400}$ 。
+
+\begin{marker}
+所以如果玩家 A 的 Elo 的评分是 2000 以及玩家 B 的 Elo 的评分是 1600 ，那么玩家 A 获胜的可能性预计是玩家 B 的 10 倍，因为
+\begin{itemize}
+\item $p(A\succ B) = \frac{1}{1+10^{(1600-2000)/400}}=10/11$ ，
+\item $p(B\succ A)=\frac{1}{1+10^{(2000-1600)/400}}=1/11$ 。
+\end{itemize}
+\end{marker}
+
+在 Bradley-Terry 模型下，通常选择将分数参数化为$s=e^r$，其中 $r$ 代表奖励。``奖励''一词源自强化学习，在强化学习中，一系列更理想的行动会获得更大的奖励——类似于在电子游戏中表现更好就能获得更高的分数。
+
+通过这种参数化，我们的模型开始看起来相当不错——通过 Sigmoid 函数传递的奖励值的简单差异
+
+\begin{equation}
+p^*(i\succ j)=\frac{s_i}{s_i+s_j}=\frac{e^{R_i^*}}{e^{R_i^*}+e^{R_j^*}} = \frac{1}{1+e^{-(R^*_i-R_j^*)}} = \sigma(R_i^*-R_j^*)
+\end{equation}
+
+\subsection{将 Bradley-Terry 模型应用到 LLM}
+
+现在，我们希望采用 Bradley-Terry 模型并利用其与偏好数据集来改进我们的 LLM 生成的输出。
+
+在我们的偏好数据集（$\mathcal{D}$）中，我们有两个比较，我们希望建模其中一种补全方式比另一种更受欢迎的概率。从某种意义上说，每种补全方式都会根据其质量引发一些奖励，而我们的最终目标是推动我们的 LLM 产生更高质量的补全。因此，我们将使用 LLM 参数化奖励。我们将其称为$R^*(x,y)$，这意味着奖励是上下文/提示（$x$）和补全（$y$）的函数。
+
+因此，在调整我们的偏好模型以使用我们的参数化奖励函数之后，我们得到：
+
+\begin{equation}
+p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1),R^*(x,y_2))
+\end{equation}
+
+但是，仅仅谈论最优解和奖励对我们毫无意义，因为我们无法获得最优奖励函数。实践中，我们通常会学习一个模拟最优奖励函数的奖励模型 $R_\phi(x,y)$ 。我们可以将该奖励模型的参数 $\phi$ 定义为一个二分类问题，其目标是最小化偏好数据集 $\mathcal{D}$ 上的以下负对数似然损失函数：
+
+\begin{equation}
+\mathcal{L}_R(R_\phi,\mathcal{D})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}[\log(\sigma(R_\phi(x,y_w),R_\phi(x,y_l)))]
+\end{equation}
+
+在 RLHF 框架下，我们可以在强化学习环境中利用这个学习到的奖励模型来优化 LLM，使其输出获得高奖励的完成。然而，DPO 采取了不同的策略——与两阶段 RLHF 流程不同，DPO 重新参数化了 Bradley-Terry 模型，以便我们可以使用类似的损失函数直接优化 LLM 的参数，使其产生人类观察者偏好的输出。
+
+\subsection{回答（补全）的概率}
+
+目前，基于偏好或奖励来优化 LLM 的想法可能显得相当抽象。因此，我们将花点时间介绍一个新的概率函数$\pi(y|x)$ ，它代表 LLM 的实际输出。在强化学习符号中，$\pi$表示策略，策略经过优化以最大化奖励。具体来说，$\pi_\theta(y|x)$表示假设我们从提示词$x$开始，基于参数为$\theta$的 LLM 生成回答$y$的概率。
+
+``生成回答$y$的概率''是什么意思？我们的 LLM 是一个自回归文本生成器，在每一步中，它都会为每个 token 计算一个概率值。
+
+因此，我们按顺序逐个处理回答$y$中的每个 token，并计算出给定所有前面 token 的情况下，回答中下一个 token 的概率。现在，我们得到了回答中每个 token 的概率值！因此，我们可以计算生成 token 序列的联合概率，该概率是沿途观察到每个 token 的各个概率的乘积。
+
+\begin{equation}
+\pi_\theta(y|x) = \prod_{t=0}^{|y|}p_{_{LLM_{\theta}}}(y_t|x,y_{0:t})
+\end{equation}
+
+另一种思考方式是，存在一棵可能的补全树，我们正在计算从根（提示词的末尾）到叶子（停止 token ）追踪一条特定路径的概率。
+
+在训练时，我们提前知道整个文本的补全情况，因此，通过应用因果注意力掩码，我们可以通过 LLM 的单次前向传播来计算所有单独的下一个 token 的概率（以及 $\pi_\theta(y|x)$ ）。
+
+\subsection{基于偏好优化我们的LLM}
+
+好了，现在我们的框架已经搭建完毕。让我们回顾一下我们的目标：提升 LLM 的输出。换句话说，我们希望 LLM 为提示词 $x$ 提供的补全 $y$ 能够产生较大的奖励$R(x,y)$。考虑到这一点，我们可以构建一个优化问题，其中我们想要找到 $\text{LLM}_{\theta}$ 的参数，使其能够最大化类似于实际操作中出现的提示的预期奖励。
+
+\begin{equation}
+\max_\theta\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y|x)}[R(x,y)]
+\end{equation}
+
+然而，这有点过于简单了。在实践中，我们从微调后的基础模型的参数入手，并且我们坚信微调后的基础模型产生的输出相当不错，所以我们不希望模型的输出发生太大的变化，除非它们能够显著提高奖励。考虑到这一点，我们修改了优化问题，加入了正则化约束，以帮助强化这种信念。
+
+\begin{equation}
+\max_\theta\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y|x)}[R(x,y)]-\beta\mathbb{D}_\text{KL}[\pi_\theta(y|x)\Vert\pi_\text{ref}(y|x)]
+\end{equation}
+
+$\mathbb{D}[P\Vert Q]$ 是 Kullback-Leibler 散度，也就是 KL 散度，是一种统计距离度量。它量化了概率分布 $P$ 与概率分布 $Q$ 的差异。这个基于 KL 散度的约束恰好体现了这样一种想法：我们希望根据模型 $\pi_\theta$ 输出与初始微调模型（例如参考模型 $\pi_\text{ref}$ ）输出的差异程度，对模型输出进行惩罚。$\beta$ 是一个标量超参数，用于控制约束的强度。
+
+KL散度是众多用于正则化强化学习智能体策略的传统方法之一。在DPO和PPO-RLHF的案例中，KL散度是一个自然的选择，因为我们首先要有一个比较强大的参考模型——微调程序输出的LLM。
+
+现在，我们想要推导出这个优化问题的最优解。这将依赖于吉布斯不等式，$\mathbb{D}_\text{KL}[P\Vert Q]\ge 0$ 。当且仅当 $P=Q$ 时， $\mathbb{D}_\text{KL}[P\Vert Q]=0$ 。
+
+这里的直觉是，KL散度是一种距离测量（某种程度上），如果 $P$ 和 $Q$ 相等，则它们之间没有距离，如果它们不相等，则必定存在一定距离。
+
+\begin{equation}
+\begin{aligned}
+& \max_\theta\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y|x)}[R(x,y)]-\beta\mathbb{D}_\text{KL}[\pi_\theta(y|x)\Vert\pi_\text{ref}(y|x)] \\
+= & \max_\theta\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y|x)}[R(x,y)]-\beta\mathbb{E}_{y\sim\pi_\theta(y|x)}\left[{\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}}\right] \\
+= & \max_\theta\mathbb{E}_{x\sim\mathcal{D}}\mathbb{E}_{y\sim\pi_\theta(y|x)}\left[{R(x,y)-\beta\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}}\right] \\
+= & \min_\theta\mathbb{E}_{x\sim\mathcal{D}}\mathbb{E}_{y\sim\pi_\theta(y|x)}\left[{\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}-\frac{1}{\beta}R(x,y)}\right] \\
+= & \min_{\theta}\mathbb{E}_{x\sim \mathcal{D}}\mathbb{E}_{y\sim \pi_\theta(y|x)}\left[\log\frac{\pi_\theta(y|x)}{\frac{1}{Z(x)}\pi_{\text{ref}}(y|x)e^{\frac{1}{\beta}R(x,y)}} - \log Z(x)\right] = \dots
+\end{aligned}
+\end{equation}
+
+其中 $Z(x)=\sum_y\pi_{\text{ref}}(y|x)e^{\frac{1}{\beta}R(x,y)}$ 。重要的是，这个 $Z(x)$ 项仅取决于 $x$ 和 $\pi_\text{ref}$ ，而不取决于 $y$ 和 $\pi_\theta$ 。所以有如下式子
+
+\begin{equation}
+\begin{aligned}
+\dots &= \min_{\theta}\mathbb{E}_{x\sim \mathcal{D}}\left[\mathbb{E}_{y\sim \pi_\theta(y|x)}\left[\log\frac{\pi_\theta(y|x)}{\frac{1}{Z(x)}\pi_{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}}\right] - \log Z(x)\right] \\
+&= \min_{\theta}\mathbb{E}_{x\sim \mathcal{D}}\left[\mathbb{D}_\text{KL}\left(\pi_\theta(y|x)\ \Vert\ \frac{1}{Z(x)}\pi_{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}\right) - \log Z(x)\right] \\
+\end{aligned}
+\end{equation}
+
+我们快要成功了！由于$Z(x)$不依赖于$π_θ$，因此在推导最优解时我们可以忽略它。现在我们可以使用上面提到的吉布斯不等式：当且仅当 $\Vert$ 两边的两个分布相同时，$\mathbb{D}_\text{KL}\left(\pi_\theta(y|x)\ \Vert\ \frac{1}{Z(x)}\pi_{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}\right)$ 最小为零。因此，对于所有$x\in \mathcal{D}$，我们的优化问题的最优解（记为 $\pi^*$ ）是：
+
+\begin{equation}
+\pi^*(y|x)=\pi_\theta(y|x)=\frac{1}{Z(x)}\pi_\text{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}
+\end{equation}
+
+所以我们知道了优化问题的最优解，但我们能得到它吗？不能。$Z(x)=\sum_y\pi_\text{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}$ 很难计算——计算它需要对所有可能的字符串进行求和。
+
+相反，我们可以重新组织上面的最优解，以便用最优策略 $\pi_\theta$ 、参考策略 $\pi_\text{ref}$ 和难解函数 $Z$ 来表达奖励函数：
+
+\begin{equation}
+R(x,y) = \beta\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}+\beta\log Z(x)
+\end{equation}
+
+可以使用底层真实奖励 $R^*$ 及其对应的最优策略 $\pi^*$ 来应用相同的重组。
+
+\begin{equation}
+R^*(x,y) = \beta\log\frac{\pi^*_\theta(y|x)}{\pi_\text{ref}(y|x)}+\beta\log Z(x)
+\end{equation}
+
+现在，DPO 的作者们注意到了一个巧妙的技巧。我们可以利用这个重新组织的优化问题最优解表达式，重新参数化上面的 Bradley-Terry 偏好模型，使其以最优策略 $\pi^*$ 的形式表示，而不是以底层奖励函数的形式！更妙的是，一旦我们把所有参数代入，就会发现难以处理的 $Z(x)$ 函数被抵消了！
+
+\begin{equation}
+\begin{aligned}
+p^*(y_1 \succ y_2 | x) &= \sigma(R^*(x,y_1)-R^*(x,y_2)) \\
+&= \sigma\left({\beta\log\frac{\pi^*(y_1|x)}{\pi_\text{ref}(y_1|x)}} + \beta\log Z(x) - \left({{\beta\log\frac{\pi^*(y_2|x)}{\pi_\text{ref}(y_2|x)}} + \beta\log Z(x)}\right)\right) \\
+&= \sigma\left({\beta\log\frac{\pi^*(y_1|x)}{\pi_\text{ref}(y_1|x)}-\beta\log\frac{\pi^*(y_2|x)}{\pi_\text{ref}(y_2|x)}}\right)
+\end{aligned}
+\end{equation}
+
+现在，有了重新参数化的 Bradley-Terry 模型，我们可以使用监督学习直接学习一个模拟最优策略的策略。我们可以最小化偏好数据集 $\mathcal{D}$ 上的负对数似然损失函数，以估计策略 $\pi_\theta$ 的参数：
+
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{DPO}(\pi_\theta;\pi_{ref}) &= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\log{\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}} - \beta\log{\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}}\right)\right)\right] \\
+&= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\left(\log{\frac{\pi_\theta(y_w|x)}{\pi_\theta(y_l|x)}} - \log{\frac{\pi_{ref}(y_w|x)}{\pi_{ref}(y_l|x)}}\right)\right)\right)\right]
+\end{aligned}
+\end{equation}
+
+
+\begin{equation}
+\begin{aligned}
+\log\frac{A}{B}-\log \frac{C}{D} &= (\log A-\log B) - (\log C-\log D) \\
+&= (\log A-\log C) - (\log B-\log D) \\
+&= \log\frac{A}{C} - \log\frac{B}{D}
+\end{aligned}
+\end{equation}
+
+
+回想一下，上面我们优化了一个负对数似然损失来估计奖励模型的参数，然后 RLHF 将其用于估计策略模型的参数。但现在我们直接根据人类偏好来优化 LLM 策略模型的参数！因此，我们称之为直接偏好优化。
+
+DPO 相对于 PPO-RLHF 的优势：
+
+\begin{enumerate}
+\item 避免了训练奖励模型来估计人类偏好
+\item 避免进行任何类型的强化学习，因为众所周知，强化学习非常困难
+\item 我们可以使用监督学习直接根据人类偏好优化我们的LLM，这是一个更加直接和易于理解的过程
+\end{enumerate}
+
+避免强化学习尤为重要。DPO让偏好调整过程对那些缺乏时间、资源或专业知识来应对强化学习复杂性的从业者来说变得更加便捷。
+
+DPO的一个关键特性是，当 Bradley-Terry 模型\textbf{完美}拟合我们的偏好数据，并且 PPO-RLHF学习到最优奖励函数时，PPO-RHLF和DPO的全局优化器是相同的。
+
+这是一个重要的等价结果；然而在实践中：
+
+\begin{enumerate}
+\item Bradley-Terry 模型通常不能完美地拟合偏好数据。
+\item PPO-RLHF学习到的奖励函数不会是最优的奖励函数。
+\item 在高度非凸的损失景观（例如LLM）上进行梯度下降找不到全局优化器。
+\end{enumerate}
+
+\begin{marker}
+例如，偏好循环会导致 Bradley-Terry 模型无法完美拟合数据。Bradley-Terry 模型假设偏好具有传递性。例如，如果$A \succ B$和 $B \succ C$ 成立，则模型预期结果为 $A \succ B \succ C$ 。但如果结果为 $C \succ A$ ，则存在循环，传递性被破坏。
+\end{marker}
+
+DPO的另一个缺点是由于缺乏正则化，容易出现过拟合。Azar等人提供了一个令人信服的例子：
+
+\begin{marker}
+DPO容易过拟合
+
+考虑一个简单的例子，我们有两个动作$y_1$和$y_2$，并且$p^*(y_1\succ y_2)=1$ ，即 $y_1$ 总是优于 $y_2$ 。那么 Bradley-Terry 模型就要求 $(R(y_1)-R(y_2))\rightarrow\infty$ 必须满足。如果我们将其代入最优策略，就会得到 $\frac{\pi^*(y_2)}{\pi^*(y_1)}=0$ ，也就是 $\pi^*(y_2)=0$ 。 因此，偏好越确定，KL正则化的强度就越弱。
+
+DPO的泛化能力不如PPO。
+\end{marker}
+
+他们还指出，实际上，我们拥有的偏好数据量是有限的。因此，我们很可能仅仅因为只看到了$y$和$y'$之间少量的比较就凭经验估计出$p(y_1\succ y_2)=1$ 。因此，无论试图使策略与参考策略保持相似的正则化项如何，经验最优策略都会推动$\pi(y_2)=0$ 。
+
+尽管存在这些缺点，DPO仍然是一种非常有效的工具；许多最成功和性能最好的开源 LLM 都是使用 DPO 进行指令微调的。
+
+\begin{marker}
+DPO后续的工作
+\begin{itemize}
+\item KTO：如果只有正例，则计算正例的损失。如果只有负例，则计算负例的损失。如果同时有正负例子，则蜕变为DPO。
+\item SimPO：去掉参考模型
+\end{itemize}
+\end{marker}
+
+\section{思维链（CoT）}
+
+
+\begin{marker}
+Chain Of Thoughts: CoT，思维链
+\end{marker}
+
+本章介绍了构建推理（reasoning）模型的 4 种主流方法，并探讨了如何提升大语言模型的推理能力。
+
+2024 年，大语言模型领域呈现出日益专业化的趋势。除了预训练（pre-training）和微调（fine-tuning），我们还见证了诸如 RAG（检索增强生成）、代码助手等专业应用程序的兴起。可以看到，2025 年这一趋势正在加速发展，并且更加注重领域和应用场景的特定优化（``专业化''），如下图所示。
+
+
+第一阶段至第三阶段是开发大语言模型的常见流程，第四阶段则专注于将大语言模型应用于特定的场景。
+
+推理模型的开发是这些专业化方向之一。这意味着，我们需要进一步优化大语言模型，使其能够在需要 **多步推理** 的复杂任务（如解谜题、数学推导和解决复杂的编程问题）上表现得更好。然而，这种专业化并不会取代大语言模型的其他应用场景，因为将大语言模型转变为推理模型也会带来一些弊端，后面会详细讨论。
+
+接下来的内容中将包含以下几个方面：
+
+\begin{itemize}
+\item 解释``推理模型''的含义
+\item 分析推理模型的优缺点
+\item 概述 DeepSeek R1 的训练流程
+\item 总结构建和优化推理模型的四大核心方法
+\item 分享 DeepSeek R1 发布后对大语言模型领域发展的看法
+\item 提供在有限预算下开发推理模型的实用建议
+\end{itemize}
+
+
+\subsection{如何定义``推理模型''}
+
+如果你从事的是人工智能（或广义上的机器学习）领域的工作，那么可能对一些模糊且备受争议的术语并不陌生。``推理模型''这一术语也不例外。通常，某篇论文会对这样的术语给出一个定义，但很快它们又会在下一篇论文中被重新定义，如此循环往复。
+
+在本章中，我们将\textbf{``推理''}定义为\textbf{解答那些需要复杂、多步骤生成并包含中间过程的复杂问题的过程}。例如，回答像``法国的首都是哪里？''这种事实性的问题并不涉及推理。但如果回答像``如果一列火车以每小时 60 英里的速度行驶 3 小时，它能行驶多远？''这样的问题，就需要一些简单的推理，因为模型需要先识别``距离=速度 $\times$ 时间''的关系，才能得出正确答案，如下图所示。
+
+当前大多数大语言模型具备基本的推理能力，可以回答诸如``如果一列火车以每小时 60 英里的速度行驶 3 小时，它能行驶多远？''之类的问题。因此，当我们谈论``推理模型''时，通常指的是那些能处理更复杂推理任务（如解谜题、数学推导或证明）的大语言模型。
+
+此外，目前大部分被称为推理模型的大语言模型在回答中会融入``思考''或``思维''过程。至于大语言模型是否真的在``思考''以及如何``思考''，则是另一个值得探讨的问题。
+
+推理模型的\textbf{中间推理步骤}主要以两种方式呈现（参见上图）。
+
+\begin{itemize}
+\item \textbf{直接体现在回答中}，让用户看到完整的推理过程（参见下图）。
+\item \textbf{在内部进行多次迭代}，但不会向用户展示推理过程（例如，OpenAI 的 o1 可能会进行多轮推理，但最终只呈现答案）。
+\end{itemize}
+
+\subsection{何时应该使用推理模型}
+
+既然我们已经定义了推理模型，那么接下来可以进入更有趣的部分：如何为推理任务构建和改进大语言模型。不过，在深入探讨技术细节之前，重要的是要考虑何时真正需要推理模型。
+
+那么，我们何时需要推理模型呢？推理模型适用于需要多步推理的复杂任务，比如解谜题、高级数学推导和解决复杂的编程问题。然而，对于总结、翻译、基于知识的问答等简单任务，推理模型并非必需。事实上，如果无差别地在所有任务中都使用推理模型，则可能导致效率低下，并且会带来不必要的开销。这是因为推理模型通常使用成本更高、输出更冗长，有时可能因``过度思考''而更容易出错。因此，我们可以遵循一个简单的规则：根据任务类型选择合适的工具（或大语言模型类型）。
+
+下图总结了推理模型的核心优势和局限性。
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\rowcolor[HTML]{FFFFC7} 
+擅长                  & 不擅长               \\ \hline
+演绎或者归纳推理（如解谜题、数学证明） & 快速且粗略的回答（更多的推理时间） \\ \hline
+思维链式推理（分解多步骤问题）     & 基于知识的任务（容易产生幻觉）   \\ \hline
+复杂决策任务              & 简单任务（过度思考）        \\ \hline
+对新问题有更好的泛化能力        &                   \\ \hline
+\end{tabular}
+\caption{推理模型的核心优势和局限性}\label{tbl:reasoning-model-good-bad}
+\end{table}
+
+\subsection{简要介绍 DeepSeek R1 的训练流程}
+
+在讨论构建和优化推理模型的四大核心方法之前，我想先简要介绍一下 DeepSeek R1 训练流程，该流程在 DeepSeek R1 技术报告``DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning''中进行了详细描述。这份报告既是一个有趣的案例研究，也可以作为开发推理模型的蓝图。
+
+需要注意的是，DeepSeek 并未发布单一的 R1 推理模型，而是推出了 3 个不同的变体：DeepSeek-R1-Zero、DeepSeek-R1 和 DeepSeek-R1-Distill。
+
+根据技术报告中的描述，我在下图中总结了这些模型的开发流程。
+
+接下来，我们简要回顾一下上图所示的过程。更多的细节后面会讨论，届时我们将探讨构建和优化推理模型的四大核心方法。
+
+\begin{enumerate}
+\item DeepSeek-R1-Zero：该模型基于 2024 年 12 月发布的参数量为 6710 亿的 DeepSeek-V3 预训练基础模型构建。研究团队采用强化学习（RL）进行训练，并使用了两种奖励机制。这种方法被称为``冷启动''训练，因为它没有进行监督微调（SFT），而监督微调通常是基于人类反馈的强化学习（RLHF）的一部分。
+
+\item DeepSeek-R1：这是 DeepSeek 的主力推理模型，基于 DeepSeek-R1-Zero 构建。团队在 DeepSeek-R1-Zero 的基础上增加了额外的监督微调训练阶段，并继续使用强化学习进行训练，进一步提升了 R1-Zero 这一``冷启动''模型的能力。
+
+\item DeepSeek-R1-Distill ：在前面的训练过程中产生了大量监督微调数据，DeepSeek 团队利用这些数据对 Qwen 和 Llama 进行了微调，以增强其推理能力。尽管这不是传统意义上的蒸馏，但该过程涉及使用参数量为 6710 亿的 DeepSeek-R1 生成的输出来训练较小规模的模型（包括参数量为 80 亿或 700 亿的 Llama 以及参数量为 15 亿~300 亿的 Qwen）。
+\end{enumerate}
+
+构建和优化推理模型的四大核心方法
+
+下面我将介绍当前用于提升大语言模型推理能力和构建专门的推理模型（如 DeepSeek-R1、 OpenAI 的 o1 和 o3 等）的关键技术。
+
+\begin{marker}
+o1和o3的具体工作原理目前尚未公开，不过外界普遍猜测它们结合了推理和训练方面的优化策略。
+\end{marker}
+
+\subsubsection{推理时间扩展}
+
+提升大语言模型推理能力的一种方法是推理时间扩展（inference-time scaling）。这个术语在不同背景下可能有不同的含义，但在这里，它指的是 **增加推理时的计算资源来提高模型输出的质量** 。
+
+一个简单的类比是，人类在面对复杂问题时，如果能够多花一些时间去思考，那么通常就会找到更好的解决办法。同样，我们可以应用一些策略，促使大语言模型在生成答案时进行更多的``思考''。（当然，大语言模型是否真正能``思考''是另一个话题。）
+
+一种简单的推理时间扩展方法是提示词工程（prompt engineering），其中最典型的例子是思维链（chain-of-thought，CoT）提示。如下图所示，在思维链提示中，我们会在输入提示词（prompt） 中加入类似``一步步思考''（think step by step）这样的短语，鼓励模型先生成中间推理步骤，而不是直接输出最终答案。这种方法在处理复杂问题时通常（但并非总是）能带来更准确的结果。（需要注意的是，并不是所有问题都适合使用这种策略。例如，对于``法国的首都是哪里？''这种单纯的知识性问题，使用思维链提示是没有意义的。这也是一个实用的判断标准：如果一个问题本身不涉及推理，那么针对它优化推理模型是没有必要的。）
+
+上述思维链方法可以被看作一种推理时间扩展，因为它通过生成更多的输出token来增加推理的计算成本。
+
+另一种推理时间扩展方法是使用投票和搜索算法。一个简单的例子是多数投票法，即让大语言模型生成多个答案，然后我们通过多数投票来选出最有可能的正确答案。同样，我们还可以使用束搜索（beam search）或其他搜索算法来生成更优质的答案。
+
+根据 DeepSeek R1 技术报告，其模型未使用推理时间扩展技术。然而，这种技术通常是在大语言模型的应用层中实现，因此 DeepSeek 有可能在其应用程序中使用了此技术。
+
+我猜测 OpenAI 的 o1 模型和 o3 模型使用了推理时间扩展技术，这也解释了为什么与 GPT-4o 等模型相比，它们的成本更高。除了推理时间扩展，o1 和 o3 很可能还使用了类似于 DeepSeek R1 所采用的强化学习流水线进行训练。关于强化学习的更多内容，接下来我们会详细介绍。
+
+\subsubsection{纯强化学习}
+
+我个人认为 DeepSeek R1 技报告``DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning''中的一大亮点是：DeepSeek 团队发现推理能力作为一种行为可以通过纯强化学习自发涌现。让我们更详细地探讨一下这意味着什么。
+
+正如之前提到的，DeepSeek 开发了 3 种类型的 R1 模型。第一个模型 DeepSeek-R1-Zero 是基于 DeepSeek-V3 基础模型构建的。DeepSeek-V3 是 DeepSeek 在 2024 年 12 月发布的标准预训练大语言模型。与典型的强化学习流程不同（通常在强化学习之前会先进行监督微调）， DeepSeek-R1-Zero \textbf{完全} 通过强化学习进行训练，没有经历初始的监督微调阶段，如下图所示。
+
+然而，这种强化学习流程与通常用于对大语言模型进行偏好微调的基于人类反馈的强化学习方法类似。但是，如上所述，DeepSeek-R1-Zero 的关键区别在于它跳过了监督微调阶段，这也是为什么其被称为``纯''强化学习。（不过需要注意的是，大语言模型中的强化学习与传统意义上的强化学习有很大不同，这是另一个值得单独探讨的话题。）
+
+在奖励机制方面，与通过人类偏好训练的奖励模型不同，DeepSeek 团队采用了两种奖励方式：准确性奖励和格式奖励。
+
+\begin{itemize}
+\item \textbf{准确性奖励}：通过使用 LeetCode 编译器来验证代码答案的正确性，并通过一个确定性的系统来评估数学答案的准确性。
+\item \textbf{格式奖励}：依赖大语言模型来确保回答遵循预期的格式，比如在 `<think>` 标签内放置推理步骤。
+\end{itemize}
+
+令人惊讶的是，仅凭这种方法，大语言模型就已经具备了基本的推理能力。研究人员在模型开始生成推理过程的回答时，发现了一个``Aha''时刻，尽管模型没有明确接受此类训练，如下图所示。
+
+虽然 R1-Zero 并不是表现最优秀的推理模型，但它通过生成中间的``思考''步骤展示了推理能力，如上图所示。这证实了使用纯强化学习开发推理模型是可行的，而 DeepSeek 团队是首个展示（或至少是公开发表）这一方法的团队。
+
+\subsubsection{监督微调+强化学习（SFT+RL）}
+
+接下来，我们来看 DeepSeek 的主力推理模型——DeepSeek-R1的开发过程。DeepSeek-R1为构建推理模型提供了蓝图，相较于DeepSeek-R1-Zero，它通过额外的监督微调和强化学习进一步提升了推理性能，如下图所示。
+
+值得注意的是，在强化学习之前加入监督微调阶段实际上是很常见的做法，比如标准的基于人类反馈的强化学习（强化学习+人类反馈）流程中就包含这一阶段。OpenAI 的 o1 模型很可能采用了类似的开发方法。
+
+如上图所示，DeepSeek 团队使用 DeepSeek-R1-Zero 生成了他们所称的``冷启动''监督微调数据。``冷启动''是指这些数据是由 DeepSeek-R1-Zero 模型生成的，而该模型本身并未接受任何监督微调数据的训练。
+
+在获得这些``冷启动''监督微调数据（需要经过人类肉眼润色）后，DeepSeek团队对模型进行了指令微调（instruction fine-tuning），随后又进行了一个强化学习阶段。这个强化学习阶段沿用了 DeepSeek-R1-Zero 中的奖励机制，包括准确性奖励（验证数学和代码问题的正确性）和格式奖励（确保输出符合预期格式）。除此之外，他们还新增了一个一致性奖励，以避免模型在回答中混用多种语言的问题。
+
+在强化学习阶段之后，他们进行了新一轮的监督微调数据收集。在这一阶段中，他们使用最新的模型检查点（checkpoint）生成了 60 万条思维链监督微调样本，同时还基于 DeepSeek-V3 基础模型生成了 20 万条基于知识的监督微调样本。
+
+随后，这 80（20+60）万条监督微调数据被用于指令微调 DeepSeek-V3 基础模型，然后又进行最后一轮的强化学习训练。在这一阶段，他们继续使用基于规则的方法对数学和编程问题的答案给予准确性奖励，而对其他类型的问题引入了基于人类偏好标签的奖励机制。总体而言，这一过程与常规的基于人类反馈的强化学习非常相似，不同之处在于监督微调数据中包含了更多的思维链示例。此外，除了基于人类偏好的奖励，强化学习还引入了可验证的奖励机制。
+
+得益于额外的监督微调和强化学习阶段，最终生成的模型——DeepSeek-R1，在性能上相较于 DeepSeek-R1-Zero 有了显著提升，具体表现可以参考下图中的数据对比。
+
+值得注意的是，在强化学习之前加入监督微调阶段实际上是很常见的做法，比如标准的基于人类反馈的强化学习（强化学习+人类反馈）流程中就包含这一阶段。OpenAI 的 o1 模型很可能采用了类似的开发方法。
+
+如上图所示，DeepSeek 团队使用 DeepSeek-R1-Zero 生成了他们所称的``冷启动''监督微调数据。``冷启动''是指这些数据是由 DeepSeek-R1-Zero 模型生成的，而该模型本身并未接受任何监督微调数据的训练。
+
+在获得这些``冷启动''监督微调数据后，DeepSeek 团队对模型进行了指令微调（instruction fine-tuning），随后又进行了一个强化学习阶段。这个强化学习阶段沿用了 DeepSeek-R1-Zero 中的奖励机制，包括准确性奖励（验证数学和代码问题的正确性）和格式奖励（确保输出符合预期格式）。除此之外，他们还新增了一个一致性奖励，以避免模型在回答中混用多种语言的问题。
+
+在强化学习阶段之后，他们进行了新一轮的监督微调数据收集。在这一阶段中，他们使用最新的模型检查点（checkpoint）生成了 60 万条思维链监督微调样本，同时还基于 DeepSeek-V3 基础模型生成了 20 万条基于知识的监督微调样本。
+
+随后，这 80（20+60）万条监督微调数据被用于指令微调 DeepSeek-V3 基础模型，然后又进行最后一轮的强化学习训练。在这一阶段，他们继续使用基于规则的方法对数学和编程问题的答案给予准确性奖励，而对其他类型的问题引入了基于人类偏好标签的奖励机制。总体而言，这一过程与常规的基于人类反馈的强化学习非常相似，不同之处在于监督微调数据中包含了更多的思维链示例。此外，除了基于人类偏好的奖励，强化学习还引入了可验证的奖励机制。
+
+得益于额外的监督微调和强化学习阶段，最终生成的模型——DeepSeek-R1，在性能上相较于 DeepSeek-R1-Zero 有了显著提升，具体表现可以参考下图中的数据对比。
+
+\subsubsection{纯监督微调和蒸馏}
+
+到目前为止，我们已经讨论了构建和改进推理模型的 3 种关键方法。
+
+\begin{itemize}
+\item \textbf{推理时间扩展}：一种在不修改或重新训练基础模型的情况下提升推理能力的技术。
+\item \textbf{纯强化学习}：DeepSeek-R1-Zero 展示了推理可以作为学习行为从无监督微调中涌现。
+\item \textbf{监督微调+强化学习}：这是 DeepSeek-R1 推理模型的开发方法。
+\end{itemize}
+
+那么，接下来是什么呢？答案``蒸馏''。
+
+令人惊讶的是，DeepSeek 还发布了通过蒸馏过程训练的小型模型。然而，在大语言模型的背景下，蒸馏并不一定遵循深度学习中的传统知识蒸馏方法。在传统的知识蒸馏中，较小的``学生模型''会在较大的``教师模型''的 logits 和目标数据集上进行训练。
+
+然而，DeepSeek 的蒸馏方法是通过使用 DeepSeek-V3 和 DeepSeek-R1 的中间检查点生成的监督微调数据集，来对较小的大语言模型（如参数量为 80 亿或 700 亿的 Llama 模型以及参数量为 5 亿~320 亿的 Qwen 2.5 模型）进行指令微调。值得注意的是，这个蒸馏过程中使用的监督微调数据集与训练 DeepSeek-R1 时使用的数据集完全相同。
+
+为了更清楚地说明这个过程，我在下图中突出了蒸馏的部分。
+
+为什么 DeepSeek 团队要开发这些蒸馏模型？我认为有两个主要原因。
+
+\begin{itemize}
+\item \textbf{小型模型具有更高的效率}。这意味着它们运行成本更低，同时还可以在低端硬件上运行，这对许多研究人员和像我这样的技术爱好者来说特别具有吸引力。
+\item \textbf{纯监督微调的案例研究}。这些蒸馏模型作为一个有趣的基准，展示了在没有强化学习的情况下，纯监督微调能将模型提升到什么程度。
+\end{itemize}
+
+下图将这些蒸馏模型的性能与其他流行模型、DeepSeek-R1-Zero 和 DeepSeek-R1 进行了比较。
+
+从上图可以看出，蒸馏模型的表现明显不如 DeepSeek-R1，但与DeepSeek-R1-Zero 相比，尽管它们的规模小得多，表现却相当强劲。此外，值得注意的是，这些模型与 o1 mini 相比表现得相当不错（我怀疑 o1-mini 本身可能是 o1 的蒸馏版本）。
+
+在总结这一部分之前，还有一个有趣的比较值得一提。DeepSeek团队测试了 DeepSeek-R1-Zero 中出现的推理行为是否也能在较小的模型中出现。为了验证这一点，他们将 DeepSeek-R1-Zero 中使用的纯强化学习方法直接应用于Qwen-32B。
+
+实验结果如下图所示，其中 QwQ-32B-Preview 是基于 Qwen 2.5-32B 开发的推理模型（我认为其训练细节并未公开）。这个比较为我们进一步探讨纯强化学习方法是否能在远小于 DeepSeek-R1-Zero 的模型中激发推理能力提供了一些额外的见解。
+
+有趣的是，结果表明，对于较小的模型，蒸馏远比纯强化学习有效。这与以下观点一致：仅靠纯强化学习可能不足以在这种规模的模型中引发强大的推理能力，而在处理小模型时，使用高质量推理数据进行监督微调可能是一种更有效的策略。
+
+为了使上图更加完整，增加以下对比数据将会更有帮助。
+
+\begin{itemize}
+\item Qwen-32B 使用监督微调+强化学习进行训练，类似于 DeepSeek-R1 的开发方式。这样可以帮助我们了解，当强化学习与监督微调结合时，与纯强化学习和纯监督微调相比，能带来多大的改进。
+\item DeepSeek-V3 使用纯监督微调进行训练，类似于蒸馏模型的创建方式。这样能让我们直接比较强化学习+监督微调与纯监督微调二者的效果。
+\end{itemize}
+
+\subsubsection{结论}
+
+在这一部分中，我们探讨了构建和优化推理模型的 4 种策略。
+
+\begin{itemize}
+\item \textbf{推理时间扩展}。无须额外训练，但会增加推理成本，随着用户数量或查询量的增加，大规模部署成本会变得更加昂贵。尽管如此，对提升已经很强大的模型的性能来说，它仍然是一种非常直观的方法。我强烈怀疑 o1 采用了推理时间扩展方法，这也能解释为什么它在每个token的计算成本上比 DeepSeek-R1 更高。
+\item \textbf{纯强化学习}。从研究的角度来看，纯强化学习非常有趣，因为它提供了将推理视为一种涌现行为的深刻见解。然而，在实际的模型开发中，强化学习+监督微调是首选方法，因为它能构建更强大的推理模型。我强烈怀疑 o1 也采用了强化学习+监督微调的方法。更确切地说，我认为 o1 是从比 DeepSeek-R1 更弱、更小的基础模型开始的，但通过强化学习+监督微调以及推理时间扩展弥补了这一不足。
+\item \textbf{强化学习+监督微调}。正如前文所述，强化学习+监督微调是构建高性能推理模型的关键方法。DeepSeek-R1 是一个很好的蓝图，展示了如何实现这一方法。
+\item \textbf{蒸馏}。蒸馏是一种非常棒的方法，特别适用于创建更小、更高效的模型。然而，蒸馏的局限性在于，它并不能推动创新或生产下一代推理模型。例如，蒸馏总是依赖现有的、 更强大的模型来生成监督微调数据。
+\end{itemize}
+
+我期待接下来能看到一个有趣的结合——将强化学习+监督微调（方法三）与推理时间扩展 （方法二）结合起来。这很可能就是 OpenAI o1 正在做的，只不过它可能是基于一个比 DeepSeek-R1 更弱的基础模型。这就解释了为什么 DeepSeek-R1 在推理成本较低的情况下仍能表现如此出色。
+
+\subsection{关于 DeepSeek R1 的思考}
+
+简而言之，我认为这是一次了不起的成就。作为一名研究工程师，我特别欣赏他们发布的详细技术报告，这份报告中提供的研究方法和思路让我受益匪浅。
+
+最令人着迷的一点是，推理行为是如何从纯强化学习中涌现出来的。而且，DeepSeek 已将其模型开源，并采用了 MIT 开源许可协议，这甚至比 Meta 的 Llama 模型的限制还要少。
+
+\subsubsection{它与 o1 相比如何}
+
+那么，DeepSeek-R1 比 o1 更强吗？我认为它们大致处于同一水平。不过，DeepSeek-R1 在推理时效率更高，这表明 DeepSeek 可能在训练过程中投入了更多的精力，OpenAI 则更多依赖推理时间扩展技术来优化 o1。
+
+话虽如此，但直接对比这两个模型是很困难的，因为 OpenAI 并未公开过多关于 o1 的信息。例如，我们并不清楚：
+
+\begin{itemize}
+\item o1 是否采用了混合专家模型（MoE）
+\item o1 的规模有多大
+\item o1 是否只是一个稍微改进的 GPT-4o 版本，仅经过了最小程度的强化学习+监督微调，而主要依赖于大规模的推理时间扩展
+\end{itemize}
+
+在不了解这些细节的情况下就直接进行比较，就像拿苹果与橙子做对比一样——根本没有可 比性。
+
+\subsubsection{DeepSeek-R1 的训练成本}
+
+大家讨论的另一个焦点是DeepSeek-R1的开发成本。有些人提到训练成本大约为600万美元， 但这可能是将 DeepSeek-V3（2024 年 12 月发布的基础模型）与 DeepSeek-R1 混淆了。
+
+600 万美元的估算是基于每 GPU 小时 2 美元，并计算了 DeepSeek-V3 最后一次训练所需的 GPU 小时数，该数据最早在 2024 年 12 月讨论过。
+
+然而，DeepSeek 团队从未公开过 R1 的具体 GPU 小时数或开发成本，所以任何成本估算都只能是纯粹的猜测。
+
+无论如何，DeepSeek-R1 毫无疑问是开放权重推理模型的一个重要里程碑，而且它在推理时的高效性使其成为 OpenAI o1 的一个有趣的替代方案。
+
+
 
 \chapter{预训练的大语言模型}
 
@@ -6008,9 +6619,9 @@ confusion_matrix(all_labels, all_predictions)
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,8) rectangle  node {\LARGE .} (38.25,6);
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,8) rectangle  node {\LARGE .} (39.75,6);
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,8) rectangle  node {\LARGE .} (41.25,6);
-\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,8) rectangle  node {\LARGE $P_{y_1}$} (42.75,6);
-\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,8) rectangle  node {\LARGE $P_{y_2}$} (44.25,6);
-\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,8) rectangle  node {\LARGE $.$} (45.75,6);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,8) rectangle  node {\LARGE $.$} (42.75,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,8) rectangle  node {\LARGE $P_{y_1}$} (44.25,6);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,8) rectangle  node {\LARGE $P_{y_2}$} (45.75,6);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46,8) rectangle  node {\LARGE .} (47.25,6);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47.5,8) rectangle  node {\LARGE .} (48.75,6);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49,8) rectangle  node {\LARGE .} (50.25,6);
@@ -6039,7 +6650,7 @@ confusion_matrix(all_labels, all_predictions)
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,3.75) rectangle  node {\LARGE 0} (38.25,1.75);
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (38.5,3.75) rectangle  node {\LARGE 0} (39.75,1.75);
 \draw [ fill={rgb,255:red,233; green,236; blue,239} ] (40,3.75) rectangle  node {\LARGE 0} (41.25,1.75);
-\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,3.75) rectangle  node {\LARGE 1} (42.75,1.75);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (41.5,3.75) rectangle  node {\LARGE 0} (42.75,1.75);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (43,3.75) rectangle  node {\LARGE $1$} (44.25,1.75);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,3.75) rectangle  node {\LARGE $1$} (45.75,1.75);
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46,3.75) rectangle  node {\LARGE 1} (47.25,1.75);
@@ -6059,7 +6670,7 @@ confusion_matrix(all_labels, all_predictions)
 \node [font=\LARGE] at (19,7) {$-\log$};
 \node [font=\LARGE] at (18.75,2.75) {答案掩码};
 \draw [line width=2pt, ->, >=Stealth] (16.25,1) -- (16.25,-2.75);
-\node [font=\LARGE] at (21.25,-0.75) {$sum()/answer_mask.sum()$也就是};
+\node [font=\LARGE] at (21.25,-0.75) {sum()/answer\_mask.sum()也就是};
 \draw [ fill={rgb,255:red,165; green,216; blue,255} ] (14.25,-3.5) rectangle  node {\LARGE $Loss$} (18.75,-5.25);
 \draw [line width=2pt, ->, >=Stealth] (19,-4.25) -- (25.75,-4.25);
 \node [font=\LARGE] at (33.75,-4.25) {后面的交给梯度下降算法（AdamW）进行参数优化};
@@ -6069,7 +6680,224 @@ confusion_matrix(all_labels, all_predictions)
 \end{circuitikz}
 }%
 \caption{只对答案计算损失}
-\label{fig:my_label}
+\label{fig:sft-answer-loss}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-8,30.75) rectangle (-6,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-5.5,30.75) rectangle (-3.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-3,30.75) rectangle (-1,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-0.5,30.75) rectangle (1.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (2,30.75) rectangle (4,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (4.5,30.75) rectangle (6.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (7,30.75) rectangle (9,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (9.5,30.75) rectangle (11.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (12,30.75) rectangle (14,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.5,30.75) rectangle (16.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (17,30.75) rectangle (19,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19.5,30.75) rectangle (21.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (22,30.75) rectangle (24,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (24.5,30.75) rectangle (26.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (27,30.75) rectangle (29,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.5,30.75) rectangle (31.5,28);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (32,30.75) rectangle (34,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (34.5,30.75) rectangle  node {\LARGE $y_1$} (36.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (37,30.75) rectangle  node {\LARGE $y_2$} (39,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (39.5,30.75) rectangle  node {\LARGE .} (41.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (42,30.75) rectangle  node {\LARGE .} (44,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.5,30.75) rectangle  node {\LARGE .} (46.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (47,30.75) rectangle  node {\LARGE .} (49,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.5,30.75) rectangle  node {\LARGE $y_k$} (51.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (52,30.75) rectangle  node {\LARGE .} (54,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (54.5,30.75) rectangle  node {\LARGE .} (56.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (57,30.75) rectangle  node {\LARGE .} (59,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.5,30.75) rectangle  node {\LARGE .} (61.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (62,30.75) rectangle  node {\LARGE .} (64,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.5,30.75) rectangle  node {\LARGE .} (66.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (67,30.75) rectangle  node {\LARGE .} (69,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (69.5,30.75) rectangle  node {\LARGE .} (71.5,28);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (71.75,30.75) rectangle  node {\LARGE .} (73.75,28);
+\node [font=\LARGE] at (33.25,40.5) {推广到Batch\_Size>1};
+\node [font=\LARGE] at (-12.25,29.5) {一条数据};
+\draw [short] (-8,31) -- (-7,32.25);
+\draw [short] (-7,32.25) -- (14.5,32.25);
+\draw [short] (14.5,32.25) -- (15,33.5);
+\draw [short] (15,33.5) -- (15.5,32.25);
+\draw [short] (15.5,32.25) -- (33.25,32);
+\draw [short] (33.25,32) -- (33.75,31.25);
+\draw [short] (34.5,31) -- (35.5,32.25);
+\draw [short] (35.5,32.25) -- (57,32.25);
+\draw [short] (57,32.25) -- (57.5,33.5);
+\draw [short] (57.5,33.5) -- (58,32.25);
+\draw [short] (58,32.25) -- (75.75,32);
+\draw [short] (75.75,32) -- (76.25,31.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (74.25,30.75) rectangle  node {\LARGE $y_m$} (76.25,28);
+\draw [line width=2pt, ->, >=Stealth] (34.25,27.25) -- (34.25,23.75);
+\node [font=\LARGE] at (36,25.5) {一个批次};
+\draw [->, >=Stealth] (77.25,29.5) -- (81.75,29.5);
+\node [font=\LARGE] at (82.5,29.5) {loss};
+\node [font=\LARGE] at (15,34.75) {问题$x$};
+\node [font=\LARGE] at (56.75,34.25) {回答$y_{1\sim m}$};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-8.25,13) rectangle (-6.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-5.75,13) rectangle (-3.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-3.25,13) rectangle (-1.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-0.75,13) rectangle (1.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (1.75,13) rectangle (3.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (4.25,13) rectangle (6.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (6.75,13) rectangle (8.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (9.25,13) rectangle (11.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.75,13) rectangle (13.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.25,13) rectangle (16.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16.75,13) rectangle (18.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19.25,13) rectangle (21.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (21.75,13) rectangle (23.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (24.25,13) rectangle (26.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.75,13) rectangle (28.75,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.25,13) rectangle (31.25,10.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31.75,13) rectangle (33.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (34.25,13) rectangle  node {\LARGE $y_1$} (36.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (36.75,13) rectangle  node {\LARGE $y_2$} (38.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (39.25,13) rectangle  node {\LARGE .} (41.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (41.75,13) rectangle  node {\LARGE .} (43.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.25,13) rectangle  node {\LARGE .} (46.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.75,13) rectangle  node {\LARGE .} (48.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,13) rectangle  node {\LARGE $y_k$} (51.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (51.75,13) rectangle  node {\LARGE .} (53.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (54.25,13) rectangle  node {\LARGE .} (56.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.75,13) rectangle  node {\LARGE .} (58.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.25,13) rectangle  node {\LARGE .} (61.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61.75,13) rectangle  node {\LARGE .} (63.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.25,13) rectangle  node {\LARGE .} (66.25,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (66.75,13) rectangle  node {\LARGE .} (68.75,10.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (69.25,13) rectangle  node {\LARGE $y_m$} (71.25,10.25);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (71.5,13) rectangle (73.5,10.25);
+\draw [short] (-8.25,13.25) -- (-7.25,14.5);
+\draw [short] (-7.25,14.5) -- (14.25,14.5);
+\draw [short] (14.25,14.5) -- (14.75,15.75);
+\draw [short] (14.75,15.75) -- (15.25,14.5);
+\draw [short] (15.25,14.5) -- (33,14.25);
+\draw [short] (33,14.25) -- (33.5,13.5);
+\draw [short] (34.25,13.25) -- (35.25,14.5);
+\draw [short] (35.25,14.5) -- (56.75,14.5);
+\draw [short] (56.75,14.5) -- (57.25,15.75);
+\draw [short] (57.25,15.75) -- (57.75,14.5);
+\draw [short] (57.75,14.5) -- (70,14.25);
+\draw [short] (70,14.25) -- (70.5,13.5);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (74,13) rectangle (76,10.25);
+\node [font=\LARGE] at (14.75,17) {问题$x$};
+\node [font=\LARGE] at (56.5,16.5) {回答$y_{1\sim m}$};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-8.25,2.5) rectangle (-6.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-5.75,2.5) rectangle (-3.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-3.25,2.5) rectangle (-1.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-0.75,2.5) rectangle (1.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (1.75,2.5) rectangle (3.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (4.25,2.5) rectangle (6.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (6.75,2.5) rectangle (8.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (9.25,2.5) rectangle (11.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.75,2.5) rectangle (13.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.25,2.5) rectangle (16.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16.75,2.5) rectangle (18.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19.25,2.5) rectangle (21.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (21.75,2.5) rectangle (23.75,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (24.25,2.5) rectangle (26.25,-0.25);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.75,2.5) rectangle (28.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (34.25,2.5) rectangle  node {\LARGE $.$} (36.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (36.75,2.5) rectangle  node {\LARGE $.$} (38.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (39.25,2.5) rectangle  node {\LARGE .} (41.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (41.75,2.5) rectangle  node {\LARGE .} (43.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.25,2.5) rectangle  node {\LARGE .} (46.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.75,2.5) rectangle  node {\LARGE .} (48.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,2.5) rectangle  node {\LARGE $y_k$} (51.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (51.75,2.5) rectangle  node {\LARGE .} (53.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (54.25,2.5) rectangle  node {\LARGE .} (56.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.75,2.5) rectangle  node {\LARGE .} (58.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.25,2.5) rectangle  node {\LARGE .} (61.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61.75,2.5) rectangle  node {\LARGE .} (63.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.25,2.5) rectangle  node {\LARGE .} (66.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (66.75,2.5) rectangle  node {\LARGE .} (68.75,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (69.25,2.5) rectangle  node {\LARGE .} (71.25,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (71.5,2.5) rectangle  node {\LARGE .} (73.5,-0.25);
+\draw [short] (-8.25,2.75) -- (-7.25,4);
+\draw [short] (-7.25,4) -- (14.25,4);
+\draw [short] (14.25,4) -- (14.75,5.25);
+\draw [short] (14.75,5.25) -- (15.25,4);
+\draw [short] (15.25,4) -- (27.25,4);
+\draw [short] (27.25,4) -- (27.75,3.25);
+\draw [short] (29.5,2.75) -- (30.5,4);
+\draw [short] (30.5,4) -- (56.75,4);
+\draw [short] (56.75,4) -- (57.25,5.25);
+\draw [short] (57.25,5.25) -- (57.75,4);
+\draw [short] (57.75,4) -- (75.5,3.75);
+\draw [short] (75.5,3.75) -- (76,3);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (74,2.5) rectangle  node {\LARGE $y_m$} (76,-0.25);
+\node [font=\LARGE] at (14.75,6.5) {问题$x$};
+\node [font=\LARGE] at (56.5,6) {回答$y_{1\sim m}$};
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-8.25,-6.25) rectangle (-6.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-5.75,-6.25) rectangle (-3.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-3.25,-6.25) rectangle (-1.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (-0.75,-6.25) rectangle (1.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (1.75,-6.25) rectangle (3.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (4.25,-6.25) rectangle (6.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (6.75,-6.25) rectangle (8.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (9.25,-6.25) rectangle (11.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (11.75,-6.25) rectangle (13.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (14.25,-6.25) rectangle (16.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (16.75,-6.25) rectangle (18.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (19.25,-6.25) rectangle (21.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (21.75,-6.25) rectangle (23.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (24.25,-6.25) rectangle (26.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (26.75,-6.25) rectangle (28.75,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (29.25,-6.25) rectangle (31.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (31.75,-6.25) rectangle (33.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (41.75,-6.25) rectangle  node {\LARGE $y_1$} (43.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (44.25,-6.25) rectangle  node {\LARGE $y_2$} (46.25,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (46.75,-6.25) rectangle  node {\LARGE .} (48.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (49.25,-6.25) rectangle  node {\LARGE $y_k$} (51.25,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (51.75,-6.25) rectangle  node {\LARGE .} (53.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (54.25,-6.25) rectangle  node {\LARGE .} (56.25,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (56.75,-6.25) rectangle  node {\LARGE .} (58.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (59.25,-6.25) rectangle  node {\LARGE .} (61.25,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (61.75,-6.25) rectangle  node {\LARGE .} (63.75,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (64.25,-6.25) rectangle  node {\LARGE .} (66.25,-9);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (66.75,-6.25) rectangle  node {\LARGE $y_m$} (68.75,-9);
+\draw [short] (-8.25,-6) -- (-7.25,-4.75);
+\draw [short] (-7.25,-4.75) -- (14.25,-4.75);
+\draw [short] (14.25,-4.75) -- (14.75,-3.5);
+\draw [short] (14.75,-3.5) -- (15.25,-4.75);
+\draw [short] (15.25,-4.75) -- (40.25,-4.75);
+\draw [short] (40.25,-4.75) -- (40.75,-5.5);
+\draw [short] (41.75,-6) -- (42.75,-4.75);
+\draw [short] (42.75,-4.75) -- (56.75,-4.75);
+\draw [short] (56.75,-4.75) -- (57.25,-3.5);
+\draw [short] (57.25,-3.5) -- (57.75,-4.75);
+\draw [short] (57.75,-4.75) -- (75.5,-5);
+\draw [short] (75.5,-5) -- (76,-5.75);
+\node [font=\LARGE] at (14.75,-2.25) {问题$x$};
+\node [font=\LARGE] at (56.5,-2.75) {回答$y_{1\sim m}$};
+\draw [ color={rgb,255:red,176; green,69; blue,69} , line width=2pt , rounded corners = 69.6] (-10.75,19.5) rectangle (78.25,-12.75);
+\draw [short] (78.5,12) -- (79.75,11.5);
+\draw [short] (79.75,11.5) -- (79.75,2.75);
+\draw [short] (79.75,2.75) -- (81,2.25);
+\draw [short] (81,2.25) -- (79.75,1.75);
+\draw [short] (79.75,1.75) -- (79.75,-7.25);
+\draw [short] (79.75,-7.25) -- (78.5,-7.75);
+\node [font=\LARGE] at (83,2.25) {loss};
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (29.5,2.5) rectangle  node {\LARGE $y_1$} (31.5,-0.25);
+\draw [ fill={rgb,255:red,165; green,216; blue,255} ] (31.75,2.5) rectangle  node {\LARGE $y_2$} (33.75,-0.25);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (69.25,-6.25) rectangle (71.25,-9);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (71.75,-6.25) rectangle (73.75,-9);
+\draw [ fill={rgb,255:red,255; green,0; blue,0} ] (74,-6.25) rectangle (76,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (39.25,-6.25) rectangle (41.25,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (37,-6.25) rectangle (39,-9);
+\draw [ fill={rgb,255:red,233; green,236; blue,239} ] (34.75,-6.25) rectangle (36.75,-9);
+\end{circuitikz}
+}%
+\caption{推广到批次（红色方块为填充符）}
+\label{fig:batch-size-loss}
 \end{figure}
 
 \section{基于指令的监督微调代码实践}
@@ -6641,6 +7469,48 @@ with torch.no_grad():
     b -= lr * b.grad
     w.grad.zero_()
     b.grad.zero_()
+\end{codebox}
+
+\chapter{数据集下载以及uv的使用}
+
+\section{uv简单使用}
+
+\begin{codebox}{bash}{uv常用命令}{bashcode:uv-tutorial}
+pip install uv
+uv venv rlhf-env # 创建虚拟环境
+source rlhf-env/bin/activate # 进入虚拟环境
+uv pip install jinja2
+uv pip install pandas
+uv pip install pyarrow
+uv pip install pyyaml
+uv pip install safetensors
+uv pip install tensorboard
+uv pip install tokenizers
+uv pip install torch
+uv pip install transformers
+\end{codebox}
+
+\begin{codebox}{bash}{配置uv国内源}{bashcode:uv-local-sources}
+# 推荐使用清华源
+echo 'export UV_DEFAULT_INDEX="https://pypi.tuna.tsinghua.edu.cn/simple"'>> ~/.bashrc
+
+# 让配置立即生效
+source ~/.bashrc
+
+# 检查环境变量
+echo $UV_DEFAULT_INDEX
+\end{codebox}
+
+\section{数据集下载}
+
+\begin{codebox}{bash}{git lfs的安装以及数据集的下载}{bashcode:download-dataset}
+apt update
+apt install git-lfs
+git lfs install
+git clone https://hf-mirror.com/datasets/HuggingFaceH4/ultrafeedback_binarized
+git clone https://hf-mirror.com/datasets/HuggingFaceH4/ultrachat_200k
+git clone https://hf-mirror.com/Qwen/Qwen2.5-0.5B
+git clone https://hf-mirror.com/Qwen/Qwen2.5-3B-Instruct
 \end{codebox}
 
 \end{document}
