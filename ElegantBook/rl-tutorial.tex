@@ -2371,7 +2371,7 @@ $b(S_t)$ 是以 $S_t$ 为参数的函数，即使 $A_t$ 发生变化，它的值
 
 \section{总结}
 
-在本章中，我们学习了基于策略的方法——策略梯度法。具体来说，我们学习了 4 种策略梯度法的算法。它们的统一的数学式如下所示。
+在本章中，我们学习了基于策略的方法——策略梯度法。具体来说，我们学习了几种策略梯度法的算法。它们的统一的数学式如下所示。
 
 \begin{equation}
 \nabla_\theta J(\theta)=\mathbb{E}_{\tau\sim\pi_\theta}\left\lbrack{\sum_{t=0}^T\Phi_t\nabla_\theta\log\pi_\theta(A_t|S_t)}\right\rbrack
@@ -4343,7 +4343,7 @@ GRPO 建立在 PPO 的基础上，但引入了几项巧妙的修改：
 
 \begin{figure}[!ht]
 \centering
-\resizebox{1\textwidth}{!}{%
+\resizebox{0.3\textwidth}{!}{%
 \begin{circuitikz}
 \tikzstyle{every node}=[font=\LARGE]
 \node [font=\LARGE] at (-103.5,54.75) {第一代};
@@ -4490,7 +4490,7 @@ p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1)-R^*(x,y_2))
 因此，我们按顺序逐个处理回答$y$中的每个 token，并计算出给定所有前面 token 的情况下，回答中下一个 token 的概率。现在，我们得到了回答中每个 token 的概率值！因此，我们可以计算生成 token 序列的联合概率，该概率是沿途观察到每个 token 的各个概率的乘积。
 
 \begin{equation}
-\pi_\theta(y|x) = \prod_{t=0}^{|y|}p_{_{LLM_{\theta}}}(y_t|x,y_{0:t})
+\pi_\theta(y|x) = \prod_{t=0}^{|y|}p_{_{\text{LLM}_{\theta}}}(y_t|x,y_{0:t})
 \end{equation}
 
 另一种思考方式是，存在一棵可能的补全树，我们正在计算从根（提示词的末尾）到叶子（停止 token ）追踪一条特定路径的概率。
@@ -4544,7 +4544,7 @@ KL散度是众多用于正则化强化学习智能体策略的传统方法之一
 \end{aligned}
 \end{equation}
 
-我们快要成功了！由于$Z(x)$不依赖于$π_θ$，因此在推导最优解时我们可以忽略它。现在我们可以使用上面提到的吉布斯不等式：当且仅当 $\Vert$ 两边的两个分布相同时，$\mathbb{D}_\text{KL}\left(\pi_\theta(y|x)\ \Vert\ \frac{1}{Z(x)}\pi_{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}\right)$ 最小为零。因此，对于所有$x\in \mathcal{D}$，我们的优化问题的最优解（记为 $\pi^*$ ）是：
+我们快要成功了！由于$Z(x)$不依赖于$\pi_\theta$，因此在推导最优解时我们可以忽略它。现在我们可以使用上面提到的吉布斯不等式：当且仅当 $\Vert$ 两边的两个分布相同时，$\mathbb{D}_\text{KL}\left(\pi_\theta(y|x)\ \Vert\ \frac{1}{Z(x)}\pi_{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}\right)$ 最小为零。因此，对于所有$x\in \mathcal{D}$，我们的优化问题的最优解（记为 $\pi^*$ ）是：
 
 \begin{equation}
 \pi^*(y|x)=\pi_\theta(y|x)=\frac{1}{Z(x)}\pi_\text{ref}(y|x)e^{\frac{1}{\beta}R(x,y)}
@@ -4578,8 +4578,8 @@ p^*(y_1 \succ y_2 | x) &= \sigma(R^*(x,y_1)-R^*(x,y_2)) \\
 
 \begin{equation}
 \begin{aligned}
-\mathcal{L}_{DPO}(\pi_\theta;\pi_{ref}) &= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\log{\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}} - \beta\log{\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}}\right)\right)\right] \\
-&= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\left(\log{\frac{\pi_\theta(y_w|x)}{\pi_\theta(y_l|x)}} - \log{\frac{\pi_{ref}(y_w|x)}{\pi_{ref}(y_l|x)}}\right)\right)\right)\right]
+\mathcal{L}_{DPO}(\pi_\theta;\pi_{\text{ref}}) &= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\log{\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)}} - \beta\log{\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}}\right)\right)\right] \\
+&= -\mathbb{E}_{(y_w,y_l,x)\sim \mathcal{D}}\left[\log\left(\sigma\left(\beta\left(\log{\frac{\pi_\theta(y_w|x)}{\pi_\theta(y_l|x)}} - \log{\frac{\pi_{\text{ref}}(y_w|x)}{\pi_{\text{ref}}(y_l|x)}}\right)\right)\right)\right]
 \end{aligned}
 \end{equation}
 
@@ -6161,7 +6161,7 @@ async def main(message: chainlit.Message):
 
 \chapter{监督微调（SFT）}
 
-\section{gpt2的监督微调}
+\section{gpt2的监督微调}\label{section:gpt2-sft}
 
 我们的目标是训练一个可以写电商评论的大语言模型。所以我们对gpt2进行微调，让它可以写电商评论。
 
@@ -6247,7 +6247,7 @@ pprint(g("这本书真是", max_length=30, num_return_sequences=10))
 
 \chapter{基于分类的微调}
 
-\section{将gpt2预训练模型微调成一个分类模型（奖励模型）}
+\section{将gpt2预训练模型微调成一个分类模型（奖励模型）}\label{section:gpt2-reward-model}
 
 \begin{marker}
 我们要训练一个模型作为奖励模型，也就是给模型输入文本，模型可以给一个评分出来。
@@ -6344,34 +6344,11 @@ tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
 
 tokenized_dataset_train.set_format(type="torch")
 
-class RewardHead(nn.Module):
-    """奖励头，是一个线性层"""
-    def __init__(self, config):
-        super().__init__()
-        # gpt2最后输出的隐藏层的维度
-        self.hidden_size = config.hidden_size
-        # 线性层用来对gpt2最后输出的隐藏层给奖励
-        self.reward = nn.Linear(self.hidden_size, 1)
-        self._post_init()
-
-    def _post_init(self):
-        # 使用正态分布初始化权重
-        nn.init.normal_(
-            self.reward.weight,
-            std=(1.0 / np.sqrt(self.hidden_size + 1))
-        )
-        # 将偏置初始化为0
-        nn.init.zeros_(self.reward.bias)
-
-    def forward(self, hidden_states):
-        # 给出奖励
-        return self.reward(hidden_states)
-
 class RewardModel(nn.Module):
     def __init__(self, model_name):
         super().__init__()
         self.llm = AutoModelForCausalLM.from_pretrained(model_name)
-        self.reward_head = RewardHead(self.llm.config)
+        self.reward_head = nn.Linear(self.llm.config.hidden_size, 1)
 
     def forward(self, input_ids, attention_mask):
         # gpt2的前向传播，但是还要输出隐藏层
@@ -7217,7 +7194,7 @@ def _set_answer_masks(mask, user_ends, assistant_ends, seq_len):
     if num_user_turns == num_assistant_turns:
         # 完整对话：每轮都有用户问题和助手回答
         for user_end, assistant_end in zip(user_ends, assistant_ends):
-            answer_start = user_end + 3  # 跳过 <|im_start|>assistant\n
+            answer_start = user_end + 3  # 跳过 \n<|im_start|>assistant 这3个token
             answer_end = assistant_end - 1  # 不包含 <|im_end|>
             mask[answer_start:answer_end] = 1
             
@@ -7917,6 +7894,392 @@ if skipped_batches_count > 0:
         print("建议: 跳过批次过多，考虑增加最大序列长度或优化数据预处理")
 \end{codebox}
 
+\chapter{使用PPO进行RLHF之InstructGPT全流程}
+
+\begin{enumerate}
+\item Step-1：SFT，Supervised Fine-Tuning，有监督微调。顾名思义，它是在有监督（有标注）数据上微调训练得到的。这里的监督数据其实就是输入Prompt，输出相应的回复，只不过这里的回复是人工编写的。这个工作要求比一般标注要高，其实算是一种创作了。例如可以使用我们在第\ref{section:gpt2-sft}节训练的gpt2-sft模型。
+\item Step-2：RM，Reward Model，奖励模型。具体来说，一个Prompt丢给前一步的SFT，输出若干个（4-9个）回复，由标注人员对这些回复进行排序。然后从4-9个中每次取2个，因为是有序的，就可以用来训练这个奖励模型，让模型学习到这个好坏评价。这一步非常关键，它就是所谓的Human Feedback，引导下一步模型的进化方向。例如可以使用我们在第\ref{section:gpt2-reward-model}节中训练的奖励模型。
+\item Step-3：RL，Reinforcement Learning，强化学习，使用PPO策略进行训练。PPO，Proximal Policy Optimization，近端策略优化，是一种强化学习优化方法，它背后的主要思想是避免每次太大的更新，提高训练的稳定性。具体过程如下：首先需要初始化一个语言模型，然后丢给它一个Prompt，它生成一个回复，上一步的RM给这个回复一个打分，这个打分回传给模型更新参数。这里的这个模型在强化学习视角下就是一个策略。这一步有个很重要的动作，就是更新模型时会考虑模型每一个Token的输出和第一步SFT输出之间的差异性，要让它俩尽量相似。这是为了缓解强化学习可能的过度优化。
+\end{enumerate}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{InstructGPT_Diagram3.1.pdf}
+\caption{InstructGPT训练流程}
+\end{figure}
+
+\section{准备提示词}
+
+\begin{codebox}{python}{为PPO训练准备提示词}{prepare-prompts-for-ppo}
+import torch
+from torch.utils.data import DataLoader
+from transformers import AutoTokenizer
+from datasets import Dataset
+import torch.nn.functional as F
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2-chinese-cluecorpussmall/")
+
+prompts = [
+    "口感还是相当",
+    "包装特别",
+    "作者有一种",
+    "作者被认为是",
+    "昨天到货",
+    "蒙牛核桃牛奶",
+]
+
+tokenizer.eos_token = tokenizer.pad_token
+REWARD_TOKEN_ID = tokenizer.eos_token_id
+# 创建数据集
+ds = Dataset.from_dict({"text": prompts})
+
+def tokenize(examples):
+    # tokenizer 可以直接处理列表
+    tokenized = tokenizer(
+        examples["text"],
+        truncation=True,
+        padding=False,  # 或 True，根据需要
+    )
+    # 添加 query 字段
+    tokenized["query"] = [
+        tokenizer.decode(ids) for ids in tokenized["input_ids"]
+    ]
+    return tokenized
+
+# 批量处理，batched=True 更高效
+ds = ds.map(tokenize, batched=True)
+
+ds.set_format(type='torch')
+
+def collator(batch):
+    return dict((key, [d[key] for d in batch]) for key in batch[0])
+
+train_dataloader = DataLoader(
+    ds,
+    batch_size=8,
+    collate_fn=collator,
+    shuffle=True
+)
+\end{codebox}
+
+设置模型的输出配置
+
+\begin{codebox}{python}{模型的输出配置}{ppo-model-out-cfg}
+# https://huggingface.co/docs/trl/how_to_train#how-to-generate-text-for-training
+# gpt2-sft输出的配置
+# - 模型会从整个词汇表中按照原始概率分布进行采样
+# - 每个词被选中的概率完全由模型的原始输出决定
+generation_kwargs = {
+    "min_length": -1,
+    "top_k": 0.0,  # 所有词汇表中的词都可能被选中
+    "top_p": 1.0,  # 包含整个概率分布
+    "do_sample": True,
+    "pad_token_id": tokenizer.pad_token_id,
+    "max_new_tokens": 50, # 最多输出50个token
+}
+\end{codebox}
+
+\section{模型结构}
+
+\begin{codebox}{python}{模型结构}{ppo-model-actor-critic}
+class ActorCriticModel(nn.Module):
+    """
+    GPT2模型+一个价值头
+    """
+    def __init__(self, model_path):
+        super().__init__()
+        # 这个要初始化为我们微调出来的gpt2-sft模型
+        # actor演员模型：策略模型
+        self.llm = AutoModelForCausalLM.from_pretrained(model_path)
+        # 添加价值头
+        # critic评论家模型：价值函数模型，价值头，线性层
+        self.v_head = nn.Linear(self.llm.config.hidden_size, 1)
+
+    def forward(self, input_ids, attention_mask):
+        # gpt2-sft模型的输出
+        transformer_outputs = self.llm.forward(
+            input_ids,
+            attention_mask=attention_mask,
+            output_hidden_states = True,
+        )
+        # 输出的token的logits，维度为 `vocab_size`
+        logits = transformer_outputs.logits
+        # 获取最后一层隐藏层
+        last_hidden_state = transformer_outputs.hidden_states[-1]
+
+        # 评估token的价值，评估的是最后一个隐藏层的价值
+        value = self.v_head(last_hidden_state).squeeze(-1)
+        # 返回输出的token的logits和token的价值
+        return logits, value
+
+    def generate(self, *args, **kwargs):
+        """生成文本"""
+        return self.llm.generate(*args, **kwargs)
+\end{codebox}
+
+\section{奖励的计算}
+
+\begin{equation}
+\begin{aligned}
+\text{reward}&=\text{score}-\beta\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)} \\
+&=\text{score}-\beta\left( \log\pi_\theta(y|x)-\log\pi_\text{ref}(y|x) \right)
+\end{aligned}
+\end{equation}
+
+其中，
+
+\begin{itemize}
+    \item reward为模型的补全y得到的最终奖励
+    \item score为奖励模型对补全y给出的评分
+    \item $\beta$为超参数
+    \item $\pi_\theta(y|x)$为正在微调的模型给出补全y的概率
+    \item $\pi_\text{ref}(y|x)$为\textbf{冻结的参考模型}给出补全y的概率
+\end{itemize}
+
+计算奖励的代码如下：
+
+\begin{codebox}{python}{计算奖励}{ppo-cal-rewards}
+def compute_rewards(
+    input_data, # 输入数据
+    query_tensors, # 提示词张量
+    response_tensors, # 补全的张量
+    score_tensors # 奖励模型给出的分数的张量
+):
+    with torch.no_grad():
+        # 正在微调的模型所输出的token的logits和token的价值
+        logits, values = model(**input_data) # (B, T, vocab_size)
+        # 冻结的参考模型的输出
+        ref_logits, _ = ref_model(**input_data)
+        # 正在微调的模型的输出的对数概率 `log_softmax`
+        # 去掉最后一个token，因为是预测下一个token的任务
+        logp = F.log_softmax(logits[:, :-1, :], dim=-1)
+        # 冻结的模型的输出的对数概率
+        ref_logp = F.log_softmax(ref_logits[:, :-1, :], dim=-1)
+        # 实际生成的token序列
+        # 自回归模型是预测下一个token，所以去掉第一个token
+        labels = input_data["input_ids"][:, 1:] # (B, T-1)
+        # 使用gather提取实际token的概率
+        # logp 是 vocab_size 大小的张量
+        logp = torch.gather(logp, 2, labels.unsqueeze(-1)).squeeze(-1) # (B, T-1)
+        ref_logp = torch.gather(ref_logp, 2, labels.unsqueeze(-1)).squeeze(-1) # (B, T-1)
+        # kl散度 β$\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}$β
+        kl = logp - ref_logp
+        # kl散度的权重β$\beta$β
+        beta = 0.2
+        # 最终奖励的计算的右边式子 β$-\beta\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}$β
+        rewards = - beta * kl
+        attention_mask = input_data["attention_mask"]
+        # 预测下一个token，所以去掉第一个mask
+        masks = torch.zeros_like(attention_mask[:, 1:])
+        masks[:,:] = attention_mask[:, 1:]
+        # 遍历批次中的每一个提示词张量
+        for j in range(len(query_tensors)):
+            # 补全开始的索引
+            start = len(query_tensors[j]) - 1
+            # 补全结束的索引
+            end = start + len(response_tensors[j])
+            # 提示词部分掩码为0
+            masks[j, :start] = 0
+            # 补全后面的填充token掩码为0
+            masks[j, end:] = 0
+            # 将奖励模型给出的分数加到补全的最后一个token的奖励上面
+            rewards[j, end - 1] += score_tensors[j]
+            # 只留下掩码为1的部分的奖励
+            rewards[j, :] *= masks[j, :]
+            # 只留下掩码为1的部分的价值
+            values[j, :-1] *= masks[j, :]
+
+    return logp, rewards, values[:, :-1], masks
+\end{codebox}
+
+\section{计算广义优势估计（GAE）}
+
+\begin{codebox}{python}{广义优势估计的计算}{ppo-cal-gae-rlhf}
+def masked_mean(values, mask):
+    # 计算带掩码的平均值
+    return (values * mask).sum() / mask.sum()
+
+def masked_var(values, mask):
+    # 计算带掩码的方差
+    mean = masked_mean(values, mask)
+    centred_values = values - mean
+    return masked_mean(centred_values ** 2, mask)
+
+def masked_whiten(values, mask):
+    '''
+    对数据进行带掩码的白化处理，
+    让有效数据的方差变为1，但均值保持不变
+    '''
+    mean, var = masked_mean(values, mask), masked_var(values, mask)
+    whitened = (values - mean) * torch.rsqrt(var + 1e-8)
+    whitened += mean
+    return whitened
+
+def compute_advantage(rewards, values, masks):
+    """广义优势估计（GAE）"""
+    lastgae = 0.0
+    advantage_reversed = []
+    # 补全的token数量
+    seq_length = rewards.shape[-1]
+    # 折扣因子 β$\gamma=1$β ，指数加权超参数 β$\lambda=0.95$β
+    gamma, lam = 1.0, 0.95
+
+    for t in reversed(range(seq_length)): # 逆序计算
+        # β$V(S_{t+1})$β
+        nextvalues = values[:, t + 1] if t < seq_length - 1 else 0.0
+        # β$\delta_t = R_t + \gamma V(S_{t+1}) - V(S_t)$β
+        delta = rewards[:, t] + gamma * nextvalues - values[:, t]
+        # β$A_t^{\text{GAE}} = \delta_t +\gamma\lambda A_{t+1}^{\text{GAE}}$β
+        lastgae = delta + gamma * lam * lastgae
+        advantage_reversed.append(lastgae)
+    # β$[A_0^{\text{GAE}},A_1^{\text{GAE}},A_2^{\text{GAE}},\dots]$β
+    advantages = torch.stack(advantage_reversed[::-1], dim=1)
+    # 对广义优势估计进行了白化处理
+    advantages = masked_whiten(advantages, masks)
+    # β$\text{GAETarget}_t=A_t^{\text{GAE}}+V(S_t)$β
+    returns = advantages + values
+    return advantages, returns
+\end{codebox}
+
+\section{计算损失}
+
+\begin{codebox}{python}{计算损失}{calppolossrlhf}
+v_loss_coeff = 0.1
+# 比例的阈值
+ratio_threshold = 10
+
+def compute_loss(
+    old_logprobs, # 旧策略输出的概率
+    logprobs, # 正在微调的模型输出的对数概率
+    vpreds, # 价值
+    masks, # 掩码
+    advantages, # 广义优势估计
+    returns # 回报
+):
+    ratio = torch.exp(logprobs - old_logprobs) # β$\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$β
+    pg_loss1 = - ratio * advantages # β$-\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{GAE}$β
+    # β$-\text{clip}\left( \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)},1-\epsilon,1+\epsilon \right)A_t^{GAE}$β
+    pg_loss2 = - torch.clamp(ratio, 1 - 0.2, 1 + 0.2) * advantages
+    # 求掩码部分的平均值
+    pg_loss = masked_mean(torch.max(pg_loss1, pg_loss2), masks)
+    # β$\text{MSELoss}(V(S_t), \text{GAETarget})\Rightarrow 0$β
+    v_loss = masked_mean((vpreds - returns) ** 2, masks)
+    # β$total\_loss=loss_{\pi_\theta}+0.1\times loss_{V_\omega}$β
+    loss = pg_loss + v_loss_coeff * v_loss
+    # 计算平均比率
+    avg_ratio = masked_mean(ratio, masks)
+    # 这一步不在ppo公式中
+    # 如果平均比率 > 10，不进行反向传播
+    if avg_ratio > ratio_threshold:
+        pg_loss = pg_loss * 0.0
+        v_loss = v_loss * 0.0
+        loss = loss * 0.0
+
+    return loss, v_loss
+\end{codebox}
+
+\section{训练循环}
+
+\begin{codebox}{python}{训练循环}{instructgpttrainloop}
+num_epochs = 1
+
+for epoch in range(num_epochs):
+    for batch in train_dataloader:
+        # 生成补全内容（回复）
+        query_tensors = batch["input_ids"] # 提示词的张量
+        query_attention_masks = batch["attention_mask"]
+
+        response_tensors = [] # 补全的张量
+        query_response_tensors = [] # 提示词+补全的张量
+        score_tensors = [] # 分数的张量
+
+        for i, query in enumerate(query_tensors):
+            query = query.to(device)
+            query_attention_mask = query_attention_masks[i].to(device)
+            # 提示词 + 补全
+            query_response = model.generate(
+                input_ids=query.unsqueeze(0),
+                attention_mask=query_attention_mask.unsqueeze(0),
+                **generation_kwargs
+            ).squeeze(0)
+            # 补全的长度
+            response_len = len(query_response) - len(query)
+            # 补全的张量
+            response_tensors.append(query_response[-response_len:])
+            query_response_tensors.append(query_response)
+
+            with torch.no_grad():
+                # 提示词 + 补全 + reward_token
+                query_response_score = torch.cat([
+                    query_response,
+                    torch.tensor([REWARD_TOKEN_ID]).to(device)])
+                attention_mask = torch.ones_like(
+                    query_response_score,
+                    dtype=torch.long)
+                # 奖励模型的评分
+                score = reward_model(
+                    query_response_score.unsqueeze(0),
+                    attention_mask.unsqueeze(0)
+                ).squeeze(0)[-1]
+                # 将奖励模型的评分从(0,1)缩放到(-1,1)
+                score = 2 * (score - 0.5)
+            score_tensors.append(score)
+
+        input_data = data_collator([
+            {
+                "input_ids": ids,
+                "attention_mask": torch.ones_like(ids)
+            }
+            for ids in query_response_tensors
+        ]).to(device)
+
+        # 奖励和优势
+        logprobs, rewards, values, masks = compute_rewards(
+            input_data,
+            query_tensors,
+            response_tensors,
+            score_tensors
+        )
+        advantages, returns = compute_advantage(rewards, values, masks)
+
+        # 小批次训练
+        ppo_update()
+    print(f"epoch {epoch + 1} finished")
+\end{codebox}
+
+ppo算法更新策略的代码
+
+\begin{codebox}{python}{ppo更新算法}{ppoupdateinstructgpt}
+def ppo_update():
+    for ep in range(ppo_epochs):
+        mb_model_inputs = {
+            "input_ids": input_data["input_ids"],
+            "attention_mask": input_data["attention_mask"],
+        }
+        mb_logits, mb_vpreds = model(**mb_model_inputs)
+        mb_logits = F.log_softmax(mb_logits[:, :-1, :], dim=-1)
+        mb_logprobs = torch.gather(
+            mb_logits,
+            2,
+            mb_model_inputs["input_ids"][:, 1:].unsqueeze(-1)
+        ).squeeze(-1)
+
+
+        loss, loss_v = compute_loss(
+            logprobs,
+            mb_logprobs,
+            mb_vpreds,
+            masks,
+            advantages,
+            returns
+        )
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        print("loss/total", loss.item())
+    print("ppo update finished")
+\end{codebox}
 
 \part{附录}
 \appendix
