@@ -7983,9 +7983,7 @@ generation_kwargs = {
 
 \begin{codebox}{python}{模型结构}{ppo-model-actor-critic}
 class ActorCriticModel(nn.Module):
-    """
-    GPT2模型+一个价值头
-    """
+    """GPT2模型+一个价值头"""
     def __init__(self, model_path):
         super().__init__()
         # 这个要初始化为我们微调出来的gpt2-sft模型
