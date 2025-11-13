@@ -323,12 +323,82 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "8. 使用DPO微调LLM.md",
+                "file": "未命名.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "8. 使用DPO微调LLM"
+              "title": "未命名"
+            }
+          },
+          {
+            "id": "939e17d1ad2d48ed",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 1"
+            }
+          },
+          {
+            "id": "426269faedf88a2f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 1"
+            }
+          },
+          {
+            "id": "b8425b44846c2be5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 1"
+            }
+          },
+          {
+            "id": "761a552322bf5d64",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 1"
+            }
+          },
+          {
+            "id": "63eaf1fb04d9c269",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "未命名 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "未命名 1"
             }
           },
           {
@@ -396,7 +466,7 @@
             }
           }
         ],
-        "currentTab": 24
+        "currentTab": 29
       }
     ],
     "direction": "vertical"
@@ -558,10 +628,21 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "52128bfc9f51989d",
+  "active": "63eaf1fb04d9c269",
   "lastOpenFiles": [
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
+    "dpo-4.png",
+    "ElegantBook/image/dpo-4.png",
+    "未命名 1.md",
+    "dpo-3.png",
+    "ElegantBook/image/dpo-3.png",
+    "dpo-2.png",
+    "ElegantBook/image/dpo-2.png",
+    "dpo-1.png",
+    "ElegantBook/image/dpo-1.png",
+    "未命名.md",
+    "8. 使用DPO微调LLM.md",
     "ElegantBook/_minted/D6F6C29B41E71EDB114364FB9BD472CB.highlight.minted",
     "ElegantBook/_minted/E39B14676E5E65C6557F868849FB7691.highlight.minted",
     "ElegantBook/_minted/42C95062C933527BEFCF00D75FFF0492.highlight.minted",
@@ -570,14 +651,11 @@
     "ElegantBook/_minted/1D7BD46A248ACC7431D385B4EE426507.highlight.minted",
     "ElegantBook/_minted/84663F59DA4E2BE055D946201323999E.highlight.minted",
     "ElegantBook/_minted/59161BAB1A601CF658A7686E051E78D7.highlight.minted",
-    "ElegantBook/_minted/610CD8A3B87242FBC8DBF50CCA788B19.highlight.minted",
     "7. DPO：直接偏好优化.md",
     "6. 使用PPO微调LLM.md",
     "4. 使用 PPO 玩倒立摆游戏.md",
-    "8. 使用DPO微调LLM.md",
     "10. GRPO：组相对策略优化.md",
     "9. 思维链（Chain of Thoughts）.md",
-    "未命名.md",
     "Excalidraw/ppo-batch-loss.excalidraw.md",
     "5. 基于人类反馈的强化学习（RLHF）.md",
     "Drawing 2025-11-05 09.35.38.excalidraw.md",
@@ -596,16 +674,7 @@
     "2. 策略梯度法.md",
     "Drawing 2025-09-20 11.07.16.excalidraw.md",
     "Drawing 2025-09-19 10.02.51.excalidraw.md",
-    "ppo项目架构图.excalidraw.md",
     "img/置信域.png",
-    "ElegantBook/image/置信域.png",
-    "img/线搜索和置信域比较.png",
-    "ElegantBook/image/线搜索和置信域比较.png",
-    "ElegantBook/image/策略梯度法问题-1.png",
-    "img/策略梯度法问题-1.png",
-    "img/策略梯度法的问题.png",
-    "ElegantBook/image/策略梯度法的问题.png",
-    "img/策略梯度法步子太大.png",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]

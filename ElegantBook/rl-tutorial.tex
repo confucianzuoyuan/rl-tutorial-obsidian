@@ -4406,6 +4406,12 @@ DPO，是基于人类反馈的强化学习（RLHF）的一种方法，它避免�
 
 在使用 ChatGPT 或 Gemini 时，你可能注意到，偶尔会被要求在两个相似的答案中选择一个来继续对话。这个偏好会被记录下来，并用于在未来的偏好调整中改进模型。同样，Chatbot Arena 也会收集偏好数据，以便根据人工评估对 LLM 进行评级：
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{dpo-1.png}
+\caption{收集人类偏好数据}
+\end{figure}
+
 有许多公开可用的偏好数据集，例如 LMSys 的 Chatbot Arena Conversations 数据集、OpenAI 的 WebGPT Compares 数据集和 Anthropic 的 Helpfulness-Harmlessness RLHF 数据集（露骨/冒犯性内容警告）。
 
 如果使用数学符号，那么这些数据集可以表示成
@@ -4458,13 +4464,13 @@ p^*(i\succ j)=\frac{s_i}{s_i+s_j}=\frac{e^{R_i^*}}{e^{R_i^*}+e^{R_j^*}} = \frac{
 因此，在调整我们的偏好模型以使用我们的参数化奖励函数之后，我们得到：
 
 \begin{equation}
-p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1),R^*(x,y_2))
+p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1)-R^*(x,y_2))
 \end{equation}
 
 但是，仅仅谈论最优解和奖励对我们毫无意义，因为我们无法获得最优奖励函数。实践中，我们通常会学习一个模拟最优奖励函数的奖励模型 $R_\phi(x,y)$ 。我们可以将该奖励模型的参数 $\phi$ 定义为一个二分类问题，其目标是最小化偏好数据集 $\mathcal{D}$ 上的以下负对数似然损失函数：
 
 \begin{equation}
-\mathcal{L}_R(R_\phi,\mathcal{D})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}[\log(\sigma(R_\phi(x,y_w),R_\phi(x,y_l)))]
+\mathcal{L}_R(R_\phi,\mathcal{D})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}[\log(\sigma(R_\phi(x,y_w)-R_\phi(x,y_l)))]
 \end{equation}
 
 在 RLHF 框架下，我们可以在强化学习环境中利用这个学习到的奖励模型来优化 LLM，使其输出获得高奖励的完成。然而，DPO 采取了不同的策略——与两阶段 RLHF 流程不同，DPO 重新参数化了 Bradley-Terry 模型，以便我们可以使用类似的损失函数直接优化 LLM 的参数，使其产生人类观察者偏好的输出。
@@ -4475,6 +4481,12 @@ p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1),R^*(x,y_2))
 
 ``生成回答$y$的概率''是什么意思？我们的 LLM 是一个自回归文本生成器，在每一步中，它都会为每个 token 计算一个概率值。
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{dpo-2.png}
+\caption{预测下一个token的概率}
+\end{figure}
+
 因此，我们按顺序逐个处理回答$y$中的每个 token，并计算出给定所有前面 token 的情况下，回答中下一个 token 的概率。现在，我们得到了回答中每个 token 的概率值！因此，我们可以计算生成 token 序列的联合概率，该概率是沿途观察到每个 token 的各个概率的乘积。
 
 \begin{equation}
@@ -4482,6 +4494,12 @@ p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1),R^*(x,y_2))
 \end{equation}
 
 另一种思考方式是，存在一棵可能的补全树，我们正在计算从根（提示词的末尾）到叶子（停止 token ）追踪一条特定路径的概率。
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{dpo-3.png}
+\caption{补全的路径}
+\end{figure}
 
 在训练时，我们提前知道整个文本的补全情况，因此，通过应用因果注意力掩码，我们可以通过 LLM 的单次前向传播来计算所有单独的下一个 token 的概率（以及 $\pi_\theta(y|x)$ ）。
 
@@ -4576,6 +4594,12 @@ p^*(y_1 \succ y_2 | x) &= \sigma(R^*(x,y_1)-R^*(x,y_2)) \\
 
 
 回想一下，上面我们优化了一个负对数似然损失来估计奖励模型的参数，然后 RLHF 将其用于估计策略模型的参数。但现在我们直接根据人类偏好来优化 LLM 策略模型的参数！因此，我们称之为直接偏好优化。
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{dpo-4.png}
+\caption{PPO和DPO的训练流程对比}
+\end{figure}
 
 DPO 相对于 PPO-RLHF 的优势：
 
@@ -7892,6 +7916,7 @@ if skipped_batches_count > 0:
     if skip_ratio > 10:
         print("建议: 跳过批次过多，考虑增加最大序列长度或优化数据预处理")
 \end{codebox}
+
 
 \part{附录}
 \appendix
