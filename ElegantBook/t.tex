@@ -1,103 +1,25 @@
 \documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
-\usepackage[dvipsnames]{xcolor}
-\usepackage{circuitikz}
-\usepackage{annotate-equations}
-\usepackage{minted}
-\usepackage{algorithm,algpseudocode}
-\usetikzlibrary{tikzmark}
-\usetikzlibrary{arrows.meta,
-                bending,
-                intersections,
-                quotes,
-                shapes.geometric}
-\usepackage[demo]{tikzpeople}
-\tcbuselibrary{minted,skins,breakable}
-% 灵活版本（可选颜色）
-\NewDocumentCommand{\mybox}{O{red} m m}{%
-  \begin{tcolorbox}[colback=#1!5!white,colframe=#1!75!black,title=#2]
-    #3
-  \end{tcolorbox}%
-}
-
-% 使用 tcolorbox 内置计数器
-\newtcblisting[auto counter, number within=section]{mintedbox}[3][]{
-    listing engine=minted,
-    minted language=#2,
-    minted options={
-        linenos,
-        numbersep=3mm,
-        fontsize=\small,
-        breaklines,
-        autogobble,
-    },
-    listing only,
-    colback=gray!5,
-    colframe=blue!75!black,
-    title={代码清单 \thetcbcounter: #3},
-    label={#1},
-    fonttitle=\bfseries,
-    top=2mm,
-    bottom=2mm,
-    left=5mm,
-    enhanced,
-    overlay={
-        \begin{tcbclipinterior}
-        \fill[gray!25] (frame.south west) rectangle ([xshift=4mm]frame.north west);
-        \end{tcbclipinterior}
-    }
-}
+\usepackage{tikz}
 
 \begin{document}
+\tikzstyle{block} = [draw,text centered, minimum height=2.8em,minimum width=12em]
+\tikzstyle{textblock} = [text centered, minimum height=2.8em,minimum width=12em]
 
-\section{第一部分}
+\resizebox{0.6\textwidth}{!}{%
+\begin{tikzpicture}
+\node [textblock] at (0, 1) (5) {\textbf{第一阶段：构建}};
+\node [block] at (0, 0) (1) {构建一个大语言模型};
+\node [textblock] at (7, 1) (6) {\textbf{第二阶段：预训练}};
+\node [block] at (7, 0) (2) {预训练模型};
+\node [block] at (16, 3) (3) {文本分类器};
+\node [block] at (16, -3) (4) {个人助手};
+\draw [-latex,thick] (1) -- (2);
+\draw [-latex,thick] (2) -- (3);
+\draw [-latex,thick] (2) -- (4);
 
-代码清单~\ref{code:python1} 展示了 Python 示例。
+\node [block] at (-1, -5) (7) {网络搜索大语言模型};
+\node [block] at (-1, -7) (8) {代码助手};
+\node [block] at (1, -5) (9) {检索增强生成（RAG）};
 
-\begin{mintedbox}[code:python1]{python}{快速排序}
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)
-\end{mintedbox}
-
-\begin{mintedbox}[code:cpp1]{cpp}{二分查找}
-int binarySearch(int arr[], int n, int target) {
-    int left = 0, right = n - 1;
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        if (arr[mid] == target) return mid;
-        else if (arr[mid] < target) left = mid + 1;
-        else right = mid - 1;
-    }
-    return -1;
-}
-\end{mintedbox}
-
-\section{第二部分}
-
-代码清单~\ref{code:java2} 展示了 Java 示例。
-
-\begin{mintedbox}[code:java2]{java}{单例模式}
-public class Singleton {
-    private static volatile Singleton instance;
-    
-    private Singleton() {}
-    
-    public static Singleton getInstance() {
-        if (instance == null) {
-            synchronized (Singleton.class) {
-                if (instance == null) {
-                    instance = new Singleton();
-                }
-            }
-        }
-        return instance;
-    }
-}
-\end{mintedbox}
-
+\end{tikzpicture}}
 \end{document}

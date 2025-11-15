@@ -4,260 +4,25 @@
     "type": "split",
     "children": [
       {
-        "id": "693b0bf6f8f240e5",
+        "id": "090416af02c33679",
         "type": "tabs",
-        "dimension": 83.11258278145695,
         "children": [
           {
-            "id": "24ddd8ee2a7ff3cd",
+            "id": "2a21e0ea6a5be7ab",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "7. DPO：直接偏好优化.md",
+                "file": "9. 思维链（Chain of Thoughts）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7. DPO：直接偏好优化"
+              "title": "9. 思维链（Chain of Thoughts）"
             }
           },
           {
-            "id": "aea53bbbe3695618",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "1. 强化学习基础.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "1. 强化学习基础"
-            }
-          },
-          {
-            "id": "ff8921e9052cfc67",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "附录E：策略梯度法的证明.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "附录E：策略梯度法的证明"
-            }
-          },
-          {
-            "id": "f698fbefc80caa1c",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.15.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.15.excalidraw"
-            }
-          },
-          {
-            "id": "ad107bf31a323bb5",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.15.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.15.excalidraw"
-            }
-          },
-          {
-            "id": "b73dfc0206c373e5",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.2.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.2.excalidraw"
-            }
-          },
-          {
-            "id": "fb8453b562428a76",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.2.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.2.excalidraw"
-            }
-          },
-          {
-            "id": "11cac35e7e60c304",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.14.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.14.excalidraw"
-            }
-          },
-          {
-            "id": "f5624056d2aa7db0",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "img/mnist_nn.png"
-              },
-              "icon": "lucide-image",
-              "title": "mnist_nn"
-            }
-          },
-          {
-            "id": "0fd8868e2c01d49f",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.1.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.1.excalidraw"
-            }
-          },
-          {
-            "id": "a564d6c3d2252639",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/2.10.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "2.10.excalidraw"
-            }
-          },
-          {
-            "id": "b73b16ff93d2a1e1",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "Excalidraw/1.2.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "1.2.excalidraw"
-            }
-          },
-          {
-            "id": "bfcae642aa252b67",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "10. GRPO：组相对策略优化.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "10. GRPO：组相对策略优化"
-            }
-          },
-          {
-            "id": "9c72662ac456e97b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "3. 策略梯度法的问题以及解决方案：PPO.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "3. 策略梯度法的问题以及解决方案：PPO"
-            }
-          },
-          {
-            "id": "52128bfc9f51989d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名"
-            }
-          },
-          {
-            "id": "939e17d1ad2d48ed",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名 1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名 1"
-            }
-          },
-          {
-            "id": "426269faedf88a2f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名 1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名 1"
-            }
-          },
-          {
-            "id": "b8425b44846c2be5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名 1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名 1"
-            }
-          },
-          {
-            "id": "761a552322bf5d64",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "未命名 1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "未命名 1"
-            }
-          },
-          {
-            "id": "63eaf1fb04d9c269",
+            "id": "2980fabfb0e62832",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
@@ -269,67 +34,33 @@
             }
           },
           {
-            "id": "9f4747e894b1380e",
+            "id": "fc80012fc5106bd4",
             "type": "leaf",
             "state": {
-              "type": "excalidraw",
+              "type": "markdown",
               "state": {
-                "file": "Excalidraw/gae.excalidraw.md"
+                "file": "11. 使用GRPO微调LLM.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "excalidraw-icon",
-              "title": "gae.excalidraw"
-            },
-            "group": "01e1579ea3c8ad6b"
-          },
-          {
-            "id": "5502ffcf32c10ece",
-            "type": "leaf",
-            "state": {
-              "type": "excalidraw",
-              "state": {
-                "file": "ppo项目架构图.excalidraw.md"
-              },
-              "icon": "excalidraw-icon",
-              "title": "ppo项目架构图.excalidraw"
+              "icon": "lucide-file",
+              "title": "11. 使用GRPO微调LLM"
             }
           },
           {
-            "id": "dc441f6fe0692f65",
+            "id": "1bc9aa2e951839e4",
             "type": "leaf",
             "state": {
               "type": "excalidraw",
               "state": {
-                "file": "dpo项目架构图.excalidraw.md"
+                "file": "Excalidraw/ppovsgrpo.excalidraw.md"
               },
               "icon": "excalidraw-icon",
-              "title": "dpo项目架构图.excalidraw"
+              "title": "ppovsgrpo.excalidraw"
             }
           }
         ],
-        "currentTab": 19
-      },
-      {
-        "id": "fc4acd9c46ef1fa5",
-        "type": "tabs",
-        "dimension": 16.887417218543046,
-        "children": [
-          {
-            "id": "32db1f5b2bea51b3",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "Excalidraw/gae.excalidraw.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "gae.excalidraw 的大纲"
-            },
-            "group": "01e1579ea3c8ad6b"
-          }
-        ]
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -491,53 +222,53 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "63eaf1fb04d9c269",
+  "active": "2980fabfb0e62832",
   "lastOpenFiles": [
-    "Drawing 2025-11-05 09.35.38.excalidraw.md",
-    "6. 使用PPO微调LLM.md",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.config.minted",
     "ElegantBook/_D5C7389FFB1101B4445894F493B08A58.data.minted",
-    "ElegantBook/_minted/6C5CB3A2960D8B991CC6A34339FBF0B9.highlight.minted",
-    "ElegantBook/_minted/C7B0865B343D6813D3EAA0CF28CBE43C.highlight.minted",
-    "ElegantBook/_minted/7D8447BA89CF2857D1892F250C286098.highlight.minted",
-    "ElegantBook/_minted/513B3D40AEFCD9C6895627610891E494.highlight.minted",
-    "ElegantBook/_minted/D9C1F42099372E7531F38BBD2A73727B.highlight.minted",
-    "ElegantBook/_minted/1B7AB40301031E3EC4B5FCB1A11298A2.highlight.minted",
-    "Excalidraw/gae.excalidraw.md",
-    "ppo项目架构图.excalidraw.md",
     "dpo项目架构图.excalidraw.md",
-    "附录J：GRPO模型相关测试代码.md",
     "grpo项目架构图.excalidraw.md",
+    "ElegantBook/rl-tutorial.run.xml",
+    "ElegantBook/_minted/_D5C7389FFB1101B4445894F493B08A58.index.minted",
+    "ElegantBook/_minted/F295478353482D10DC767632254D267E.highlight.minted",
+    "ElegantBook/_minted/61F52F82781D6721F6C28F1E911B3D2F.highlight.minted",
+    "ElegantBook/_minted/29312393F9AA66D3FFD2B0818815E8DC.highlight.minted",
+    "ElegantBook/_minted/1766DF293DDB1E2D8F59083134BED8A0.highlight.minted",
+    "ElegantBook/_minted/8D0FD52E1F2CDBE777E09947A33AA548.highlight.minted",
+    "ElegantBook/_minted/0104A57CACE28E0FAA685F8A5393A41D.highlight.minted",
+    "附录L：GRPO-Fine-tuning-Pipeline.md",
     "附录K：GRPO微调医疗问答思维链.md",
-    "未命名.md",
-    "3. 策略梯度法的问题以及解决方案：PPO.md",
-    "5. 基于人类反馈的强化学习（RLHF）.md",
-    "8. 使用DPO微调LLM.md",
-    "2. 策略梯度法.md",
-    "Excalidraw/3.9.excalidraw.md",
-    "Excalidraw/3.8.excalidraw.md",
-    "Excalidraw/3.2.excalidraw.md",
-    "Excalidraw/2.13.excalidraw.md",
-    "10. GRPO：组相对策略优化.md",
-    "ElegantBook/_minted/DB62ECA172CAB4B8FABC8AD80606B703.highlight.minted",
-    "Excalidraw/ppo-reward.excalidraw.md",
-    "ElegantBook/_minted/38781A0E7CDBA4B098D4017F266343B6.highlight.minted",
+    "附录J：GRPO模型相关测试代码.md",
+    "附录I：Qwen2模型结构和分词器代码.md",
     "11. 使用GRPO微调LLM.md",
+    "10. GRPO：组相对策略优化.md",
+    "Drawing 2025-11-05 09.35.38.excalidraw.md",
+    "Drawing 2025-09-20 11.07.16.excalidraw.md",
+    "Drawing 2025-09-19 10.02.51.excalidraw.md",
     "未命名 1.md",
-    "dpo-4.png",
-    "ElegantBook/image/dpo-4.png",
-    "dpo-3.png",
-    "ElegantBook/image/dpo-3.png",
-    "dpo-2.png",
-    "ElegantBook/image/dpo-2.png",
-    "dpo-1.png",
-    "ElegantBook/image/dpo-1.png",
-    "7. DPO：直接偏好优化.md",
-    "4. 使用 PPO 玩倒立摆游戏.md",
+    "Excalidraw/grpo-in-detail.excalidraw.md",
+    "附录G：uv教程.md",
+    "Excalidraw/8.1.excalidraw.md",
+    "ElegantBook/image/cot-2.svg",
+    "ElegantBook/image/cot-1.svg",
     "9. 思维链（Chain of Thoughts）.md",
-    "Excalidraw/ppo-batch-loss.excalidraw.md",
-    "img/GRPO目标函数详细注释.png",
-    "img/置信域.png",
+    "Excalidraw/ppovsgrpo.excalidraw.md",
+    "12. 强化学习面试题.md",
+    "Excalidraw/8.9.excalidraw.md",
+    "ppo项目架构图.excalidraw.md",
+    "Excalidraw/gae.excalidraw.md",
+    "附录E：策略梯度法的证明.md",
+    "Excalidraw/2.2.excalidraw.md",
+    "Excalidraw/2.14.excalidraw.md",
+    "img/mnist_nn.png",
+    "Excalidraw/2.1.excalidraw.md",
+    "ElegantBook/image/cot-13.png",
+    "ElegantBook/image/cot-12.png",
+    "ElegantBook/image/cot-11.png",
+    "ElegantBook/image/cot-10.png",
+    "ElegantBook/image/cot-9.png",
+    "ElegantBook/image/cot-8.png",
+    "ElegantBook/image/cot-7.png",
     "0. 强化学习大纲.canvas",
     "Untitled.canvas"
   ]

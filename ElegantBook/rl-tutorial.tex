@@ -4431,7 +4431,7 @@ DPO，是基于人类反馈的强化学习（RLHF）的一种方法，它避免�
 p^*(i \succ j) = \frac{s_i}{s_i+s_j}
 \end{equation}
 
-这是 Bradley-Terry 模型，用于对成对比较的结果进行建模。用通俗的话说，它就是``我们模拟真实的当 $i$ 的得分高于 $i$ 和 $j$ 的总得分时，结果 $i$ 优于结果 $j$ 的概率''。
+这是 Bradley-Terry 模型，用于对成对比较的结果进行建模。用通俗的话说，它就是``我们模拟真实的当$i$的得分高于$j$的得分时，结果$i$优于结果$j$的概率''。
 
 \begin{marker}
 $p^*$中``星号''的含义：表示我们正在建模人类偏好的真实潜在分布。同样，我们很快就会看到$r^*$，它表示对大模型输出的回答进行评分的真实潜在奖励函数；以及$\pi^*$，它表示我们希望 LLM 模仿的最优策略。
@@ -4483,8 +4483,28 @@ p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1)-R^*(x,y_2))
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.5\paperwidth]{dpo-2.png}
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw  (-45,45) rectangle (-13,41.75);
+\draw  (-23.5,39.5) rectangle (-23.5,39.5);
+\node [font=\LARGE] at (-43.5,44) {\textbf{Prompt}};
+\node [font=\LARGE] at (-36,42.75) {Can you suggest a risky order for me to try next time I'm at a cafe?};
+\draw  (-45,41) rectangle (-13,29.25);
+\node [font=\LARGE] at (-41.25,40) {\textbf{Completion(in progress)}};
+\node [font=\LARGE] at (-35.75,38) {Certainly! If you're feeling adventurous, you should try an espresso...};
+\draw  (-27,40.25) rectangle  node {\LARGE p(tonic)=0.3} (-21,38.75);
+\draw  (-27,38.75) rectangle  node {\LARGE p(martini)=0.15} (-21,37.25);
+\draw  (-27,37.25) rectangle  node {\LARGE p(Romano)=0.10} (-21,35.75);
+\draw  (-27,35.75) rectangle  node {\LARGE p(with)=0.10} (-21,34.25);
+\draw  (-27,34.25) rectangle  node {\LARGE ......} (-21,32.75);
+\draw  (-27,32.75) rectangle  node {\LARGE p(Cubano)=0.03} (-21,31.25);
+\draw [line width=2pt, ->, >=Stealth] (-27.75,27.5) .. controls (-32.75,32.5) and (-30.25,33) .. (-27.25,33.25) ;
+\node [font=\LARGE] at (-27.5,26.75) {Vector of next-word produced by the LLM};
+\end{circuitikz}
+}%
 \caption{预测下一个token的概率}
+\label{fig:pnt-pipeline}
 \end{figure}
 
 因此，我们按顺序逐个处理回答$y$中的每个 token，并计算出给定所有前面 token 的情况下，回答中下一个 token 的概率。现在，我们得到了回答中每个 token 的概率值！因此，我们可以计算生成 token 序列的联合概率，该概率是沿途观察到每个 token 的各个概率的乘积。
@@ -4497,8 +4517,61 @@ p^*(y_1\succ y_2|x)=\sigma(R^*(x,y_1)-R^*(x,y_2))
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.5\paperwidth]{dpo-3.png}
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw  (-49,41.25) rectangle  node {\LARGE Can you suggest a risky order for me to try next time I'm at a cafe?} (-16.75,39);
+\draw [->, >=Stealth, dashed] (-32.75,38.75) -- (-32.75,36.25);
+\draw [->, >=Stealth, dashed] (-32.5,38.75) -- (-23.25,36.25);
+\draw [line width=2pt, ->, >=Stealth] (-33,38.75) -- (-42,36.25);
+\node [font=\LARGE] at (-42,35.5) {p(Certainly)=0.7};
+\node [font=\LARGE] at (-32.75,35.5) {p(No)=0.05};
+\node [font=\LARGE] at (-23.25,35.5) {p(...)=0.25};
+\draw [line width=2pt, ->, >=Stealth] (-42,34.75) -- (-42,31.75);
+\node [font=\LARGE] at (-42,31) {p(if)=0.2};
+\draw [->, >=Stealth, dashed] (-42.5,34.75) -- (-47,32);
+\draw [->, >=Stealth, dashed] (-41.5,34.75) -- (-37.25,32.25);
+\node [font=\LARGE] at (-47.25,31.25) {p(you)=0.3};
+\node [font=\LARGE] at (-37.25,31.5) {p(...)=0.5};
+\draw [->, >=Stealth, dashed] (-32.5,35) -- (-32.5,33.75);
+\draw [->, >=Stealth, dashed] (-32.75,35) -- (-34,33.75);
+\draw [->, >=Stealth, dashed] (-32.25,35) -- (-30.75,33.75);
+\draw [->, >=Stealth, dashed] (-23.25,35) -- (-23.25,33.5);
+\draw [->, >=Stealth, dashed] (-23.5,35) -- (-24.75,33.75);
+\draw [->, >=Stealth, dashed] (-23,35) -- (-21.75,33.75);
+\draw [->, >=Stealth, dashed] (-47.25,30.75) -- (-47.25,29.25);
+\draw [->, >=Stealth, dashed] (-47.5,30.5) -- (-48.5,29.5);
+\draw [->, >=Stealth, dashed] (-47,30.5) -- (-46,29.5);
+\draw [->, >=Stealth, dashed] (-37.25,31) -- (-37.25,29.5);
+\draw [->, >=Stealth, dashed] (-37.5,30.75) -- (-38.5,30);
+\draw [->, >=Stealth, dashed] (-37,30.75) -- (-36,30);
+\draw [->, >=Stealth, dashed] (-41.75,30.5) -- (-41.75,26.75);
+\draw [->, >=Stealth, dashed] (-41.25,30.25) -- (-38.75,27.5);
+\draw [line width=2pt, ->, >=Stealth] (-42,30.25) -- (-45.5,27);
+\node [font=\LARGE] at (-46.75,26.5) {p(you're)=0.9};
+\node [font=\LARGE] at (-42,26.25) {p(it)=0.05};
+\node [font=\LARGE] at (-38.25,27) {p(...)=0.05};
+\draw [->, >=Stealth, dashed] (-41.75,25.75) -- (-41.75,24.5);
+\draw [->, >=Stealth, dashed] (-42,25.5) -- (-43.25,24.75);
+\draw [->, >=Stealth, dashed] (-41.5,25.5) -- (-40,24.75);
+\draw [->, >=Stealth, dashed] (-38,26.5) -- (-38,25.5);
+\draw [->, >=Stealth, dashed] (-38.25,26.25) -- (-39.25,25.75);
+\draw [->, >=Stealth, dashed] (-37.75,26.25) -- (-36.5,25.75);
+\draw [->, >=Stealth, dashed] (-46.75,26) -- (-46.75,23.5);
+\draw [->, >=Stealth, dashed] (-47,25.75) -- (-48.75,23.75);
+\draw [line width=2pt, ->, >=Stealth] (-46.5,25.75) -- (-45.25,23.5);
+\node [font=\LARGE] at (-44.75,22.75) {And so on until a "stop token"...};
+\draw [ dashed] (-35,32) rectangle  (-17,26.25);
+\node [font=\LARGE] at (-31.75,30.5) {p(Certainly)=0.7};
+\node [font=\LARGE] at (-30.25,29) {p(Certainly if)=0.7*0.2=0.35};
+\node [font=\LARGE] at (-28.75,27.5) {p(Certainly if you're)=0.7*0.2*0.9=0.315};
+\node [font=\LARGE] at (-28.75,25) {* I'm abusing notation a bit here. All p() are};
+\node [font=\LARGE] at (-28.75,24) {conditioned on observing the prompt and the};
+\node [font=\LARGE] at (-30.5,23) {preceding completion tokens *};
+\end{circuitikz}
+}%
 \caption{补全的路径}
+\label{fig:completion-path}
 \end{figure}
 
 在训练时，我们提前知道整个文本的补全情况，因此，通过应用因果注意力掩码，我们可以通过 LLM 的单次前向传播来计算所有单独的下一个 token 的概率（以及 $\pi_\theta(y|x)$ ）。
@@ -4597,8 +4670,51 @@ p^*(y_1 \succ y_2 | x) &= \sigma(R^*(x,y_1)-R^*(x,y_2)) \\
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.5\paperwidth]{dpo-4.png}
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,212; green,246; blue,215} ] (-49.75,36.375) -- (-46.875,33.625) -- (-44,36.375) -- (-46.875,39.125) -- cycle;
+\node [font=\LARGE] at (-46.875,36.25) {Fine-tuned LLM};
+\draw [ fill={rgb,255:red,212; green,246; blue,215} ] (-49.75,25.875) -- (-46.875,23.125) -- (-44,25.875) -- (-46.875,28.625) -- cycle;
+\node [font=\LARGE] at (-46.875,25.75) {Fine-tuned LLM};
+\draw [ fill={rgb,255:red,212; green,246; blue,215} ] (-22.25,29) rectangle (-20,27);
+\draw [ fill={rgb,255:red,212; green,246; blue,215} ] (-20.25,36.625) -- (-17.375,33.875) -- (-14.5,36.625) -- (-17.375,39.375) -- cycle;
+\node [font=\LARGE] at (-17.375,36.5) {Pref-tuned LLM};
+\draw [ fill={rgb,255:red,212; green,246; blue,215} ] (-34.5,25.625) -- (-31.625,22.875) -- (-28.75,25.625) -- (-31.625,28.375) -- cycle;
+\node [font=\LARGE] at (-31.625,25.5) {Pref-tuned LLM};
+\draw [ fill={rgb,255:red,200; green,229; blue,252} ] (-41.5,38.75) rectangle (-36.5,34);
+\draw [ fill={rgb,255:red,200; green,229; blue,252} ] (-41.5,28) rectangle (-36.5,23.25);
+\draw [ fill={rgb,255:red,200; green,229; blue,252} ] (-26.75,38.75) rectangle (-21.75,34);
+\draw [ fill={rgb,255:red,200; green,229; blue,252} ] (-22.25,23.75) rectangle (-20,21.75);
+\draw [ fill={rgb,255:red,242; green,235; blue,170} ] (-22.25,26.25) rectangle (-20,24.25);
+\draw  (-20.75,24.75) rectangle (-20.75,24.75);
+\draw [ fill={rgb,255:red,242; green,235; blue,170} ] (-34.5,36.5) -- (-31.625,33.625) -- (-28.75,36.5) -- (-31.625,39.375) -- cycle;
+\node [font=\LARGE] at (-31.625,36.375) {Reward Model};
+\node [font=\LARGE] at (-39,37) {Human-};
+\node [font=\LARGE] at (-39,36.25) {preference};
+\node [font=\LARGE] at (-39,35.5) {Reward Modeling};
+\node [font=\LARGE] at (-39,26.5) {Supervised Fine-};
+\node [font=\LARGE] at (-39,25.5) {tuning with DPO};
+\node [font=\LARGE] at (-24.25,36.75) {Reinforcement};
+\node [font=\LARGE] at (-24.5,35.75) {Learning};
+\draw [->, >=Stealth] (-49.5,40.5) -- (-15.25,40.75);
+\node [font=\LARGE] at (-51,40.5) {RLHF};
+\draw [->, >=Stealth] (-49.25,29.5) -- (-29.5,29.75);
+\node [font=\LARGE] at (-50.75,29.5) {DPO};
+\draw [->, >=Stealth] (-44,36.25) -- (-41.5,36.25);
+\draw [->, >=Stealth] (-36.5,36.5) -- (-34.5,36.5);
+\draw [->, >=Stealth] (-28.75,36.5) -- (-26.75,36.5);
+\draw [->, >=Stealth] (-21.75,36.5) -- (-20.25,36.5);
+\draw [->, >=Stealth] (-44,25.75) -- (-41.5,25.75);
+\draw [->, >=Stealth] (-36.5,25.75) -- (-34.25,25.75);
+\draw [->, >=Stealth] (-45.5,34.75) .. controls (-37.25,31.5) and (-35.5,30.25) .. (-26.75,35) ;
+\node [font=\LARGE] at (-18.75,28) {LLM};
+\node [font=\LARGE] at (-16,25.25) {Model of human preference};
+\node [font=\LARGE] at (-17.25,22.75) {Training process};
+\end{circuitikz}
+}%
 \caption{PPO和DPO的训练流程对比}
+\label{fig:ppo-vs-dpo-training}
 \end{figure}
 
 DPO 相对于 PPO-RLHF 的优势：
@@ -4656,8 +4772,42 @@ Chain Of Thoughts: CoT，思维链
 
 本章介绍了构建推理（reasoning）模型的 4 种主流方法，并探讨了如何提升大语言模型的推理能力。
 
-2024 年，大语言模型领域呈现出日益专业化的趋势。除了预训练（pre-training）和微调（fine-tuning），我们还见证了诸如 RAG（检索增强生成）、代码助手等专业应用程序的兴起。可以看到，2025 年这一趋势正在加速发展，并且更加注重领域和应用场景的特定优化（``专业化''），如下图所示。
+2024 年，大语言模型领域呈现出日益专业化的趋势。除了预训练（pre-training）和微调（fine-tuning），我们还见证了诸如 RAG（检索增强生成）、代码助手等专业应用程序的兴起。可以看到，2025 年这一趋势正在加速发展，并且更加注重领域和应用场景的特定优化（``专业化''），如图\ref{fig:llm-pipeline}所示。
 
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,211; green,211; blue,211} , rounded corners = 18.0] (-33.25,44.75) rectangle  node {\LARGE 构建一个大语言模型} (-25.5,42.75);
+\draw  (-29,42.75) rectangle (-29,42.75);
+\draw [ fill={rgb,255:red,211; green,211; blue,211} , rounded corners = 18.0] (-20.5,44.75) rectangle  node {\LARGE 预训练模型} (-12.75,42.75);
+\draw [ fill={rgb,255:red,211; green,211; blue,211} , rounded corners = 18.0] (-7.75,48.75) rectangle  node {\LARGE 文本分类器} (0,46.75);
+\draw [ fill={rgb,255:red,211; green,211; blue,211} , rounded corners = 18.0] (-7.75,41.75) rectangle  node {\LARGE 个人助手} (0,39.75);
+\draw [->, >=Stealth] (-25.5,43.75) -- (-20.5,43.75);
+\draw [->, >=Stealth] (-12.75,43.75) .. controls (-11,47.25) and (-10.5,47) .. (-7.75,47.75) ;
+\draw [->, >=Stealth] (-12.75,43.75) .. controls (-11.25,41) and (-10.75,41) .. (-7.75,40.5) ;
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-38,33.75) rectangle  node {\LARGE 网络搜索大语言模型} (-30.25,31.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-38,29.75) rectangle  node {\LARGE 代码助手} (-30.25,27.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-28.75,33.75) rectangle  node {\LARGE 检索增强生成（RAG）} (-21,31.75);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,70; green,70; blue,70}, rounded corners = 18.0] (-29,29.75) rectangle  node {\LARGE 推理模型} (-21.25,27.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-19.5,33.75) rectangle  node {\LARGE 主题聊天机器人} (-11.75,31.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-19.5,29.75) rectangle  node {\LARGE 智能体（Agent）} (-11.75,27.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-10.75,33.75) rectangle  node {\LARGE 多模态大语言模型} (-3,31.75);
+\draw [ fill={rgb,255:red,239; green,239; blue,239} , rounded corners = 18.0] (-10.75,29.75) rectangle  node {\LARGE 蒸馏与低成本模型} (-3,27.75);
+\draw [->, >=Stealth] (-25.5,25.75) -- (-25.5,27.75);
+\node [font=\LARGE] at (-25.5,25.25) {本章的主题};
+\node [font=\LARGE] at (-29.5,47.25) {第一阶段：构建};
+\node [font=\LARGE] at (-17,47.25) {第二阶段：预训练};
+\node [font=\LARGE] at (-3.5,50.25) {第三阶段：微调（后训练）};
+\node [font=\LARGE] at (-23,35.5) {第四阶段：更加专业化};
+\draw [->, >=Stealth] (-15.75,42.25) .. controls (-14.25,38.5) and (-13.25,38.25) .. (-15.5,35.5) ;
+\draw [->, >=Stealth] (-1.25,38.75) .. controls (2.5,34.75) and (2.75,33.5) .. (-2.5,31.25) ;
+\end{circuitikz}
+}%
+\caption{第一阶段至第三阶段是开发大语言模型的常见流程，第四阶段则专注于将大语言模型应用于特定的场景}
+\label{fig:llm-pipeline}
+\end{figure}
 
 第一阶段至第三阶段是开发大语言模型的常见流程，第四阶段则专注于将大语言模型应用于特定的场景。
 
@@ -4679,13 +4829,35 @@ Chain Of Thoughts: CoT，思维链
 
 如果你从事的是人工智能（或广义上的机器学习）领域的工作，那么可能对一些模糊且备受争议的术语并不陌生。``推理模型''这一术语也不例外。通常，某篇论文会对这样的术语给出一个定义，但很快它们又会在下一篇论文中被重新定义，如此循环往复。
 
-在本章中，我们将\textbf{``推理''}定义为\textbf{解答那些需要复杂、多步骤生成并包含中间过程的复杂问题的过程}。例如，回答像``法国的首都是哪里？''这种事实性的问题并不涉及推理。但如果回答像``如果一列火车以每小时 60 英里的速度行驶 3 小时，它能行驶多远？''这样的问题，就需要一些简单的推理，因为模型需要先识别``距离=速度 $\times$ 时间''的关系，才能得出正确答案，如下图所示。
+在本章中，我们将\textbf{``推理''}定义为\textbf{解答那些需要复杂、多步骤生成并包含中间过程的复杂问题的过程}。例如，回答像``法国的首都是哪里？''这种事实性的问题并不涉及推理。但如果回答像``如果一列火车以每小时 60 英里的速度行驶 3 小时，它能行驶多远？''这样的问题，就需要一些简单的推理，因为模型需要先识别``距离=速度 $\times$ 时间''的关系，才能得出正确答案，如图\ref{fig:llm-reasoning}所示。
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw  (-41,49) rectangle  node {\LARGE 如果一列火车以每小时60英里的速度行驶3小时，它能行驶多远？} (-7.25,47);
+\draw  (-41,46.25) rectangle (-24.5,38.75);
+\draw  (-23.5,46.25) rectangle (-7.25,38.75);
+\node [font=\LARGE] at (-16.25,45.25) {要计算行驶的距离，可以使用以下公式：};
+\node [font=\LARGE] at (-16.25,43.75) {距离=速度$\times$时间};
+\node [font=\LARGE] at (-16.25,42.25) {其中，速度为每小时60英里，时间为3小时：};
+\node [font=\LARGE] at (-16.25,41) {距离=60英里/时$\times$3小时=180英里};
+\node [font=\LARGE] at (-16.25,39.75) {因此，火车行驶了180英里。};
+\node [font=\LARGE] at (-32.5,38) {\textbf{简单回答}};
+\node [font=\LARGE] at (-16.75,38) {\textbf{包含中间推理步骤的回答}};
+\node [font=\LARGE] at (-31.75,42.75) {火车行驶了180英里。};
+\end{circuitikz}
+}%
+\caption{普通大语言模型可能只会给出简短的答案（左），而推理模型通常包含揭示思维过程的中间步骤（右）。需要注意的是，许多大语言模型虽然并非专门为推理任务设计，但它们的答案中也可能包含中间推理步骤}
+\label{fig:llm-reasoning}
+\end{figure}
 
 当前大多数大语言模型具备基本的推理能力，可以回答诸如``如果一列火车以每小时 60 英里的速度行驶 3 小时，它能行驶多远？''之类的问题。因此，当我们谈论``推理模型''时，通常指的是那些能处理更复杂推理任务（如解谜题、数学推导或证明）的大语言模型。
 
 此外，目前大部分被称为推理模型的大语言模型在回答中会融入``思考''或``思维''过程。至于大语言模型是否真的在``思考''以及如何``思考''，则是另一个值得探讨的问题。
 
-推理模型的\textbf{中间推理步骤}主要以两种方式呈现（参见上图）。
+推理模型的\textbf{中间推理步骤}主要以两种方式呈现（参见\ref{fig:llm-reasoning}）。
 
 \begin{itemize}
 \item \textbf{直接体现在回答中}，让用户看到完整的推理过程（参见下图）。
@@ -7908,82 +8080,118 @@ if skipped_batches_count > 0:
 \caption{InstructGPT训练流程}
 \end{figure}
 
+\section{导入依赖}
+
+\begin{codebox}{python}{导入依赖并加载分词器}{import-deps-instructgpt}
+from transformers import DataCollatorWithPadding, AutoModelForCausalLM, AutoTokenizer
+from copy import deepcopy
+from torch.utils.data import DataLoader
+import random
+from datasets import load_dataset
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+
+model_path = "gpt2-sft"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+tokenizer.pad_token = tokenizer.eos_token
+\end{codebox}
+
 \section{准备提示词}
 
+\begin{marker}
+我们准备提示词的方式，是把数据集中文本的前几个字截取出来作为提示词。后面的文本不再使用！
+\mybox[blue]{截取前几个字作为提示词}{
+\underline{东西}{\color{gray!30}太小了，光有数量没有质量！很失望！}
+}
+\end{marker}
+
 \begin{codebox}{python}{为PPO训练准备提示词}{prepare-prompts-for-ppo}
-import torch
-from torch.utils.data import DataLoader
-from transformers import AutoTokenizer
-from datasets import Dataset
-import torch.nn.functional as F
+ds = load_dataset("csv", data_files="online_shopping_10_cats.csv")
+ds_train = ds["train"]
 
-tokenizer = AutoTokenizer.from_pretrained("gpt2-chinese-cluecorpussmall/")
+ds_train = ds_train.filter(lambda x: x["review"] != None and len(
+    x["review"]) > 20 and len(x["review"]) < 100)
 
-prompts = [
-    "口感还是相当",
-    "包装特别",
-    "作者有一种",
-    "作者被认为是",
-    "昨天到货",
-    "蒙牛核桃牛奶",
-]
+# 截取评论数据的前2～8个字作为提示词
+input_min_token_length = 2
+input_max_token_length = 8
+input_token_length_range = list(range(
+    input_min_token_length,
+    input_max_token_length))
 
-tokenizer.eos_token = tokenizer.pad_token
-REWARD_TOKEN_ID = tokenizer.eos_token_id
-# 创建数据集
-ds = Dataset.from_dict({"text": prompts})
+def tokenize(sample):
+    # 提示词token的数量随机选择一个
+    input_size = random.choice(input_token_length_range)
+    # 如果input_size=3，截取review字段文本的前3个token出来
+    sample["input_ids"] = tokenizer.encode(sample["review"])[:input_size]
+    # 前3个token掩码为1
+    sample["attention_mask"] = [1] * len(sample["input_ids"])
+    # 前3个token对应的文本
+    sample["query"] = tokenizer.decode(sample["input_ids"])
+    return sample
 
-def tokenize(examples):
-    # tokenizer 可以直接处理列表
-    tokenized = tokenizer(
-        examples["text"],
-        truncation=True,
-        padding=False,  # 或 True，根据需要
-    )
-    # 添加 query 字段
-    tokenized["query"] = [
-        tokenizer.decode(ids) for ids in tokenized["input_ids"]
-    ]
-    return tokenized
 
-# 批量处理，batched=True 更高效
-ds = ds.map(tokenize, batched=True)
+map_kwargs = {
+    "batched": False,
+    "remove_columns": ["cat", "review", "label"]
+}
 
-ds.set_format(type='torch')
+tokenized_dataset_train = ds_train.map(tokenize, **map_kwargs)
+
+tokenized_dataset_train.set_format(type='torch')
+
+batch_size = 32
 
 def collator(batch):
     return dict((key, [d[key] for d in batch]) for key in batch[0])
 
+# 提示词组成的数据集
 train_dataloader = DataLoader(
-    ds,
-    batch_size=8,
+    tokenized_dataset_train,
+    batch_size=batch_size,
     collate_fn=collator,
     shuffle=True
 )
 \end{codebox}
 
-设置模型的输出配置
+\section{模型结构}
 
-\begin{codebox}{python}{模型的输出配置}{ppo-model-out-cfg}
-# https://huggingface.co/docs/trl/how_to_train#how-to-generate-text-for-training
-# gpt2-sft输出的配置
-# - 模型会从整个词汇表中按照原始概率分布进行采样
-# - 每个词被选中的概率完全由模型的原始输出决定
-generation_kwargs = {
-    "min_length": -1,
-    "top_k": 0.0,  # 所有词汇表中的词都可能被选中
-    "top_p": 1.0,  # 包含整个概率分布
-    "do_sample": True,
-    "pad_token_id": tokenizer.pad_token_id,
-    "max_new_tokens": 50, # 最多输出50个token
-}
+\subsection{奖励模型的结构}
+
+\begin{codebox}{python}{奖励模型的结构}{instructgpt-rm-model}
+class RewardModel(nn.Module):
+    """GPT2模型+奖励头"""
+
+    def __init__(self, model_name):
+        super().__init__()
+        self.llm = AutoModelForCausalLM.from_pretrained(model_name)
+        # 添加奖励头
+        self.reward_head = nn.Linear(self.llm.config.hidden_size, 1)
+
+    def forward(self, input_ids, attention_mask):
+        # GPT2的输出
+        transformer_outputs = self.llm.forward(
+            input_ids,
+            attention_mask=attention_mask,
+            output_hidden_states=True,
+        )
+
+        # 获取最后一层隐藏层
+        last_hidden_state = transformer_outputs.hidden_states[-1]
+
+        # 对最后一个隐藏层给出奖励
+        rewards = self.reward_head(last_hidden_state).squeeze(-1)
+        # 将奖励变为(0,1)范围
+        return torch.sigmoid(rewards)
 \end{codebox}
 
-\section{模型结构}
+\subsection{演员评论家模型}
 
 \begin{codebox}{python}{模型结构}{ppo-model-actor-critic}
 class ActorCriticModel(nn.Module):
-    """GPT2模型+一个价值头"""
+    """GPT2模型+价值头"""
     def __init__(self, model_path):
         super().__init__()
         # 这个要初始化为我们微调出来的gpt2-sft模型
@@ -8000,7 +8208,7 @@ class ActorCriticModel(nn.Module):
             attention_mask=attention_mask,
             output_hidden_states = True,
         )
-        # 输出的token的logits，维度为 `vocab_size`
+        # 输出的token的logits
         logits = transformer_outputs.logits
         # 获取最后一层隐藏层
         last_hidden_state = transformer_outputs.hidden_states[-1]
@@ -8015,7 +8223,50 @@ class ActorCriticModel(nn.Module):
         return self.llm.generate(*args, **kwargs)
 \end{codebox}
 
+\subsection{加载模型}
+
+\begin{codebox}{python}{将模型都加载到显存}{loadmodel}
+device = torch.device("cuda")
+
+# 将奖励模型加载
+reward_model = RewardModel(model_path)
+reward_model.load_state_dict(torch.load(
+    "reward_model.pt",
+    map_location='cpu'))
+# 加载演员评论家模型
+model = ActorCriticModel(model_path)
+model = model.to(device)
+reward_model = reward_model.to(device)
+# 加载冻结的参考模型，只用来计算即时奖励β$R_t$β
+ref_model = deepcopy(model)
+
+# 设置reward token
+REWARD_TOKEN_ID = tokenizer.eos_token_id
+\end{codebox}
+
 \section{奖励的计算}
+
+\begin{equation}
+J(\theta)^{\text{ppo-clip}}=\mathbb{E}_{\tau\sim\pi_{{_\theta}_{\text{old}}}}\left[{\sum_{t=0}^T\left[\min\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}A_t^{\pi_{\text{old}}},\text{clip}\left(\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)},1-\epsilon,1+\epsilon\right)A_t^{\pi_{\text{old}}}\right)\right]}\right]
+\end{equation}
+
+我们都知道$A_t^{\pi_{\text{old}}}$是广义优势估计，这个在倒立摆环境中很好计算，因为每个动作采取完，只要倒立摆不倒下，那么就会获得及时奖励$R_t=1$。
+
+\begin{marker}
+在LLM中，每输出一个token是采取一个动作，那么每个token的即时奖励$R_t$应该如何计算呢？
+\end{marker}
+
+\begin{table}
+    \centering
+    \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{cccccc}
+        这 & 本 & 书 & 真 & 好 & 看 \\
+        $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ & $\downarrow$ \\
+        提示词部分不计算奖励 & 提示词部分不计算奖励 & 提示词部分不计算奖励 & $-\beta\frac{\pi_\theta(y_0|x)}{\pi_\text{ref}(y_0|x)}$ & $-\beta\frac{\pi_\theta(y_1|x,y_0)}{\pi_\text{ref}(y_1|x,y_0)}$ & $\text{score}-\beta\frac{\pi_\theta(y_2|x,y_0,y_1)}{\pi_\text{ref}(y_2|x,y_0,y_1)}$
+    \end{tabular}
+    }
+    \caption{提示词为``这本书''，补全为``真好看''的$R_t$的计算}\label{tbl:calrtfortoken}
+\end{table}
 
 \begin{equation}
 \begin{aligned}
@@ -8038,7 +8289,7 @@ class ActorCriticModel(nn.Module):
 
 \begin{codebox}{python}{计算奖励}{ppo-cal-rewards}
 def compute_rewards(
-    input_data, # 输入数据
+    input_data, # 输入数据（提示词+补全）
     query_tensors, # 提示词张量
     response_tensors, # 补全的张量
     score_tensors # 奖励模型给出的分数的张量
@@ -8048,7 +8299,7 @@ def compute_rewards(
         logits, values = model(**input_data) # (B, T, vocab_size)
         # 冻结的参考模型的输出
         ref_logits, _ = ref_model(**input_data)
-        # 正在微调的模型的输出的对数概率 `log_softmax`
+        # 正在微调的模型的输出的对数概率log_softmax
         # 去掉最后一个token，因为是预测下一个token的任务
         logp = F.log_softmax(logits[:, :-1, :], dim=-1)
         # 冻结的模型的输出的对数概率
@@ -8065,6 +8316,7 @@ def compute_rewards(
         # kl散度的权重β$\beta$β
         beta = 0.2
         # 最终奖励的计算的右边式子 β$-\beta\log\frac{\pi_\theta(y|x)}{\pi_\text{ref}(y|x)}$β
+        # 见表β$\ref{tbl:calrtfortoken}$β
         rewards = - beta * kl
         attention_mask = input_data["attention_mask"]
         # 预测下一个token，所以去掉第一个mask
@@ -8080,7 +8332,7 @@ def compute_rewards(
             masks[j, :start] = 0
             # 补全后面的填充token掩码为0
             masks[j, end:] = 0
-            # 将奖励模型给出的分数加到补全的最后一个token的奖励上面
+            # 将奖励模型给出的分数加到补全的最后一个token的奖励上面，见表β$\ref{tbl:calrtfortoken}$β
             rewards[j, end - 1] += score_tensors[j]
             # 只留下掩码为1的部分的奖励
             rewards[j, :] *= masks[j, :]
@@ -8135,24 +8387,20 @@ def compute_advantage(rewards, values, masks):
     # 对广义优势估计进行了白化处理
     advantages = masked_whiten(advantages, masks)
     # β$\text{GAETarget}_t=A_t^{\text{GAE}}+V(S_t)$β
-    returns = advantages + values
-    return advantages, returns
+    gae_targets = advantages + values
+    return advantages, gae_targets
 \end{codebox}
 
 \section{计算损失}
 
 \begin{codebox}{python}{计算损失}{calppolossrlhf}
-v_loss_coeff = 0.1
-# 比例的阈值
-ratio_threshold = 10
-
 def compute_loss(
     old_logprobs, # 旧策略输出的概率
     logprobs, # 正在微调的模型输出的对数概率
     vpreds, # 价值
     masks, # 掩码
     advantages, # 广义优势估计
-    returns # 回报
+    gae_targets # gae目标
 ):
     ratio = torch.exp(logprobs - old_logprobs) # β$\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}$β
     pg_loss1 = - ratio * advantages # β$-\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}A_t^{GAE}$β
@@ -8161,39 +8409,123 @@ def compute_loss(
     # 求掩码部分的平均值
     pg_loss = masked_mean(torch.max(pg_loss1, pg_loss2), masks)
     # β$\text{MSELoss}(V(S_t), \text{GAETarget})\Rightarrow 0$β
-    v_loss = masked_mean((vpreds - returns) ** 2, masks)
+    v_loss = masked_mean((vpreds - gae_targets) ** 2, masks)
     # β$total\_loss=loss_{\pi_\theta}+0.1\times loss_{V_\omega}$β
-    loss = pg_loss + v_loss_coeff * v_loss
-    # 计算平均比率
-    avg_ratio = masked_mean(ratio, masks)
-    # 这一步不在ppo公式中
-    # 如果平均比率 > 10，不进行反向传播
-    if avg_ratio > ratio_threshold:
-        pg_loss = pg_loss * 0.0
-        v_loss = v_loss * 0.0
-        loss = loss * 0.0
+    loss = pg_loss + 0.1 * v_loss
 
-    return loss, v_loss
+    return loss
+\end{codebox}
+
+\section{根据提示词生成文本的配置}
+
+\begin{marker}
+现在我们的数据集中只剩下了截取的提示词，然后模型会根据提示词生成补全。并给到奖励模型评分。
+\end{marker}
+
+\begin{codebox}{python}{生成补全的配置}{generation-config-instructgpt}
+# 补全的长度5～16个token
+output_min_length = 5
+output_max_length = 16
+
+generation_kwargs = {
+    "min_length": -1,
+    "top_k": 0.0,  # 所有词汇表中的词都可能被选中
+    "top_p": 1.0,  # 包含整个概率分布
+    "do_sample": True,
+    "pad_token_id": tokenizer.pad_token_id
+}
 \end{codebox}
 
 \section{训练循环}
 
-\begin{codebox}{python}{训练循环}{instructgpttrainloop}
-num_epochs = 1
+\begin{marker}
+训练流程：
+\begin{enumerate}
+    \item 一条轨迹：提示词 + 策略模型输出的补全。
+    \item 批次大小：32。所以我们针对32个提示词生成32条轨迹。那么还是一个提示词\textbf{一条轨迹}。
+    \item 每条轨迹通过ppo使用4次更新策略模型。
+    \item 更新后的策略模型作为下一轮训练的$\pi_{\theta_\text{old}}$。
+    \item 由于32条轨迹同时计算新旧策略的概率比值，比较消耗GPU。所以我们4条4条的计算。也就是mini\_batch\_size=4。
+    \item 使用32条轨迹更新32次策略模型$\pi_\theta$。更新后的策略模型作为下一轮ppo微调的$\pi_{\theta_\text{old}}$
+\end{enumerate}
+\end{marker}
 
+\begin{codebox}{python}{使用旧策略采集的轨迹更新4次策略}{instructgpttrainloop}
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+learning_rate = 1e-5
+optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+# 使用旧策略产生的轨迹（补全）更新4次模型
+ppo_epochs = 4
+num_epochs = 1
+mini_batch_size = 4
+
+def ppo_update(input_data, old_logprobs, masks, advantages, gae_targets):
+    for ep in range(ppo_epochs): # β$\pi_\theta$β被更新了32次
+        # range(0, 32)
+        batch_inds = list(range(batch_size)) # batch_size=32
+        for start in range(0, batch_size, mini_batch_size):
+            # 4条4条的使用
+            mini_batch_inds = batch_inds[start:start+mini_batch_size]
+
+            mb_model_inputs = {
+                "input_ids": input_data["input_ids"][mini_batch_inds],
+                "attention_mask": input_data["attention_mask"][mini_batch_inds]
+            }
+            # 模型的输出是token的logits和value
+            mb_logits, mb_vpreds = model(**mb_model_inputs)
+            # 去掉最后一个token
+            mb_logits = F.log_softmax(mb_logits[:, :-1, :], dim=-1)
+            # 取出真实标签对应的概率
+            mb_logprobs = torch.gather(
+                mb_logits,
+                2,
+                mb_model_inputs["input_ids"][:, 1:].unsqueeze(-1)
+            ).squeeze(-1)
+
+            loss = compute_loss(
+                old_logprobs[mini_batch_inds],
+                mb_logprobs,
+                mb_vpreds[:, :-1],
+                masks[mini_batch_inds],
+                advantages[mini_batch_inds],
+                gae_targets[mini_batch_inds]
+            )
+
+            optimizer.zero_grad()
+            # 使用4条轨迹更新了一次β$\pi_\theta$β
+            loss.backward()
+            optimizer.step()
+            print("loss/total", loss.item())
+    print("ppo update finished")
+\end{codebox}
+
+主训练循环
+
+\begin{codebox}{python}{主训练循环}{ppoupdateinstructgpt}
+count = 0
 for epoch in range(num_epochs):
     for batch in train_dataloader:
+        if count == 1:
+            break
+        count += 1
         # 生成补全内容（回复）
-        query_tensors = batch["input_ids"] # 提示词的张量
+        query_tensors = batch["input_ids"]  # 提示词的张量
         query_attention_masks = batch["attention_mask"]
 
-        response_tensors = [] # 补全的张量
-        query_response_tensors = [] # 提示词+补全的张量
-        score_tensors = [] # 分数的张量
+        response_tensors = []  # 补全的张量
+        query_response_tensors = []  # 提示词+补全的张量
+        score_tensors = []  # 分数的张量
 
         for i, query in enumerate(query_tensors):
             query = query.to(device)
             query_attention_mask = query_attention_masks[i].to(device)
+            # 随机挑一个补全的长度
+            new_tokens = random.choice(list(range(
+                output_min_length,
+                output_max_length)))
+            # 设置补全长度属性
+            generation_kwargs["max_new_tokens"] = new_tokens
             # 提示词 + 补全
             query_response = model.generate(
                 input_ids=query.unsqueeze(0),
@@ -8205,7 +8537,7 @@ for epoch in range(num_epochs):
             # 补全的张量
             response_tensors.append(query_response[-response_len:])
             query_response_tensors.append(query_response)
-
+            # 从奖励模型拿分数
             with torch.no_grad():
                 # 提示词 + 补全 + reward_token
                 query_response_score = torch.cat([
@@ -8232,51 +8564,83 @@ for epoch in range(num_epochs):
         ]).to(device)
 
         # 奖励和优势
-        logprobs, rewards, values, masks = compute_rewards(
+        old_logprobs, rewards, values, masks = compute_rewards(
             input_data,
             query_tensors,
             response_tensors,
             score_tensors
         )
-        advantages, returns = compute_advantage(rewards, values, masks)
+        # 计算GAE和GAE Target
+        advantages, gae_targets = compute_advantage(rewards, values, masks)
 
         # 小批次训练
-        ppo_update()
-    print(f"epoch {epoch + 1} finished")
+        if input_data["input_ids"].shape[0] != 32:
+            break
+        # 使用采集到的32条轨迹更新策略
+        ppo_update(input_data, old_logprobs, masks, advantages, gae_targets)
 \end{codebox}
 
-ppo算法更新策略的代码
+\section{评估模型}
 
-\begin{codebox}{python}{ppo更新算法}{ppoupdateinstructgpt}
-def ppo_update():
-    for ep in range(ppo_epochs):
-        mb_model_inputs = {
-            "input_ids": input_data["input_ids"],
-            "attention_mask": input_data["attention_mask"],
-        }
-        mb_logits, mb_vpreds = model(**mb_model_inputs)
-        mb_logits = F.log_softmax(mb_logits[:, :-1, :], dim=-1)
-        mb_logprobs = torch.gather(
-            mb_logits,
-            2,
-            mb_model_inputs["input_ids"][:, 1:].unsqueeze(-1)
-        ).squeeze(-1)
+\begin{marker}
+主要对比PPO微调后的模型和微调前的模型。对比方法：
+\begin{enumerate}
+    \item 选择一些提示词
+    \item 使用PPO微调后的模型补全
+    \item 送入奖励模型，打平均分
+    \item 使用PPO微调前的模型补全
+    \item 送入奖励模型，打平均分
+    \item 对比打分情况
+\end{enumerate}
+\end{marker}
+
+\begin{codebox}{python}{对比微调前后的模型的补全的打分情况}{calavgscore}
+train_gen_lengths = [0] * len(tokenized_dataset_train)
+for i in range(len(tokenized_dataset_train)):
+    train_gen_lengths[i] = random.choice(list(range(
+        output_min_length,
+        output_max_length)))
 
 
-        loss, loss_v = compute_loss(
-            logprobs,
-            mb_logprobs,
-            mb_vpreds,
-            masks,
-            advantages,
-            returns
-        )
+def validate():
+    scores = []
+    count = 0
+    for b, batch in enumerate(train_dataloader):
+        if count == 1:
+            break
+        count += 1
+        # 生成补全内容
+        query_tensors = batch["input_ids"]
+        query_attention_masks = batch["attention_mask"]
+        for i, query in enumerate(query_tensors):
+            query = query.to(device)
+            query_attention_mask = query_attention_masks[i].to(device)
+            new_tokens = train_gen_lengths[b * len(query_tensors) + i]
+            generation_kwargs["max_new_tokens"] = new_tokens
+            query_response = model.generate(
+                input_ids=query.unsqueeze(0),
+                attention_mask=query_attention_mask.unsqueeze(0),
+                **generation_kwargs
+            ).squeeze(0)
+            query_response_score = torch.cat([
+                query_response,
+                torch.tensor([REWARD_TOKEN_ID]).to(device)])
+            attention_mask = torch.ones_like(
+                query_response_score, dtype=torch.long)
+            score = reward_model(
+                query_response_score.unsqueeze(0),
+                attention_mask.unsqueeze(0)
+            ).squeeze(0)[-1]
+            score = 2 * (score - 0.5)
+            scores.append(score.item())
+    print("平均分数：", sum(scores) / len(scores))
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        print("loss/total", loss.item())
-    print("ppo update finished")
+
+validate()
+
+model_path = "./gpt2-sft"
+model = ActorCriticModel(model_path).to(device)
+validate()
 \end{codebox}
 
 \part{附录}

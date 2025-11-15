@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="151.27206mm"
+   height="154.33237mm"
+   viewBox="0 0 151.27206 154.33237"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="cot-1.pdf"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="cot-1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.1848949"
+     inkscape:cx="561.65319"
+     inkscape:cy="340.53653"
+     inkscape:window-width="3840"
+     inkscape:window-height="2132"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="marker29"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path29" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-22.217242,-64.808522)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="66.175934"
+       y="66.953491"
+       id="text1-2"><tspan
+         sodipodi:role="line"
+         id="tspan1-0"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+         x="66.175934"
+         y="66.953491" /></text>
+    <g
+       id="g1">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1"
+         width="34.737"
+         height="12.157895"
+         x="27.161926"
+         y="93.835777"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.175px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="30.31579"
+         y="101.05264"
+         id="text1"><tspan
+           sodipodi:role="line"
+           id="tspan1"
+           style="fill:#000000;stroke-width:0.264583"
+           x="30.31579"
+           y="101.05264">构建一个大语言模型</tspan></text>
+    </g>
+    <g
+       id="g3"
+       transform="translate(85.894737,-36.473684)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-4"
+         width="34.737"
+         height="12.157895"
+         x="41.579891"
+         y="115.37849"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.175px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="51.043446"
+         y="122.5752"
+         id="text1-5"><tspan
+           sodipodi:role="line"
+           id="tspan1-2"
+           style="fill:#000000;stroke-width:0.264583"
+           x="51.043446"
+           y="122.5752">文本分类器</tspan></text>
+    </g>
+    <g
+       id="g2">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-7"
+         width="34.737"
+         height="12.157895"
+         x="71.755005"
+         y="94.083015"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.175px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="81.240265"
+         y="101.24252"
+         id="text1-6"><tspan
+           sodipodi:role="line"
+           id="tspan1-5"
+           style="fill:#000000;stroke-width:0.264583"
+           x="81.240265"
+           y="101.24252">预训练模型</tspan></text>
+    </g>
+    <g
+       id="g4"
+       transform="translate(87.473684,-25.736842)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-43"
+         width="34.737"
+         height="12.157895"
+         x="38.921658"
+         y="130.76463"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-size:3.175px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="49.985115"
+         y="137.92104"
+         id="text1-0"><tspan
+           sodipodi:role="line"
+           id="tspan1-7"
+           style="fill:#000000;stroke-width:0.264583"
+           x="49.985115"
+           y="137.92104">个人助手</tspan></text>
+    </g>
+    <g
+       id="g6"
+       transform="translate(0.5699238,1.0357819)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-431"
+         width="34.737"
+         height="12.157895"
+         x="21.647318"
+         y="164.50417"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="23.058136"
+         y="171.83023"
+         id="text1-4"><tspan
+           sodipodi:role="line"
+           id="tspan1-9"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="23.058136"
+           y="171.83023">网络搜索大语言模型</tspan></text>
+    </g>
+    <g
+       id="g5"
+       transform="translate(0.45448612,0.54667664)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-9"
+         width="34.737"
+         height="12.157895"
+         x="60.540604"
+         y="164.99327"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="61.694763"
+         y="172.24011"
+         id="text1-26"><tspan
+           sodipodi:role="line"
+           id="tspan1-6"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="61.694763"
+           y="172.24011">检索增强生成（RAG）</tspan></text>
+    </g>
+    <g
+       id="g7"
+       transform="translate(4.8876011,0.28251648)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-48"
+         width="34.737"
+         height="12.157895"
+         x="95.072258"
+         y="165.25743"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="100.12798"
+         y="172.56456"
+         id="text1-7"><tspan
+           sodipodi:role="line"
+           id="tspan1-1"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="100.12798"
+           y="172.56456">主题聊天机器人</tspan></text>
+    </g>
+    <g
+       id="g8"
+       transform="translate(0.12980725)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-2"
+         width="34.737"
+         height="12.157895"
+         x="138.24736"
+         y="165.53995"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="141.47546"
+         y="172.88496"
+         id="text1-61"><tspan
+           sodipodi:role="line"
+           id="tspan1-06"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="141.47546"
+           y="172.88496">多模态大语言模型</tspan></text>
+    </g>
+    <g
+       id="g9"
+       transform="translate(23.368421,4.3530281)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-90"
+         width="34.737"
+         height="12.157895"
+         x="-1.1511793"
+         y="178.75946"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="9.2392797"
+         y="186.0752"
+         id="text1-9"><tspan
+           sodipodi:role="line"
+           id="tspan1-17"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="9.2392797"
+           y="186.0752">代码助手</tspan></text>
+    </g>
+    <g
+       id="g10"
+       transform="translate(17.684211,-0.18278425)">
+      <rect
+         style="fill:#999999;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-97"
+         width="34.737"
+         height="12.157895"
+         x="43.310879"
+         y="183.29527"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="53.689281"
+         y="190.57312"
+         id="text1-76"><tspan
+           sodipodi:role="line"
+           id="tspan1-73"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="53.689281"
+           y="190.57312">推理模型</tspan></text>
+    </g>
+    <g
+       id="g11"
+       transform="translate(16.263158,1.9528206)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-94"
+         width="34.737"
+         height="12.157895"
+         x="83.696701"
+         y="181.15967"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="95.758034"
+         y="188.45645"
+         id="text1-8"><tspan
+           sodipodi:role="line"
+           id="tspan1-12"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="95.758034"
+           y="188.45645">智能体</tspan></text>
+    </g>
+    <g
+       id="g12"
+       transform="translate(12.315789,2.2105263)">
+      <rect
+         style="fill:#e6e6e6;fill-opacity:1;stroke-width:0.264583"
+         id="rect1-8"
+         width="34.737"
+         height="12.157895"
+         x="126.06138"
+         y="180.90196"
+         rx="2"
+         ry="2" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         x="129.36011"
+         y="188.19186"
+         id="text1-85"><tspan
+           sodipodi:role="line"
+           id="tspan1-09"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
+           x="129.36011"
+           y="188.19186">蒸馏和低成本模型</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="32.36842"
+       y="88.105263"
+       id="text12"><tspan
+         sodipodi:role="line"
+         id="tspan12"
+         style="fill:#000000;stroke-width:0.264583"
+         x="32.36842"
+         y="88.105263">第一阶段：构建</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="75.631584"
+       y="88.105263"
+       id="text13"><tspan
+         sodipodi:role="line"
+         id="tspan13"
+         style="fill:#000000;stroke-width:0.264583"
+         x="75.631584"
+         y="88.105263">第二阶段：预训练</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="57.325226"
+       y="156.41382"
+       id="text13-7"><tspan
+         sodipodi:role="line"
+         id="tspan13-5"
+         style="fill:#000000;stroke-width:0.264583"
+         x="57.325226"
+         y="156.41382">第四阶段：更加专业化</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="125.36842"
+       y="67.736847"
+       id="text14"><tspan
+         sodipodi:role="line"
+         id="tspan14"
+         style="fill:#000000;stroke-width:0.264583"
+         x="125.36842"
+         y="67.736847">第三阶段：微调（后训练）</tspan></text>
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="m 62.05263,100.26316 c 9.000001,-0.1579 9.000001,-0.1579 9.000001,-0.1579"
+       id="path14" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="m 62.05263,100.10526 c 9.473684,0 9.473684,0 9.473684,0"
+       id="path15" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="m 62.05263,100.42105 h 9.63158"
+       id="path16" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="m 61.894735,99.473683 c 9.94737,0 9.94737,0 9.94737,0"
+       id="path17" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="M 61.578947,99.315787 H 71.999998"
+       id="path18" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       d="m 62.05263,99.947366 c 9.789475,0 9.789475,0 0,0 z"
+       id="path19" />
+    <path
+       style="fill:#333333;fill-opacity:1;stroke:#000000;stroke-width:0.350575;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="m 61.891741,99.51394 c 8.038446,0 8.830241,-0.0078 8.830241,-0.0078"
+       id="path28"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.348941;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="m 106.45263,97.699638 c 4.502,-8.012758 4.5249,-8.030344 19.88602,-11.633339"
+       id="path30"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.365001;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="m 106.62426,101.48843 c 4.94621,11.39983 19.43185,10.52146 19.43185,10.52146"
+       id="path31"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.365001;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="M 88.421052,107.8421 C 112.6167,118.95221 57.817198,140.1078 76.105259,147.94736"
+       id="path32"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.365001;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="M 165.15789,99.473682 C 203.62197,143.64806 93.882937,126.68872 86.052631,148.10526"
+       id="path33"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52777px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+       x="69.214043"
+       y="218.7068"
+       id="text13-78"><tspan
+         sodipodi:role="line"
+         id="tspan13-57"
+         style="fill:#000000;stroke-width:0.264583"
+         x="69.214043"
+         y="218.7068">本章主题</tspan></text>
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.365001;stroke-linecap:butt;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker29);paint-order:stroke markers fill"
+       d="m 76.460526,214.06579 c 0,-15.39474 0,-15.39474 0,-15.39474"
+       id="path34" />
+  </g>
+</svg>
