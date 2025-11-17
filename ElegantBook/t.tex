@@ -1,25 +1,67 @@
-\documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
-\usepackage{tikz}
-
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{circuitikz}
+\usetikzlibrary{arrows.meta,decorations.markings,patterns}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{calc}
 \begin{document}
-\tikzstyle{block} = [draw,text centered, minimum height=2.8em,minimum width=12em]
-\tikzstyle{textblock} = [text centered, minimum height=2.8em,minimum width=12em]
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (3,38) rectangle (4.25,36.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (4.25,38) rectangle (5.5,36.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.5,38) rectangle (6.75,36.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.75,38) rectangle (8,36.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.75,37.75) rectangle (4,36.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (4,37.75) rectangle (5.25,36.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.25,37.75) rectangle (6.5,36.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.5,37.75) rectangle (7.75,36.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.5,37.5) rectangle (3.75,36.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.75,37.5) rectangle (5,36.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5,37.5) rectangle (6.25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.25,37.5) rectangle (7.5,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (21.25,37.5) rectangle (22.5,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (22.5,37.5) rectangle (23.75,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (23.75,37.5) rectangle (25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (25,37.5) rectangle (26.25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26.25,37.5) rectangle (27.5,36.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (21,37.25) rectangle (22.25,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (22.25,37.25) rectangle (23.5,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (23.5,37.25) rectangle (24.75,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (24.75,37.25) rectangle (26,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (26,37.25) rectangle (27.25,36);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (20.75,37) rectangle (22,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (22,37) rectangle (23.25,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (23.25,37) rectangle (24.5,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (24.5,37) rectangle (25.75,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (25.75,37) rectangle (27,35.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (20.5,36.75) rectangle (21.75,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (21.75,36.75) rectangle (23,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (23,36.75) rectangle (24.25,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (24.25,36.75) rectangle (25.5,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (25.5,36.75) rectangle (26.75,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.25,37.25) rectangle (3.5,36);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.5,37.25) rectangle (4.75,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (4.75,37.25) rectangle (6,36);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6,37.25) rectangle (7.25,36);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2,37) rectangle (3.25,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.25,37) rectangle (4.5,35.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (4.5,37) rectangle (5.75,35.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (5.75,37) rectangle (7,35.75);
+\draw[->, line width=3mm] (13,37) -- (18,37);
+\node[draw=none] at (15,38) {Transpose};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (2,35.5) --  (7,35.5);
+\node[draw=none] at (4.5,34.5) {P};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (20.5,36.75) --  (21.5,37.5);
+\node[draw=none,rotate=45] at (20.75,37.75) {P};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (2,37) --  (3,38);
+\node[draw=none,rotate=45] at (2.25,38.5) {d\_model};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (20.5,35.5) --  (26.75,35.5);
+\node[draw=none] at (23.5,34.5) {d\_model};
+\end{circuitikz}
+}%
 
-\resizebox{0.6\textwidth}{!}{%
-\begin{tikzpicture}
-\node [textblock] at (0, 1) (5) {\textbf{第一阶段：构建}};
-\node [block] at (0, 0) (1) {构建一个大语言模型};
-\node [textblock] at (7, 1) (6) {\textbf{第二阶段：预训练}};
-\node [block] at (7, 0) (2) {预训练模型};
-\node [block] at (16, 3) (3) {文本分类器};
-\node [block] at (16, -3) (4) {个人助手};
-\draw [-latex,thick] (1) -- (2);
-\draw [-latex,thick] (2) -- (3);
-\draw [-latex,thick] (2) -- (4);
-
-\node [block] at (-1, -5) (7) {网络搜索大语言模型};
-\node [block] at (-1, -7) (8) {代码助手};
-\node [block] at (1, -5) (9) {检索增强生成（RAG）};
-
-\end{tikzpicture}}
+\label{fig:my_label}
+\end{figure}
 \end{document}

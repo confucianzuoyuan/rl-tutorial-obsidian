@@ -1,6 +1,9 @@
 \documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{circuitikz}
+\usetikzlibrary{arrows.meta,decorations.markings,patterns}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{calc}
 \usepackage{annotate-equations}
 \usepackage{minted}
 \usepackage{algorithm,algpseudocode}
@@ -8642,6 +8645,566 @@ model_path = "./gpt2-sft"
 model = ActorCriticModel(model_path).to(device)
 validate()
 \end{codebox}
+
+\part{多模态}
+
+\chapter{Vision Transformer}
+
+\begin{marker}
+Vision Transformer: ViT
+\end{marker}
+
+基于自注意力的Transformer模型由Vaswani等人在2017年的论文《Attention Is All You Need》中首次提出，并已广泛应用于自然语言处理中。Transformer模型是OpenAI用来创建ChatGPT的模型。Transformer不仅适用于文本，还适用于图像，基本上可以处理任何序列数据。2021年，Dosovitsky等人在他们的论文《An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale》中引入了将Transformer用于计算机视觉任务（例如图像分类）的想法。在他们的论文中，与卷积网络相比，他们的Vision Transformer模型能够取得出色的结果，并且需要更少的资源来训练。
+
+在本章中，我们将从头开始构建一个Vision Transformer模型，并在MNIST数据集上进行测试。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.5\paperwidth]{image/model_scheme.pdf}
+    \caption{ViT模型架构图}
+    \label{fig:vit-model-arch}
+\end{figure}
+
+\section{导入库和依赖}
+
+\begin{codebox}{python}{实现ViT所需的库和依赖}{vitcode:deps}
+import torch
+import torch.nn as nn
+import torchvision.transforms as T
+from torch.optim import Adam
+from torchvision.datasets.mnist import MNIST
+from torch.utils.data import DataLoader
+import numpy as np
+\end{codebox}
+
+\section{补丁嵌入}
+
+\begin{marker}
+Patch Embedding：补丁嵌入
+\end{marker}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.5\paperwidth]{image/补丁示例.png}
+    \caption{补丁示例}
+    \label{fig:vit-patch-embedding-example}
+\end{figure}
+
+\begin{codebox}{python}{补丁嵌入的类}{vitcode:patch-embedding}
+class PatchEmbedding(nn.Module):
+    def __init__(
+        self,
+        d_model,    # 模型的维度
+        img_size,   # 图片大小
+        patch_size, # 补丁大小
+        n_channels  # 通道数量
+    ):
+        super().__init__()
+
+        self.d_model = d_model
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.n_channels = n_channels
+
+        self.linear_project = nn.Conv2d(
+            self.n_channels, # in_channels
+            self.d_model, # out_channels
+            kernel_size=self.patch_size, # kernel_size
+            stride=self.patch_size # stride
+        )
+
+    # B: 批次大小
+    # C: 通道数量
+    # H: 图像高度
+    # W: 图像宽度
+    # P_col: 补丁的列
+    # P_row: 补丁的行
+    def forward(self, x):
+        x = self.linear_project(x) # (B, C, H, W) -> (B, d_model, P_col, P_row)
+        x = x.flatten(2) # (B, d_model, P_col, P_row) -> (B, d_model, P)
+        x = x.transpose(1, 2) # (B, d_model, P) -> (B, P, d_model)
+        return x
+\end{codebox}
+
+创建Vision Transformer的第一步是将输入图像拆分为补丁，并创建这些补丁的线性嵌入序列。我们能够通过使用 PyTorch 的 \py{Conv2d} 方法来实现这一点。
+
+\py{Conv2d} 方法获取输入图像，将它们拆分为补丁，并提供大小等于 \py{d_model} 的线性投影。通过将 \py{kernel_size} 和步幅设置为补丁大小，我们确保补丁大小正确且没有重叠。
+
+\begin{codebox}{python}{代码讲解}{vitcode:annotate-1}
+self.linear_project = nn.Conv2d(
+    self.n_channels,
+    self.d_model,
+    kernel_size=self.patch_size,
+    stride=self.patch_size
+)
+\end{codebox}
+
+在 \py{forward} 方法中，我们通过 \py{linear_project/Conv2D} 方法传递具有形状 \py{(B, C, H, W)} 的输入，并输出形状 \py{(B, d_model, P_col, P_row)} 的张量。
+
+\begin{codebox}{python}{代码讲解}{vitcode:annotate-2}
+def forward(self, x):
+    x = self.linear_project(x) # (B, C, H, W) -> (B, d_model, P_col, P_row)
+\end{codebox}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10,30) rectangle (11.25,28.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11.25,30) rectangle (12.5,28.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.5,30) rectangle (13.75,28.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10,28.75) rectangle (11.25,27.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11.25,28.75) rectangle (12.5,27.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.5,28.75) rectangle (13.75,27.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10,27.5) rectangle (11.25,26.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11.25,27.5) rectangle (12.5,26.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.5,27.5) rectangle (13.75,26.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.75,30) rectangle (15,28.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15,30) rectangle (16.25,28.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16.25,30) rectangle (17.5,28.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.75,28.75) rectangle (15,27.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15,28.75) rectangle (16.25,27.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16.25,28.75) rectangle (17.5,27.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.75,27.5) rectangle (15,26.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15,27.5) rectangle (16.25,26.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16.25,27.5) rectangle (17.5,26.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10,26.25) rectangle (11.25,25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11.25,26.25) rectangle (12.5,25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.5,26.25) rectangle (13.75,25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10,25) rectangle (11.25,23.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11.25,25) rectangle (12.5,23.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.5,25) rectangle (13.75,23.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10,23.75) rectangle (11.25,22.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11.25,23.75) rectangle (12.5,22.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.5,23.75) rectangle (13.75,22.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.75,26.25) rectangle (15,25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15,26.25) rectangle (16.25,25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16.25,26.25) rectangle (17.5,25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.75,25) rectangle (15,23.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15,25) rectangle (16.25,23.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16.25,25) rectangle (17.5,23.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.75,23.75) rectangle (15,22.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15,23.75) rectangle (16.25,22.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16.25,23.75) rectangle (17.5,22.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.75,29.75) rectangle (11,28.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11,29.75) rectangle (12.25,28.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.25,29.75) rectangle (13.5,28.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.75,28.5) rectangle (11,27.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11,28.5) rectangle (12.25,27.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.25,28.5) rectangle (13.5,27.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.75,27.25) rectangle (11,26);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (11,27.25) rectangle (12.25,26);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12.25,27.25) rectangle (13.5,26);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.5,29.75) rectangle (14.75,28.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.75,29.75) rectangle (16,28.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16,29.75) rectangle (17.25,28.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.5,28.5) rectangle (14.75,27.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.75,28.5) rectangle (16,27.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16,28.5) rectangle (17.25,27.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.5,27.25) rectangle (14.75,26);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.75,27.25) rectangle (16,26);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (16,27.25) rectangle (17.25,26);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.75,26) rectangle (11,24.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11,26) rectangle (12.25,24.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.25,26) rectangle (13.5,24.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.75,24.75) rectangle (11,23.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11,24.75) rectangle (12.25,23.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.25,24.75) rectangle (13.5,23.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.75,23.5) rectangle (11,22.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (11,23.5) rectangle (12.25,22.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12.25,23.5) rectangle (13.5,22.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.5,26) rectangle (14.75,24.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.75,26) rectangle (16,24.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16,26) rectangle (17.25,24.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.5,24.75) rectangle (14.75,23.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.75,24.75) rectangle (16,23.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16,24.75) rectangle (17.25,23.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.5,23.5) rectangle (14.75,22.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.75,23.5) rectangle (16,22.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (16,23.5) rectangle (17.25,22.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.5,29.5) rectangle (10.75,28.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10.75,29.5) rectangle (12,28.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12,29.5) rectangle (13.25,28.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.5,28.25) rectangle (10.75,27);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10.75,28.25) rectangle (12,27);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12,28.25) rectangle (13.25,27);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (9.5,27) rectangle (10.75,25.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (10.75,27) rectangle (12,25.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (12,27) rectangle (13.25,25.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.25,29.5) rectangle (14.5,28.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.5,29.5) rectangle (15.75,28.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15.75,29.5) rectangle (17,28.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.25,28.25) rectangle (14.5,27);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.5,28.25) rectangle (15.75,27);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15.75,28.25) rectangle (17,27);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (13.25,27) rectangle (14.5,25.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (14.5,27) rectangle (15.75,25.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (15.75,27) rectangle (17,25.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.5,25.75) rectangle (10.75,24.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10.75,25.75) rectangle (12,24.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12,25.75) rectangle (13.25,24.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.5,24.5) rectangle (10.75,23.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10.75,24.5) rectangle (12,23.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12,24.5) rectangle (13.25,23.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (9.5,23.25) rectangle (10.75,22);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (10.75,23.25) rectangle (12,22);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (12,23.25) rectangle (13.25,22);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.25,25.75) rectangle (14.5,24.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.5,25.75) rectangle (15.75,24.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15.75,25.75) rectangle (17,24.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.25,24.5) rectangle (14.5,23.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.5,24.5) rectangle (15.75,23.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15.75,24.5) rectangle (17,23.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (13.25,23.25) rectangle (14.5,22);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (14.5,23.25) rectangle (15.75,22);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (15.75,23.25) rectangle (17,22);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (32.5,27.5) rectangle (33.75,26.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (33.75,27.5) rectangle (35,26.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (32.5,26.25) rectangle (33.75,25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (33.75,26.25) rectangle (35,25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (32.25,27.25) rectangle (33.5,26);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (33.5,27.25) rectangle (34.75,26);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (32.25,26) rectangle (33.5,24.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (33.5,26) rectangle (34.75,24.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (32,27) rectangle (33.25,25.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (33.25,27) rectangle (34.5,25.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (32,25.75) rectangle (33.25,24.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (33.25,25.75) rectangle (34.5,24.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (31.75,26.75) rectangle (33,25.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (33,26.75) rectangle (34.25,25.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (31.75,25.5) rectangle (33,24.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (33,25.5) rectangle (34.25,24.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (31.5,26.5) rectangle (32.75,25.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (32.75,26.5) rectangle (34,25.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (31.5,25.25) rectangle (32.75,24);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (32.75,25.25) rectangle (34,24);
+\draw[->, line width=3mm] (22,25) -- (28,25);
+\node[draw=none] at (25,26) {Conv2D};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (9.2,22) --  (9.2,29.5);
+\node[draw=none] at (8.5,25.75) {H};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (9.5,21.75) --  (17,21.75);
+\node[draw=none] at (13.25,20.75) {W};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (17.75,26.25) --  (17.75,30);
+\node[draw=none,rotate=90] at (18.5,28) {patch\_size};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (13.75,30.25) --  (17.5,30.25);
+\node[draw=none] at (16,31) {patch\_size};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (9.4,29.5) --  (9.9,30.2);
+\node[draw=none,rotate=45] at (9,30.5) {C};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (31.5,23.75) --  (34,23.75);
+\node[draw=none] at (32.75,23) {P\_col};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (31.25,24) --  (31.25,26.5);
+\node[draw=none,rotate=90] at (30.5,25) {P\_row};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (33.75,27.6) --  (35,27.6);
+\node[draw=none] at (34.4,28.4) {1};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (35.1,26.25) --  (35.1,27.5);
+\node[draw=none] at (35.75,26.9) {1};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (31.5,26.5) --  (32.5,27.6);
+\node[draw=none,rotate=45] at (31.5,27.5) {d\_model};
+\end{circuitikz}
+}%
+\caption{将图像转换成补丁-第1步}
+\label{fig:img-to-patch-1}
+\end{figure}
+
+我们使用展平方法将补丁列和补丁行维度组合成一个补丁维度，从而得到 \py{(B, d_model, P)} 的形状
+
+\begin{codebox}{python}{代码讲解}{vitcode:annotate-3}
+x = x.flatten(2) # (B, d_model, P_col, P_row) -> (B, d_model, P)
+\end{codebox}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (6.25,38.75) rectangle (7.5,37.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (7.5,38.75) rectangle (8.75,37.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (6.25,37.5) rectangle (7.5,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (7.5,37.5) rectangle (8.75,36.25);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (6,38.5) rectangle (7.25,37.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (7.25,38.5) rectangle (8.5,37.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (6,37.25) rectangle (7.25,36);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (7.25,37.25) rectangle (8.5,36);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (5.75,38.25) rectangle (7,37);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (7,38.25) rectangle (8.25,37);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.75,37) rectangle (7,35.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (7,37) rectangle (8.25,35.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (5.5,38) rectangle (6.75,36.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (6.75,38) rectangle (8,36.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.5,36.75) rectangle (6.75,35.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.75,36.75) rectangle (8,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (5.25,37.75) rectangle (6.5,36.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (6.5,37.75) rectangle (7.75,36.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.25,36.5) rectangle (6.5,35.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.5,36.5) rectangle (7.75,35.25);
+
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (23,38.5) rectangle (24.25,37.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (24.25,38.5) rectangle (25.5,37.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (25.5,38.5) rectangle (26.75,37.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26.75,38.5) rectangle (28,37.25);
+
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (22.75,38.25) rectangle (24,37);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (24,38.25) rectangle (25.25,37);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (25.25,38.25) rectangle (26.5,37);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26.5,38.25) rectangle (27.75,37);
+
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (22.5,38) rectangle (23.75,36.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (23.75,38) rectangle (25,36.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (25,38) rectangle (26.25,36.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26.25,38) rectangle (27.5,36.75);
+
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (22.25,37.75) rectangle (23.5,36.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (23.5,37.75) rectangle (24.75,36.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (24.75,37.75) rectangle (26,36.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26,37.75) rectangle (27.25,36.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (22,37.5) rectangle (23.25,36.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (23.25,37.5) rectangle (24.5,36.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (24.5,37.5) rectangle (25.75,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (25.75,37.5) rectangle (27,36.25);
+\draw[->, line width=3mm] (13,37) -- (18,37);
+\node[draw=none] at (15,38) {Flatten};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (5.1,35.5) --  (5.1,37.5);
+\node[draw=none,rotate=90] at (4.3,36.5) {P\_row};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (5.4,35) --  (7.5,35);
+\node[draw=none] at (6.5,34) {P\_col};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (8.75,37.5) --  (8.75,38.75);
+\node[draw=none] at (9.5,38) {1};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (7.65,38.75) --  (8.75,38.75);
+\node[draw=none] at (8.25,39.5) {1};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (22,36) --  (27,36);
+\node[draw=none] at (24.4,35) {P};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (22,37.5) --  (23,38.5);
+\node[draw=none,rotate=45] at (22,38.5) {d\_model};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (5.25,37.75) --  (6.25,38.75);
+\node[draw=none,rotate=45] at (5.25,38.5) {d\_model};
+\end{circuitikz}
+}%
+\caption{将图像转换成补丁-第2步}
+\label{fig:img-to-patch-2}
+\end{figure}
+
+最后，我们使用转置方法切换 \py{d_model} 和补丁维度，得到 \py{(B, P, d_model)} 的形状。
+
+\begin{codebox}{python}{代码讲解}{vitcode:annotate-4}
+x = x.transpose(1, 2) # (B, d_model, P) -> (B, P, d_model)
+\end{codebox}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\LARGE]
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (3,38) rectangle (4.25,36.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (4.25,38) rectangle (5.5,36.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.5,38) rectangle (6.75,36.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.75,38) rectangle (8,36.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.75,37.75) rectangle (4,36.5);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (4,37.75) rectangle (5.25,36.5);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5.25,37.75) rectangle (6.5,36.5);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.5,37.75) rectangle (7.75,36.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.5,37.5) rectangle (3.75,36.25);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.75,37.5) rectangle (5,36.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (5,37.5) rectangle (6.25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6.25,37.5) rectangle (7.5,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (21.25,37.5) rectangle (22.5,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (22.5,37.5) rectangle (23.75,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (23.75,37.5) rectangle (25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (25,37.5) rectangle (26.25,36.25);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (26.25,37.5) rectangle (27.5,36.25);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (21,37.25) rectangle (22.25,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (22.25,37.25) rectangle (23.5,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (23.5,37.25) rectangle (24.75,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (24.75,37.25) rectangle (26,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (26,37.25) rectangle (27.25,36);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (20.75,37) rectangle (22,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (22,37) rectangle (23.25,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (23.25,37) rectangle (24.5,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (24.5,37) rectangle (25.75,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (25.75,37) rectangle (27,35.75);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (20.5,36.75) rectangle (21.75,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (21.75,36.75) rectangle (23,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (23,36.75) rectangle (24.25,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (24.25,36.75) rectangle (25.5,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (25.5,36.75) rectangle (26.75,35.5);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2.25,37.25) rectangle (3.5,36);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.5,37.25) rectangle (4.75,36);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (4.75,37.25) rectangle (6,36);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (6,37.25) rectangle (7.25,36);
+\draw [ fill={rgb,255:red,120; green,174; blue,233} ] (2,37) rectangle (3.25,35.75);
+\draw [ fill={rgb,255:red,194; green,100; blue,102} ] (3.25,37) rectangle (4.5,35.75);
+\draw [ fill={rgb,255:red,107; green,196; blue,121} ] (4.5,37) rectangle (5.75,35.75);
+\draw [ fill={rgb,255:red,244; green,209; blue,79} ] (5.75,37) rectangle (7,35.75);
+\draw[->, line width=3mm] (13,37) -- (18,37);
+\node[draw=none] at (15,38) {Transpose};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (2,35.5) --  (7,35.5);
+\node[draw=none] at (4.5,34.5) {P};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (20.5,36.75) --  (21.5,37.5);
+\node[draw=none,rotate=45] at (20.75,37.75) {P};
+\draw [decorate, decoration = {brace, amplitude=10pt}, line width=1mm] (2,37) --  (3,38);
+\node[draw=none,rotate=45] at (2.25,38.5) {d\_model};
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=1mm] (20.5,35.5) --  (26.75,35.5);
+\node[draw=none] at (23.5,34.5) {d\_model};
+\end{circuitikz}
+}%
+\caption{将图像转换成补丁-第3步}
+\label{fig:img-to-patch-3}
+\end{figure}
+
+\section{类别对应的 token 和位置编码}
+
+\begin{codebox}{python}{类别对应的token和位置编码}{vitcode:posemb}
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_seq_length):
+        super().__init__()
+        # 类别token
+        self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
+        # 创建位置编码
+        pe = torch.zeros(max_seq_length, d_model)
+
+        for pos in range(max_seq_length):
+            for i in range(d_model):
+                if i % 2 == 0:
+                    pe[pos][i] = np.sin(pos/(10000 ** (i/d_model)))
+                else:
+                    pe[pos][i] = np.cos(pos/(10000 ** ((i-1)/d_model)))
+
+        self.register_buffer('pe', pe.unsqueeze(0))
+
+    def forward(self, x):
+        # 为批次中的每张图片分配一个类别token
+        tokens_batch = self.cls_token.expand(x.size()[0], -1, -1)
+        # 将类别token添加到每个图像的补丁嵌入数组的开头
+        x = torch.cat((tokens_batch,x), dim=1)
+        # 将位置编码添加到嵌入中
+        x = x + self.pe
+        return x
+\end{codebox}
+
+ViT模型使用向补丁嵌入添加可学习的类别token的标准方法来执行分类。
+
+\begin{codebox}{python}{代码讲解}{vitposemb-annotate-1}
+# class token: 类别或者分类对应的token
+self.cls_token = nn.Parameter(torch.randn(1, 1, d_model))
+\end{codebox}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\small]
+\draw [ line width=2pt ] (10,32.5) rectangle (12.5,30);
+\draw [line width=2pt, short] (10,31.25) -- (12.5,31.25);
+\draw [line width=2pt, short] (11.25,32.5) -- (11.25,30);
+\draw [ color={rgb,255:red,255; green,0; blue,0} , line width=2pt ] (11.25,31.25) circle (1.25cm);
+\node [font=\small] at (10.25,32.25) {1};
+\node [font=\small] at (12.25,32.25) {2};
+\node [font=\small] at (10.25,30.25) {3};
+\node [font=\small] at (12.25,30.25) {4};
+\draw [ line width=2pt ] (16.25,32.5) rectangle (18.75,30);
+\draw [line width=2pt, short] (16.25,31.25) -- (18.75,31.25);
+\draw [line width=2pt, short] (17.5,32.5) -- (17.5,30);
+\node [font=\small] at (16.5,32.25) {};
+\node [font=\small] at (16.5,30.25) {};
+\draw [ color={rgb,255:red,255; green,0; blue,0} , line width=2pt ] (16.25,31.25) circle (1.25cm);
+\draw [ color={rgb,255:red,255; green,0; blue,0} , line width=2pt ] (18.75,31.25) circle (1.25cm);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,250; green,250; blue,250}] (14.75,32.75) rectangle (16.25,29.75);
+\draw [ color={rgb,255:red,255; green,255; blue,255} , fill={rgb,255:red,250; green,250; blue,250}] (18.75,32.75) rectangle (20.25,29.75);
+\node [font=\small] at (17.75,32.25) {1};
+\node [font=\small] at (17.25,32.25) {2};
+\node [font=\small] at (17.75,30.25) {3};
+\node [font=\small] at (17.25,30.25) {4};
+\end{circuitikz}
+}%
+\caption{位置编码的重要性}
+\label{fig:posemb-important}
+\end{figure}
+
+与LSTM等按顺序接受嵌入的模型不同，Transformer并行的接受嵌入。虽然这提高了速度，但Transformer不知道序列的顺序是什么。这是一个很大的问题，因为改变序列的顺序很可能会改变其含义。图\ref{fig:posemb-important}就是一个例子，它显示更改图像的补丁顺序可以将图像从O更改为更接近X的图像。为了解决这个问题，需要将位置编码添加到嵌入中。每个位置编码对于它所表示的位置都是唯一的，这允许模型识别每个补丁嵌入应该在的位置。为了将位置编码添加到补丁嵌入中，它们必须具有相同的维度，\py{d_model} 。我们使用下面的公式获得位置编码。
+
+\begin{equation}
+\begin{aligned}
+\text{PE}_{(\text{pos},2i)} &= \sin(\frac{\text{pos}}{10000^{\frac{2i}{d_{\text{model}}}}}) \\
+\text{PE}_{(\text{pos},2i+1)} &= \cos(\frac{\text{pos}}{10000^{\frac{2i}{d_{\text{model}}}}})
+\end{aligned}
+\end{equation}
+
+\begin{codebox}{python}{代码讲解}{vitposemb-annotate-2}
+# max_seq_length：补丁嵌入的数量，d_model：嵌入维度
+pe = torch.zeros(max_seq_length, d_model)
+
+for pos in range(max_seq_length):
+    for i in range(d_model):
+        if i % 2 == 0:
+            pe[pos][i] = np.sin(pos/(10000 ** (i/d_model)))
+        else:
+            pe[pos][i] = np.cos(pos/(10000 ** ((i-1)/d_model)))
+# 禁止pe更新，pe保存在了显存中，不会被反向传播更新
+self.register_buffer("pe", pe.unsqueeze(0))
+\end{codebox}
+
+在 \py{forward} 方法中，输入是多个图像的一批补丁嵌入。例如，$32\times 32$ 的图像可以分解为 16 个 $8\times 8$ 大小的补丁。在此 \py{max_seq_length} 中，需要为 $16+1=17$ 才能创建足够的位置嵌入，每个补丁一个，分类对应的 token 一个。
+
+因此，我们需要使用 \py{expand} 函数才能使用 \py{self.cls_token} 为批处理中的每个图像创建分类对应的 token 。注意力机制会将有关整个序列的信息编码到序列中的每个token中。由于每个token都受到其自身信息的偏见，因此分类对应的token会创建序列中所有token的独立的摘要信息。
+
+\begin{codebox}{python}{代码讲解}{vitposemb-annotate-3}
+def forward(self, x):
+    tokens_batch = self.cls_token.expand(x.size()[0], -1, -1)
+\end{codebox}
+
+然后，使用 \py{torch.cat} 方法将这些分类token添加到每个补丁嵌入的开头。
+
+\begin{codebox}{python}{代码讲解}{vitposemb-annotate-4}
+x = torch.cat((tokens_batch,x), dim=1)
+\end{codebox}
+
+位置编码在输出之前添加。
+
+\begin{codebox}{python}{代码讲解}{vitposemb-annotate-5}
+x = x + self.pe
+return x
+\end{codebox}
+
+这是添加分类token之前和之后的数据的样子：
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.5\paperwidth]{image/添加类别token.png}
+\caption{左图：使用 \py{Conv2D} 运算分成 16 个 $8\times 8$ 块的 $32\times 32$ MNIST 图像。右图：添加位置编码和类别token后的 16 个图像补丁，使用随机数据初始化。}
+\end{figure}
+
+请注意，我们已经用 64 个卷积核初始化了 \py{Conv2D} 运算，每个卷积核中的每个补丁只占用一个像素，以免扭曲图像。
+
+\section{注意力头}
+
+\begin{codebox}{python}{注意力头}{vitcode:attention-head}
+class AttentionHead(nn.Module):
+    def __init__(self, d_model, head_size):
+        super().__init__()
+        self.head_size = head_size
+
+        self.query = nn.Linear(d_model, head_size)
+        self.key = nn.Linear(d_model, head_size)
+        self.value = nn.Linear(d_model, head_size)
+
+    def forward(self, x):
+        # 计算Q, K, V
+        Q = self.query(x)
+        K = self.key(x)
+        V = self.value(x)
+
+        # Q和K的点积
+        attention = Q @ K.transpose(-2,-1)
+
+        # 缩放
+        attention = attention / (self.head_size ** 0.5)
+        attention = torch.softmax(attention, dim=-1)
+        attention = attention @ V
+
+        return attention
+\end{codebox}
+
+
 
 \part{附录}
 \appendix
