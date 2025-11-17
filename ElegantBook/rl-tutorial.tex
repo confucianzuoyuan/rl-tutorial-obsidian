@@ -1,18 +1,24 @@
 \documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{circuitikz}
-\usetikzlibrary{arrows.meta,decorations.markings,patterns}
-\usetikzlibrary{decorations.pathreplacing}
-\usetikzlibrary{calc}
 \usepackage{annotate-equations}
 \usepackage{minted}
 \usepackage{algorithm,algpseudocode}
-\usetikzlibrary{tikzmark}
-\usetikzlibrary{arrows.meta,
-                bending,
-                intersections,
-                quotes,
-                shapes.geometric}
+\usetikzlibrary{
+    tikzmark,
+    arrows.meta,
+    bending,
+    intersections,
+    quotes,
+    shapes,
+    shapes.geometric,
+    calc,
+    decorations.pathreplacing,
+    decorations.markings,
+    patterns,
+    positioning,
+    ext.paths.ortho
+}
 \usepackage[demo]{tikzpeople}
 \tcbuselibrary{minted,skins,breakable}
 % 灵活版本（可选颜色）
@@ -9203,6 +9209,322 @@ class AttentionHead(nn.Module):
 
         return attention
 \end{codebox}
+
+\begin{figure}[!ht]
+\centering
+\resizebox{1\textwidth}{!}{%
+\begin{circuitikz}
+\tikzstyle{every node}=[font=\small]
+\draw [ fill={rgb,255:red,196; green,191; blue,222} , line width=1pt , rounded corners = 4.8] (8.75,36.25) rectangle  node {\small MatMul} (11.25,35.5);
+\draw [->, >=Stealth] (19.25,29.5) -- (19.75,30);
+\draw [->, >=Stealth] (19.25,29.5) -- (20.25,30.25);
+\draw [->, >=Stealth] (17,29.5) -- (17.5,30);
+\draw [->, >=Stealth] (17,29.5) -- (18,30.25);
+\draw [->, >=Stealth] (14.75,29.5) -- (15.25,30);
+\draw [->, >=Stealth] (14.75,29.5) -- (15.75,30.25);
+\draw [ fill={rgb,255:red,205; green,232; blue,207} , line width=1pt , rounded corners = 4.8] (7.5,35) rectangle  node {\small SoftMax} (10,34.25);
+\draw [ fill={rgb,255:red,246; green,191; blue,222} , line width=1pt , rounded corners = 4.8] (7.5,33.75) rectangle  node {\small Mask (opt.)} (10,33);
+\draw [ fill={rgb,255:red,254; green,249; blue,193} , line width=1pt , rounded corners = 4.8] (8,32.5) rectangle  node {\small Scale} (9.75,31.75);
+\draw [ fill={rgb,255:red,196; green,191; blue,222} , line width=1pt , rounded corners = 4.8] (7.5,31.25) rectangle  node {\small MatMul} (10,30.5);
+\draw [->, >=Stealth] (8.75,31.25) -- (8.75,31.75);
+\draw [->, >=Stealth] (8.75,32.5) -- (8.75,33);
+\draw [->, >=Stealth] (8.75,33.75) -- (8.75,34.25);
+\draw [->, >=Stealth] (9.25,35) -- (9.25,35.5);
+\draw [->, >=Stealth] (8,30) -- (8,30.5);
+\draw [->, >=Stealth] (9.5,30) -- (9.5,30.5);
+\draw [->, >=Stealth] (10.75,30) -- (10.75,35.5);
+\node [font=\small] at (8,29.75) {Q};
+\node [font=\small] at (9.5,29.75) {K};
+\node [font=\small] at (10.75,29.75) {V};
+\node [font=\small] at (9.75,37) {Scaled Dot-Product Attention};
+\node [font=\small] at (17.5,36.75) {Multi-Head Attention};
+\draw [ fill={rgb,255:red,208; green,205; blue,228} , line width=1.1pt , rounded corners = 4.8] (14.5,33) rectangle  node {\small Scaled Dot-Product Attention} (21.5,32.25);
+\draw [ fill={rgb,255:red,254; green,249; blue,193} , line width=1pt , rounded corners = 4.8] (16.5,34.25) rectangle  node {\small Concat} (18.25,33.5);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (16.75,35.5) rectangle  node {\small Linear} (18.25,34.75);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (14.5,31) rectangle  node {\small Linear} (16,30.25);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (14.25,30.75) rectangle  node {\small Linear} (15.75,30);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (14,30.5) rectangle  node {\small Linear} (15.5,29.75);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (16.75,31) rectangle  node {\small Linear} (18.25,30.25);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (16.5,30.75) rectangle  node {\small Linear} (18,30);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (16.25,30.5) rectangle  node {\small Linear} (17.75,29.75);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (19,31) rectangle  node {\small Linear} (20.5,30.25);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (18.75,30.75) rectangle  node {\small Linear} (20.25,30);
+\draw [ fill={rgb,255:red,232; green,237; blue,235} , line width=1pt , rounded corners = 4.8] (18.5,30.5) rectangle  node {\small Linear} (20,29.75);
+\draw [ fill={rgb,255:red,208; green,205; blue,228} , line width=1.1pt , rounded corners = 4.8] (14.25,32.75) rectangle  node {\small Scaled Dot-Product Attention} (21.25,32);
+\draw [ fill={rgb,255:red,208; green,205; blue,228} , line width=1.1pt , rounded corners = 4.8] (14,32.5) rectangle  node {\small Scaled Dot-Product Attention} (21,31.75);
+\draw [->, >=Stealth] (17.75,33) -- (17.75,33.5);
+\draw [->, >=Stealth] (17.5,32.75) -- (17.5,33.5);
+\draw [->, >=Stealth] (17.25,32.5) -- (17.25,33.5);
+\draw [->, >=Stealth] (14.75,30.5) -- (14.75,31.75);
+\draw [->, >=Stealth] (15,30.75) -- (15,31.75);
+\draw [->, >=Stealth] (15.25,31) -- (15.25,31.75);
+\draw [->, >=Stealth] (17,30.5) -- (17,31.75);
+\draw [->, >=Stealth] (17.5,31) -- (17.5,31.75);
+\draw [->, >=Stealth] (17.25,30.75) -- (17.25,31.75);
+\draw [->, >=Stealth] (19.25,30.5) -- (19.25,31.75);
+\draw [->, >=Stealth] (19.5,30.75) -- (19.5,31.75);
+\draw [->, >=Stealth] (19.75,31) -- (19.75,31.75);
+\draw [->, >=Stealth] (17.5,34.25) -- (17.5,34.75);
+\draw [->, >=Stealth] (17.5,35.5) -- (17.5,36.25);
+\draw [->, >=Stealth] (10,36.25) -- (10,36.75);
+\draw [->, >=Stealth] (14.75,28.75) -- (14.75,29.75);
+\draw [->, >=Stealth] (17,28.75) -- (17,29.75);
+\draw [->, >=Stealth] (19.25,28.75) -- (19.25,29.75);
+\draw [decorate, decoration = {brace, mirror, amplitude=10pt}, line width=0.5mm] (21,31.75) --  (21.5,32.5);
+\node [font=\small] at (21.75,31.75) {h};
+\node [font=\small] at (14.75,28.5) {V};
+\node [font=\small] at (17,28.5) {K};
+\node [font=\small] at (19.25,28.5) {Q};
+\end{circuitikz}
+}%
+\caption{多头注意力机制}
+\label{fig:multihead-attention}
+\end{figure}
+
+ViT 使用注意力机制，这是一种通信机制，允许模型专注于图像的重要部分。可以使用下面的公式计算注意力分数。
+
+\begin{equation}\label{eq:attention-formula}
+\text{Attention}(Q,K,V)=\text{softmax}\left({\frac{QK^T}{\sqrt{d_k}}}\right)V
+\end{equation}
+
+\section{多头注意力}
+
+\begin{codebox}{python}{多头注意力}{vitcode:multihead}
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_heads):
+        super().__init__()
+        self.head_size = d_model // n_heads
+        self.W_o = nn.Linear(d_model, d_model)
+        self.heads = nn.ModuleList([
+            AttentionHead(d_model, self.head_size) for _ in range(n_heads)
+        ])
+
+    def forward(self, x):
+        # 拼接多个注意力头
+        out = torch.cat([head(x) for head in self.heads], dim=-1)
+        out = self.W_o(out)
+        return out
+\end{codebox}
+
+\section{Transformer编码器}
+
+\begin{codebox}{python}{Transformer编码器}{vitcode:transformerencoder}
+class TransformerEncoder(nn.Module):
+    def __init__(self, d_model, n_heads, r_mlp=4):
+        super().__init__()
+        self.d_model = d_model
+        self.n_heads = n_heads
+
+        # 层归一化
+        self.ln1 = nn.LayerNorm(d_model)
+
+        # 多头注意力
+        self.mha = MultiHeadAttention(d_model, n_heads)
+
+        # 层归一化
+        self.ln2 = nn.LayerNorm(d_model)
+
+        # MLP
+        self.mlp = nn.Sequential(
+            nn.Linear(d_model, d_model*r_mlp),
+            nn.GELU(),
+            nn.Linear(d_model*r_mlp, d_model)
+        )
+
+    def forward(self, x):
+        # 第一次层归一化之后的残差
+        out = x + self.mha(self.ln1(x))
+        # 第二次层归一化之后的残差
+        out = out + self.mlp(self.ln2(out))
+        return out
+\end{codebox}
+
+\section{Vision Transformer}
+
+\begin{codebox}{python}{ViT模型结构}{vitcode:vitmodel}
+class VisionTransformer(nn.Module):
+    def __init__(
+        self,
+        d_model,
+        n_classes,
+        img_size,
+        patch_size,
+        n_channels,
+        n_heads,
+        n_layers
+    ):
+        super().__init__()
+
+        assert img_size[0] % patch_size[0] == 0  \
+           and img_size[1] % patch_size[1] == 0, \
+           "img_size 必须能被 patch_size 整除"
+        assert d_model % n_heads == 0, \
+           "d_model 必须能被 n_heads 整除"
+
+        self.d_model = d_model # 模型维度，嵌入的维度（宽度）
+        self.n_classes = n_classes # 类别的数量
+        self.img_size = img_size # 图片大小
+        self.patch_size = patch_size # 补丁大小
+        self.n_channels = n_channels # 通道数
+        self.n_heads = n_heads # 注意力头的数量
+        # 补丁的数量 = (32x32) // (4x4)
+        self.n_patches = (self.img_size[0] * self.img_size[1]) \
+                      // (self.patch_size[0] * self.patch_size[1])
+        # 序列的长度 = 1（分类token） + 补丁的数量
+        self.max_seq_length = self.n_patches + 1
+        # 补丁嵌入
+        self.patch_embedding = PatchEmbedding(
+            self.d_model,
+            self.img_size,
+            self.patch_size,
+            self.n_channels
+        )
+        # 位置编码
+        self.positional_encoding = PositionalEncoding(
+            self.d_model,
+            self.max_seq_length
+        )
+        self.transformer_encoder = nn.Sequential(*[
+            TransformerEncoder(self.d_model, self.n_heads)
+            for _ in range(n_layers)
+        ])
+
+        # 用于分类的MLP
+        self.classifier = nn.Sequential(
+            nn.Linear(self.d_model, self.n_classes),
+            nn.Softmax(dim=-1)
+        )
+
+    def forward(self, images):
+        # 将图片转换成补丁的嵌入（embedding）
+        x = self.patch_embedding(images)
+        # 添加位置编码
+        x = self.positional_encoding(x)
+        # 编码
+        x = self.transformer_encoder(x)
+        # 分类的线性层
+        x = self.classifier(x[:,0])
+        return x
+\end{codebox}
+
+在创建我们的 \py{VisionTransformer} 类时，我们首先需要确保输入图像可以均匀地分成大小为 \py{patch_size} 的补丁，并且模型的维数可以被注意力头的数量整除。
+
+我们还需要计算位置编码的最大序列长度，该长度等于补丁的数量加1。补丁的数量可以通过将输入图像的高和宽的乘积除以补丁大小的高和宽的乘积来计算。
+
+\py{VisionTransformer} 还需要能够拥有多个编码器模块。这可以通过将编码器层列表放入顺序包装器中来实现。
+
+\py{VisionTransformer} 模型的最后一部分是 MLP 分类头。它由一个线性层和一个 \py{softmax} 层组成。
+
+在 \py{forward} 方法中，输入图像首先经过补丁嵌入层，将图像分割成补丁，并获取这些补丁的线性嵌入序列。然后，它们经过位置编码层，添加分类token和位置编码，最后经过编码器模块。之后，分类token再经过分类MLP，以确定图像的类别。
+
+我们已经完成了模型的构建。现在我们需要对其进行训练和测试。
+
+\section{训练参数}
+
+\begin{codebox}{python}{vit训练参数}{vitcode:vittrainparameter}
+d_model = 9 # 嵌入的维度9
+n_classes = 10 # 类别数量为10
+img_size = (32,32) # 图片大小为β$32\times 32$β
+patch_size = (16,16) # 补丁的大小是β$16\times 16$β
+n_channels = 1 # 灰度图片通道数量为1
+n_heads = 3 # 3个注意力头
+n_layers = 3 # 3层编码器
+batch_size = 128 # 每个批次128张图片
+epochs = 5 # 训练5个epoch
+alpha = 0.005 # 学习率5e-3
+\end{codebox}
+
+\section{加载MNIST数据集}
+
+\begin{codebox}{python}{加载MNIST数据集}{vitcode:loadmnist}
+transform = T.Compose([
+    T.Resize(img_size), # β$28\times 28 \rightarrow 32\times 32$β
+    T.ToTensor() # 转换成torch.tensor
+])
+
+train_set = MNIST(
+    root="./../datasets", train=True, download=True, transform=transform
+)
+test_set = MNIST(
+    root="./../datasets", train=False, download=True, transform=transform
+)
+
+train_loader = DataLoader(train_set, shuffle=True, batch_size=batch_size)
+test_loader = DataLoader(test_set, shuffle=False, batch_size=batch_size)
+\end{codebox}
+
+\section{训练循环}
+
+下面的代码使用 MNIST 训练集训练我们的 VisionTransformer 类，并展示了整个 epoch 的平均损失。
+
+\begin{codebox}{python}{ViT训练循环}{vitcode:vittrainloop}
+device = torch.device("cuda")
+
+ViT = VisionTransformer(
+    d_model,
+    n_classes,
+    img_size,
+    patch_size,
+    n_channels,
+    n_heads,
+    n_layers
+).to(device)
+
+optimizer = Adam(ViT.parameters(), lr=alpha)
+criterion = nn.CrossEntropyLoss()
+
+for epoch in range(epochs):
+    training_loss = 0.0
+    for i, data in enumerate(train_loader, 0):
+        # 取出图像和对应的标签
+        inputs, labels = data
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        # 前向传播
+        outputs = ViT(inputs)
+        # 交叉熵损失
+        loss = criterion(outputs, labels)
+        # 求导数
+        loss.backward()
+        # 梯度下降
+        optimizer.step()
+
+        training_loss += loss.item()
+
+    print(f"Epoch {epoch + 1}/{epochs} loss: {training_loss  / len(train_loader) :.3f}")
+\end{codebox}
+
+\section{评估模型}
+
+\begin{codebox}{python}{评估模型}{vitcode:evalvit}
+correct = 0
+total = 0
+
+with torch.no_grad():
+    for data in test_loader:
+        images, labels = data
+        images, labels = images.to(device), labels.to(device)
+        outputs = ViT(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+    print(f"\n预测准确率: {100 * correct // total} %")
+\end{codebox}
+
+使用此模型，我们仅用 5 个 epoch 就能够在 MNIST 数据集上实现约 92\% 的准确率。此示例展示了自注意力机制可以替代深度卷积网络。
+
+\chapter{CLIP}
+
+计算机视觉系统历来仅限于一组固定的类别，CLIP是一场革命，它允许通过``预测哪些图像和文本配对在一起''来识别开放世界中的对象。CLIP能够通过学习批量训练数据的图像和文本特征之间的余弦相似度来预测这一点。这在下图的对比预训练部分显示，其中图像之间的点积特征 $\{I_1, I_2, \cdots, I_N\}$ 和文本特征 $\{T_1,T_2,\cdots,T_N\}$ 被占用。
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\paperwidth]{image/main-diagrams.pdf}
+\caption{CLIP概述。标准图像模型通过联合训练图像特征提取器和线性分类器来预测某个标签，而 CLIP 则联合训练图像编码器和文本编码器来预测一批（图像，文本）训练样本的正确配对。在测试时，学习到的文本编码器通过嵌入目标数据集类别的名称或描述来合成零样本线性分类器。}
+\end{figure}
+
+在本章中，我们将从头开始构建CLIP并在MNIST数据集上对其进行测试。
 
 
 
